@@ -1,0 +1,10 @@
+{
+  "description": "Streamline event management with a user-friendly platform for attendees and organizers, featuring event discovery, registration, and analytics.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
