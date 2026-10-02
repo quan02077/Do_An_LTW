@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết sản phẩm - Basau Bags</title>
+    <!--font-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Oswald:wght@200..700&display=swap"
+        rel="stylesheet">
+    <!--bootstrap-->
+    <link href="bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
+    <!--css-->
+    <link rel="stylesheet" href="stylesMain.css">
+    <link rel="stylesheet" href="header.css">
+    <link rel="stylesheet" href="stylesDetail.css">
+    <link rel="stylesheet" href="sidepanels.css">
+</head>
+
+<body>
+    <div class="container-fluid p-0">
+
+        <div id="main-header"></div>
+
+        <div class="container-fluid px-4 px-md-5 mt-4">
+
+            <div class="breadcrumb-bar mb-4">
+                <a href="homePage.html" class="text-decoration-none text-secondary">Trang chủ</a> &nbsp;/&nbsp;
+                <a href="catalog.html" class="text-decoration-none text-secondary">Túi xách</a> &nbsp;/&nbsp;
+                <span id="breadcrumbDetailName" class="text-dark fw-bold">Chi tiết sản phẩm</span>
+            </div>
+
+            <div class="row mx-0">
+
+                <!-- Hình ảnh sản phẩm và Thumbnail Gallery -->
+                <div class="col-lg-6 text-center">
+                    <div class="main-img-container bg-light rounded-4 p-4 shadow-sm position-relative d-flex align-items-center justify-content-center" style="min-height: 450px;">
+                        <span id="detailBadge" class="badge bg-danger position-absolute top-0 start-0 m-3 px-3 py-2 fs-6 d-none"></span>
+                        <img src="" id="mainProductImg" class="img-fluid" style="max-height: 400px; object-fit: contain; transition: transform 0.3s ease;">
+                    </div>
+
+                    <!-- Thumbnails row tương ứng hinhanhtui -->
+                    <div class="d-flex justify-content-center gap-3 mt-3" id="thumbnailsContainer">
+                    </div>
+                </div>
+
+                <!-- Thông tin chi tiết sản phẩm túi xách -->
+                <div class="col-lg-6 ps-lg-5 mt-4 mt-lg-0">
+                    <div class="product-info">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-dark px-3 py-2 text-uppercase" id="productBrand">Thương hiệu</span>
+                            <span class="badge bg-secondary px-3 py-2 text-uppercase" id="productCategory">Loại túi</span>
+                        </div>
+
+                        <h1 class="fw-bold oswald-font mb-3" id="productName" style="font-size: 2.2rem;">Tên Túi Xách</h1>
+
+                        <!-- Giá & Khuyến mãi -->
+                        <div class="p-3 bg-light rounded-3 my-3">
+                            <div class="d-flex align-items-baseline gap-3">
+                                <h2 class="fw-bold text-danger mb-0" id="productPrice">0 ₫</h2>
+                                <span class="text-muted text-decoration-line-through fs-5 d-none" id="productOldPrice">0 ₫</span>
+                                <span class="badge bg-danger fs-6 d-none" id="productDiscountPercent">-0%</span>
+                            </div>
+                            <p class="text-success small fw-bold mb-0 mt-2 d-none" id="productPromoTag">
+                                Áp dụng: <span id="productPromoName"></span>
+                            </p>
+                        </div>
+
+                        <!-- Trạng thái tồn kho (bảng tuixach: soluong) -->
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold">Tình trạng kho:</span>
+                                <span class="badge bg-success-subtle text-success border border-success px-3 py-2 fw-bold" id="productStock">Còn 0 sản phẩm</span>
+                            </div>
+                        </div>
+
+                        <!-- Bộ chọn số lượng mua -->
+                        <div class="mb-4">
+                            <label class="fw-bold d-block mb-2">Số lượng mua:</label>
+                            <div class="d-inline-flex align-items-center border rounded-pill p-1 bg-light">
+                                <button class="btn btn-outline-dark rounded-circle border-0" style="width: 36px; height: 36px;" onclick="changeBuyQty(-1)">−</button>
+                                <input type="number" id="buyQuantity" class="form-control text-center border-0 bg-transparent fw-bold fs-5" value="1" min="1" max="100" style="width: 60px;" readonly>
+                                <button class="btn btn-outline-dark rounded-circle border-0" style="width: 36px; height: 36px;" onclick="changeBuyQty(1)">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Nút mua hàng & Yêu thích -->
+                        <div class="d-grid gap-3">
+                            <button class="btn btn-dark btn-lg rounded-pill py-3 fw-bold shadow" id="btnAddToCart" onclick="addToCart()">
+                                THÊM VÀO GIỎ HÀNG
+                            </button>
+                            <button class="btn btn-outline-dark rounded-pill py-3 fw-bold" id="btnToggleFav" onclick="toggleCurrentFavorite()">
+                                Thêm vào danh sách yêu thích
+                            </button>
+                        </div>
+
+                        <!-- Bảng thuộc tính chi tiết theo SQL -->
+                        <div class="mt-4 pt-3 border-top">
+                            <h6 class="fw-bold text-uppercase text-secondary mb-3">Thông số sản phẩm</h6>
+                            <table class="table table-sm table-borderless small">
+                                <tbody>
+                                    <tr>
+                                        <td class="text-muted" style="width: 140px;">Mã sản phẩm:</td>
+                                        <td class="fw-bold" id="specId">#0</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Thương hiệu:</td>
+                                        <td class="fw-bold" id="specBrand">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Loại túi xách:</td>
+                                        <td class="fw-bold" id="specCategory">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Chương trình KM:</td>
+                                        <td class="fw-bold text-danger" id="specPromo">Không</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Tồn kho hiện tại:</td>
+                                        <td class="fw-bold" id="specStock">0 cái</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mô tả chi tiết sản phẩm (bảng tuixach: mota) -->
+            <div class="row mt-5 mx-0">
+                <div class="col-12 p-4 bg-light rounded-4 shadow-sm">
+                    <h4 class="fw-bold oswald-font border-bottom pb-3 mb-3">MÔ TẢ SẢN PHẨM</h4>
+                    <p class="fs-5 leading-relaxed text-secondary mb-0" id="productDescription">
+                        Mô tả đang được cập nhật...
+                    </p>
+                </div>
+            </div>
+
+            <!-- Sản phẩm liên quan -->
+            <div class="row mt-5 pt-4 border-top mb-5 mx-0">
+                <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold m-0 oswald-font">CÓ THỂ BẠN CŨNG THÍCH</h4>
+                    <a href="catalog.html" class="text-decoration-none text-dark fw-bold">Xem thêm &rarr;</a>
+                </div>
+
+                <div class="col-12 d-flex flex-nowrap overflow-auto hide-scrollbar gap-3" id="relatedProducts">
+                </div>
+            </div>
+        </div>
+
+        <div class="footer container-fluid p-0 bg-secondary text-white py-5 text-center mt-5">
+            <a href="homePage.html" class="footer-logo-link text-decoration-none">
+                <h1 class="oswald-font fw-bold mb-2 footer-logo-text">BASAU.BAGS</h1>
+            </a>
+            <p class="small mb-0" style="cursor: default; opacity: 0.8;">© 2026 BASAU BAGS STORE - QUẢN LÝ TÚI XÁCH. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script src="bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="header.js"></script>
+    <script src="data.js"></script>
+    <script src="admin.js"></script>
+    <script src="cart.js"></script>
+    <script src="favourite.js"></script>
+    <script src="account.js"></script>
+    <script src="scriptDetail.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+
+</html>

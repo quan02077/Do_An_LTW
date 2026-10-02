@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bộ Sưu Tập Túi Xách & Balo - Basau Bags</title>
+    <!--font-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Oswald:wght@200..700&display=swap"
+        rel="stylesheet">
+    <!--bootstrap-->
+    <link href="bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
+    <!--css-->
+    <link rel="stylesheet" href="stylesMain.css">
+    <link rel="stylesheet" href="header.css">
+    <link rel="stylesheet" href="catalog.css">
+    <link rel="stylesheet" href="sidepanels.css">
+</head>
+
+<body>
+    <div class="container-fluid p-0">
+        <div id="main-header"></div>
+    </div>
+
+    <div class="container-fluid px-4 px-md-5 mt-4 pb-5">
+
+        <div class="breadcrumb-bar mb-3">
+            <a href="homePage.html">Trang chủ</a> &nbsp;/&nbsp;
+            <span id="breadcrumbCurrent">Tất cả túi xách</span>
+        </div>
+
+        <div class="d-flex align-items-baseline gap-3 mb-3">
+            <h1 class="catalog-title mb-0" id="pageTitle">Tất cả túi xách</h1>
+            <span class="result-count" id="resultCount">(0 sản phẩm)</span>
+        </div>
+
+        <div class="brand-tabs" id="brandTabs">
+            <div class="brand-tab active" data-brand="all" onclick="selectBrand(this)">Tất cả</div>
+            <div class="brand-tab" data-brand="CHARLES & KEITH" onclick="selectBrand(this)">CHARLES & KEITH</div>
+            <div class="brand-tab" data-brand="Natoli" onclick="selectBrand(this)">Natoli</div>
+            <div class="brand-tab" data-brand="Pedro" onclick="selectBrand(this)">Pedro</div>
+            <div class="brand-tab" data-brand="ELLY" onclick="selectBrand(this)">ELLY</div>
+            <div class="brand-tab" data-brand="Jamlos" onclick="selectBrand(this)">Jamlos</div>
+        </div>
+
+        <!-- Nút bật/tắt bộ lọc trên thiết bị di động -->
+        <button class="btn btn-outline-dark d-lg-none w-100 mb-3 fw-bold rounded-pill shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filterSidebarCollapse">
+            🔍 Bộ lọc & phân loại túi xách ▾
+        </button>
+
+        <div class="row g-4 mt-1">
+
+            <div class="col-lg-3">
+                <div class="collapse d-lg-block" id="filterSidebarCollapse">
+                    <div class="filter-sidebar shadow-sm">
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                            <span class="fw-bold" style="font-size:16px;">BỘ LỌC TÚI XÁCH</span>
+                            <button class="clear-btn" onclick="clearAllFilters()">Xóa tất cả</button>
+                        </div>
+
+                        <div class="filter-group">
+                            <h4 class="filter-title">Loại túi</h4>
+                            <div class="filter-options">
+                                <label class="filter-check"><input type="checkbox" value="Balo" onchange="applyFilters()">
+                                    <span>🎒 Balo</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Túi đeo chéo" onchange="applyFilters()">
+                                    <span>👜 Túi đeo chéo</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Túi tote" onchange="applyFilters()">
+                                    <span>🛍️ Túi tote</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Túi dự tiệc" onchange="applyFilters()">
+                                    <span>✨ Túi dự tiệc</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Túi đeo vai" onchange="applyFilters()">
+                                    <span>💼 Túi đeo vai</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Clutch" onchange="applyFilters()">
+                                    <span>👛 Clutch</span></label>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <h4 class="filter-title">Khuyến mãi & Trạng thái</h4>
+                            <div class="filter-options">
+                                <label class="filter-check"><input type="checkbox" value="Sale Off"
+                                        onchange="applyFilters()"> <span>🔥 Đang giảm giá (Sale)</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Best Seller"
+                                        onchange="applyFilters()"> <span>⭐ Bán chạy (Best Seller)</span></label>
+                                <label class="filter-check"><input type="checkbox" value="New Arrival"
+                                        onchange="applyFilters()"> <span>✨ Mới về (New Arrival)</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Khuyến mãi tháng 9"
+                                        onchange="applyFilters()"> <span>Khuyến mãi tháng 9 (-10%)</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Sale cuối tuần"
+                                        onchange="applyFilters()"> <span>Sale cuối tuần (-15%)</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Ưu đãi khách hàng mới"
+                                        onchange="applyFilters()"> <span>Ưu đãi mới (-20%)</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Sale mùa thu"
+                                        onchange="applyFilters()"> <span>Sale mùa thu (-25%)</span></label>
+                                <label class="filter-check"><input type="checkbox" value="Siêu sale cuối năm"
+                                        onchange="applyFilters()"> <span>Siêu sale cuối năm (-30%)</span></label>
+                            </div>
+                        </div>
+
+                        <div class="filter-group border-bottom-0 pb-0">
+                            <h4 class="filter-title">Khoảng giá</h4>
+                            <div class="filter-options">
+                                <label class="filter-check"><input type="checkbox" value="under700k"
+                                        onchange="applyFilters()"> <span>Dưới 700.000₫</span></label>
+                                <label class="filter-check"><input type="checkbox" value="700k-1.2m" onchange="applyFilters()">
+                                    <span>700.000₫ – 1.200.000₫</span></label>
+                                <label class="filter-check"><input type="checkbox" value="over1.2m" onchange="applyFilters()">
+                                    <span>Trên 1.200.000₫</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                <div class="sort-bar d-flex justify-content-end mb-4">
+                    <select class="sort-select shadow-sm" id="sortSelect" onchange="applySort()">
+                        <option value="featured">Sắp xếp: Mặc định</option>
+                        <option value="price-asc">Giá: Thấp → Cao</option>
+                        <option value="price-desc">Giá: Cao → Thấp</option>
+                        <option value="stock-desc">Số lượng tồn: Nhiều nhất</option>
+                    </select>
+                </div>
+
+                <div class="row g-4" id="productGrid">
+                </div>
+
+                <div id="phantrang" class="d-flex justify-content-center mt-5 gap-2">
+                </div>
+
+                <div class="no-results d-none text-center py-5 bg-white rounded-4 border shadow-sm my-3" id="noResults">
+                    <div style="font-size: 48px; margin-bottom: 12px;">👜</div>
+                    <h5 class="fw-bold mb-2">Không tìm thấy mẫu túi xách phù hợp</h5>
+                    <p class="text-muted small mb-4">Hãy thử bỏ bớt bộ lọc hoặc tìm kiếm với từ khóa khác.</p>
+                    <button class="btn btn-dark rounded-pill px-4 btn-sm fw-bold" onclick="clearAllFilters()">Xóa tất cả bộ lọc</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="footer container-fluid p-0 bg-secondary text-white py-5 text-center mt-5">
+        <a href="homePage.html" class="footer-logo-link text-decoration-none">
+            <h1 class="oswald-font fw-bold mb-2 footer-logo-text">BASAU.BAGS</h1>
+        </a>
+        <p class="small mb-0" style="cursor: default; opacity: 0.8;">© 2026 BASAU BAGS STORE - QUẢN LÝ TÚI XÁCH. All rights reserved.</p>
+    </div>
+
+    <script src="bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="header.js"></script>
+    <script src="data.js"></script>
+    <script src="admin.js"></script>
+    <script src="cart.js"></script>
+    <script src="favourite.js"></script>
+    <script src="account.js"></script>
+    <script src="catalog.js"></script>
+</body>
+
+</html>

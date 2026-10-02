@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khuyến Mãi Túi Xách & Balo - Basau Bags</title>
+    <!--font-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Oswald:wght@200..700&display=swap"
+        rel="stylesheet">
+    <!--bootstrap-->
+    <link href="bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
+    <!--css-->
+    <link rel="stylesheet" href="stylesMain.css">
+    <link rel="stylesheet" href="header.css">
+    <link rel="stylesheet" href="flashSale.css">
+    <link rel="stylesheet" href="sidepanels.css">
+</head>
+
+<body>
+    <div class="container-fluid p-0">
+        <div id="main-header"></div>
+
+        <div class="container-fluid bg-dark text-white py-4 text-center">
+            <h1 class="oswald-font text-warning display-5 fw-bold mb-2">⚡ CÁC CHƯƠNG TRÌNH KHUYẾN MÃI TÚI XÁCH ⚡</h1>
+            <p class="fs-5 mb-0 text-white-50">Áp dụng cho các dòng túi xách, balo chính hãng - Giảm tới 30%</p>
+        </div>
+
+        <!-- Banner danh sách các chương trình khuyến mãi theo SQL -->
+        <div class="container mt-4">
+            <div class="row g-3">
+                <div class="col-md-3 col-6">
+                    <div class="p-3 bg-white border rounded-3 shadow-sm text-center">
+                        <span class="badge bg-danger mb-1">-10%</span>
+                        <h6 class="fw-bold mb-1">Khuyến mãi tháng 9</h6>
+                        <small class="text-muted">01/09 - 30/09</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="p-3 bg-white border rounded-3 shadow-sm text-center">
+                        <span class="badge bg-danger mb-1">-15%</span>
+                        <h6 class="fw-bold mb-1">Sale cuối tuần</h6>
+                        <small class="text-muted">05/09 - 30/09</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="p-3 bg-white border rounded-3 shadow-sm text-center">
+                        <span class="badge bg-danger mb-1">-20%</span>
+                        <h6 class="fw-bold mb-1">Ưu đãi khách hàng mới</h6>
+                        <small class="text-muted">01/09 - 31/12</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="p-3 bg-white border rounded-3 shadow-sm text-center">
+                        <span class="badge bg-danger mb-1">-25%</span>
+                        <h6 class="fw-bold mb-1">Sale mùa thu</h6>
+                        <small class="text-muted">15/09 - 15/10</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container my-5 bg-light p-4 rounded-4 shadow-sm">
+            <h3 class="fw-bold mb-4 oswald-font border-start border-danger border-5 ps-3">DANH SÁCH TÚI XÁCH ĐANG KHUYẾN MÃI</h3>
+
+            <div class="row g-4" id="flashSaleRow">
+                <!-- Sẽ được nạp động từ database túi xách -->
+            </div>
+        </div>
+
+        <div class="footer container-fluid p-0 bg-secondary text-white py-5 text-center mt-5">
+            <a href="homePage.html" class="footer-logo-link text-decoration-none">
+                <h1 class="oswald-font fw-bold mb-2 footer-logo-text">BASAU.BAGS</h1>
+            </a>
+            <p class="small mb-0" style="cursor: default; opacity: 0.8;">© 2026 BASAU BAGS STORE - QUẢN LÝ TÚI XÁCH. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script src="bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="header.js"></script>
+    <script src="data.js"></script>
+    <script src="admin.js"></script>
+    <script src="cart.js"></script>
+    <script src="favourite.js"></script>
+    <script src="account.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function renderFlashSaleBags() {
+            const container = document.getElementById('flashSaleRow');
+            if (!container) return;
+
+            const allProds = (typeof getAllProducts === 'function') ? getAllProducts() : (typeof productsDatabase !== 'undefined' ? productsDatabase : []);
+            const saleProds = allProds.filter(p => (p.discountPercent && p.discountPercent > 0) || (p.oldPrice && p.oldPrice > p.price));
+
+            if (saleProds.length === 0) {
+                container.innerHTML = "<p class='text-center text-muted py-5'>Hiện tại chưa có chương trình giảm giá nào.</p>";
+                return;
+            }
+
+            let html = "";
+            saleProds.forEach(p => {
+                let oldP = p.oldPrice || p.dongia || Math.round(p.price / (1 - (p.discountPercent || 10) / 100));
+                let disc = p.discountPercent || Math.round((1 - p.price / oldP) * 100);
+
+                html += `
+                    <div class="col-6 col-md-3">
+                        <a href="productDetail.html?id=${p.id}" class="text-decoration-none text-dark">
+                            <div class="flash-sale-card bg-white p-3 rounded-4 border shadow-sm h-100 d-flex flex-column position-relative">
+                                <div class="sale-badge position-absolute top-0 end-0 m-2 badge bg-danger fs-6">-${disc}%</div>
+                                <div class="img-wrap mb-3 d-flex align-items-center justify-content-center bg-light rounded-3" style="height: 180px; overflow: hidden;">
+                                    <img src="${p.img}" class="img-fluid" style="max-height: 100%; object-fit: contain;">
+                                </div>
+                                <span class="category-text text-secondary small fw-bold text-uppercase mb-1">${p.brand} · ${p.category}</span>
+                                <h5 class="card-name fw-bold mb-1" style="font-size: 15px; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; line-height: 1.3;">${p.name}</h5>
+                                <div class="small text-success fw-bold mb-2">${p.promotionName || 'Đang giảm giá'}</div>
+                                <div class="price-container mt-auto mb-3">
+                                    <span class="price-original text-muted text-decoration-line-through me-2">${oldP.toLocaleString('vi-VN')} ₫</span>
+                                    <span class="price-sale text-danger fw-bold fs-5">${p.price.toLocaleString('vi-VN')} ₫</span>
+                                </div>
+                                <button class="btn btn-dark w-100 fw-bold rounded-pill py-2">CHỐT DEAL NGAY</button>
+                            </div>
+                        </a>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+        document.addEventListener('DOMContentLoaded', renderFlashSaleBags);
+    </script>
+</body>
+
+</html>

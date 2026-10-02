@@ -1,0 +1,286 @@
+body {
+    font-family: 'Josefin Sans', sans-serif;
+    background-color: #fcfcfc;
+}
+
+/* Breadcrumb navigation */
+.breadcrumb-bar {
+    font-size: 15px;
+    color: #888;
+    padding: 15px 0 5px;
+}
+
+.breadcrumb-bar a {
+    color: #888;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.breadcrumb-bar a:hover {
+    color: #000;
+}
+
+/* Catalog Title & Results */
+.catalog-title {
+    font-family: "Oswald", sans-serif;
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.result-count {
+    font-size: 16px;
+    color: #777;
+    font-weight: 500;
+}
+
+/* Brand Tabs */
+.brand-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.brand-tab {
+    padding: 8px 20px;
+    border: 1px solid #ddd;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.brand-tab.active,
+.brand-tab:hover {
+    background-color: #000;
+    color: #fff;
+    border-color: #000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Filter Sidebar */
+.filter-sidebar {
+    background-color: #fff;
+    padding: 22px;
+    border: 1px solid #ebebeb;
+    border-radius: 14px;
+}
+
+.filter-group {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 16px 0;
+}
+
+.filter-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #222;
+}
+
+.filter-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 11px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.filter-check input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #000;
+}
+
+.filter-check span {
+    font-size: 14px;
+    color: #444;
+    transition: color 0.15s;
+}
+
+.filter-check:hover span {
+    color: #000;
+    font-weight: 600;
+}
+
+.clear-btn {
+    font-size: 13px;
+    color: #dc3545;
+    background: none;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 0;
+}
+
+.clear-btn:hover {
+    color: #a71d2a;
+}
+
+/* Sort Select */
+.sort-select {
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 50px;
+    border: 1px solid #ddd;
+    font-family: 'Josefin Sans', sans-serif;
+    background-color: #fff;
+    cursor: pointer;
+    outline: none;
+    font-weight: 600;
+}
+
+.sort-select:focus {
+    border-color: #000;
+}
+
+/* Product Cards */
+.product-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    background: #fff;
+    border-color: #eee !important;
+}
+
+.product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.08) !important;
+}
+
+.product-img-wrap {
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.product-img-wrap img {
+    max-height: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain;
+    transition: transform 0.35s ease;
+}
+
+.product-card:hover .product-img-wrap img {
+    transform: scale(1.07);
+}
+
+/* Favorite Button inside Card */
+.fav-card-btn {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50% !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    padding: 0;
+    transition: all 0.2s ease;
+    z-index: 20 !important;
+    cursor: pointer;
+}
+
+.fav-card-btn:hover {
+    transform: scale(1.15);
+    background-color: #fff !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Discount & Status Badges */
+.product-discount-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 20 !important;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 11px;
+    border-radius: 8px;
+    background-color: #dc3545 !important;
+    color: #fff !important;
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.35);
+    letter-spacing: 0.5px;
+    pointer-events: none;
+    line-height: 1.2;
+}
+
+.product-status-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 20 !important;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 8px;
+    background-color: #111 !important;
+    color: #fff !important;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    letter-spacing: 0.5px;
+    pointer-events: none;
+    line-height: 1.2;
+}
+
+/* Quick Add Button */
+.btn-quick-add {
+    transition: all 0.2s ease;
+}
+
+.btn-quick-add:hover {
+    background-color: #000;
+    color: #fff !important;
+    border-color: #000;
+}
+
+/* Pagination */
+#phantrang .btn {
+    border-radius: 50px;
+    min-width: 38px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+#phantrang .btn-dark {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Empty State */
+.no-results {
+    background-color: #fff;
+    border-radius: 16px;
+    border: 1px dashed #ddd !important;
+}
+
+/* Footer Logo Glow */
+.footer-logo-text {
+    color: white;
+    font-size: 3.5rem;
+    letter-spacing: 2px;
+    transition: all 0.4s ease;
+    cursor: pointer;
+}
+
+.footer-logo-link:hover .footer-logo-text {
+    color: #ff416c;
+    text-shadow: 0 0 20px rgba(255, 65, 108, 0.8), 0 0 40px rgba(255, 65, 108, 0.4);
+    transform: scale(1.05);
+}

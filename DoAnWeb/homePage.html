@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basau Bags - Cửa Hàng Túi Xách & Balo Thời Trang</title>
+    <!--font-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Oswald:wght@200..700&display=swap"
+        rel="stylesheet">
+    <!--bootstrap-->
+    <link href="bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
+    <!--css-->
+    <link rel="stylesheet" href="stylesMain.css">
+    <link rel="stylesheet" href="header.css">
+    <link rel="stylesheet" href="brandCatalog.css">
+    <link rel="stylesheet" href="sidepanels.css">
+</head>
+
+<body>
+    <div class="container-fluid p-0">
+        <div id="main-header"></div>
+        <div id="heroSlider" class="carousel slide carousel-fade" data-bs-ride="carousel">
+
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#heroSlider" data-bs-slide-to="0" class="active"
+                    aria-current="true" aria-label="Slide 1"></button>
+                <button type="button" data-bs-target="#heroSlider" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                <button type="button" data-bs-target="#heroSlider" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            </div>
+
+            <div class="carousel-inner">
+
+                <div class="carousel-item active" data-bs-interval="5000">
+                    <div class="container-fluid p-0 hero-slide-content">
+                        <img src="hinhAnh/banner1.jpg" class="d-block w-100 hero-bg-img" alt="CHARLES & KEITH">
+
+                        <div class="hero-text-overlay d-flex align-items-center justify-content-center text-center">
+                            <div class="container">
+                                <p class="hero-sub-title text-uppercase mb-2 text-warning fw-bold">BỘ SƯU TẬP MỚI</p>
+                                <h1 class="hero-main-title text-uppercase mb-4 oswald-font">CHARLES & KEITH</h1>
+                                <p class="hero-description mb-5">Đẳng cấp, tinh tế và thanh lịch với các thiết kế túi xách cao cấp hàng đầu.</p>
+                                <a href="productDetail.html?id=1"
+                                    class="btn btn-light btn-lg hero-btn text-uppercase fw-bold">Khám phá ngay</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="carousel-item" data-bs-interval="5000">
+                    <div class="container-fluid p-0 hero-slide-content">
+                        <img src="hinhAnh/banner2.jpg" class="d-block w-100 hero-bg-img" alt="NATOLI">
+
+                        <div class="hero-text-overlay d-flex align-items-center justify-content-center text-center">
+                            <div class="container">
+                                <p class="hero-sub-title text-uppercase mb-2 text-warning fw-bold">NĂNG ĐỘNG MỖI NGÀY</p>
+                                <h1 class="hero-main-title text-uppercase mb-4 oswald-font text-white">NATOLI & JAMLOS</h1>
+                                <p class="hero-description mb-5">Balo và túi đeo chéo cá tính, đồng hành cùng bạn trên mọi hành trình.</p>
+                                <a href="productDetail.html?id=4"
+                                    class="btn btn-light btn-lg hero-btn text-uppercase fw-bold">Xem chi tiết</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="carousel-item" data-bs-interval="5000">
+                    <div class="container-fluid p-0 hero-slide-content">
+                        <img src="hinhAnh/banner3.jpg" class="d-block w-100 hero-bg-img" alt="PEDRO & ELLY">
+
+                        <div class="hero-text-overlay d-flex align-items-center justify-content-center text-center">
+                            <div class="container">
+                                <p class="hero-sub-title text-uppercase mb-2 text-warning fw-bold">PHONG CÁCH QUÝ PHÁI</p>
+                                <h1 class="hero-main-title text-uppercase mb-4 oswald-font">PEDRO & ELLY</h1>
+                                <p class="hero-description mb-5">Chất liệu cao cấp, phom dáng chuẩn mực cho công sở và dạ tiệc.</p>
+                                <a href="productDetail.html?id=7"
+                                    class="btn btn-light btn-lg hero-btn text-uppercase fw-bold">Mua ngay</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#heroSlider" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon opacity-50" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#heroSlider" data-bs-slide="next">
+                <span class="carousel-control-next-icon opacity-50" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+
+        <div class="container-fluid my-5 p-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold oswald-font mb-0">TÚI XÁCH BÁN CHẠY & NỔI BẬT</h2>
+                <a href="catalog.html" class="btn btn-outline-dark rounded-pill px-4">Xem tất cả &rarr;</a>
+            </div>
+            <div class="row g-4" id="hotProductsContainer">
+            </div>
+        </div>
+
+        <div class="container-fluid my-5 p-5">
+            <div class="flash-sale-banner row align-items-center bg-black text-white rounded-4 overflow-hidden">
+                <div class="col-md-7 p-5">
+                    <h2 class="display-4 fw-bold text-warning mb-3">ƯU ĐÃI THÁNG 9 & CUỐI TUẦN</h2>
+                    <p class="lead">Săn túi xách và balo thương hiệu chính hãng với mức giảm giá lên đến 30%!</p>
+                    <div class="countdown d-flex gap-3 my-4 fs-3 fw-bold">
+                        <span class="bg-white text-black p-3 rounded" id="days">00 <small
+                                class="d-block fs-6 fw-normal">Ngày</small></span>
+                        <span class="bg-white text-black p-3 rounded" id="hours">00 <small
+                                class="d-block fs-6 fw-normal">Giờ</small></span>
+                        <span class="bg-white text-black p-3 rounded" id="minutes">00 <small
+                                class="d-block fs-6 fw-normal">Phút</small></span>
+                        <span class="bg-white text-black p-3 rounded text-danger" id="seconds">00 <small
+                                class="d-block fs-6 fw-normal">Giây</small></span>
+                    </div>
+                    <a href="flashSale.html" class="btn btn-warning btn-lg px-5 fw-bold mt-3 text-dark">SĂN SALE NGAY</a>
+                </div>
+                <div class="col-md-5 p-4 text-center">
+                    <img src="hinhAnh/tui1_1.png" class="img-fluid rounded-4 shadow" style="max-height: 280px; object-fit: contain;">
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid my-5 p-5">
+            <h2 class="text-center fw-bold mb-5 oswald-font">THƯƠNG HIỆU TÚI XÁCH NỔI BẬT</h2>
+
+            <div class="row justify-content-center g-4">
+                <div class="col-6 col-md-4">
+                    <a href="catalog.html?brand=CHARLES%20%26%20KEITH"
+                        class="card border-0 shadow-sm rounded-4 text-decoration-none text-dark h-100 p-4 text-center bg-light">
+                        <h3 class="oswald-font fw-bold mt-3 mb-2">CHARLES & KEITH</h3>
+                        <p class="text-muted small mb-0">Thời trang quốc tế thanh lịch</p>
+                    </a>
+                </div>
+
+                <div class="col-6 col-md-4">
+                    <a href="catalog.html?brand=Natoli"
+                        class="card border-0 shadow-sm rounded-4 text-decoration-none text-dark h-100 p-4 text-center bg-light">
+                        <h3 class="oswald-font fw-bold mt-3 mb-2">NATOLI</h3>
+                        <p class="text-muted small mb-0">Balo & túi xách công nghệ cao</p>
+                    </a>
+                </div>
+
+                <div class="col-6 col-md-4">
+                    <a href="catalog.html?brand=Pedro"
+                        class="card border-0 shadow-sm rounded-4 text-decoration-none text-dark h-100 p-4 text-center bg-light">
+                        <h3 class="oswald-font fw-bold mt-3 mb-2">PEDRO</h3>
+                        <p class="text-muted small mb-0">Thiết kế hiện đại, sang trọng</p>
+                    </a>
+                </div>
+
+                <div class="col-6 col-md-4">
+                    <a href="catalog.html?brand=ELLY"
+                        class="card border-0 shadow-sm rounded-4 text-decoration-none text-dark h-100 p-4 text-center bg-light">
+                        <h3 class="oswald-font fw-bold mt-3 mb-2">ELLY</h3>
+                        <p class="text-muted small mb-0">Phong cách Pháp quý phái</p>
+                    </a>
+                </div>
+
+                <div class="col-6 col-md-4">
+                    <a href="catalog.html?brand=Jamlos"
+                        class="card border-0 shadow-sm rounded-4 text-decoration-none text-dark h-100 p-4 text-center bg-light">
+                        <h3 class="oswald-font fw-bold mt-3 mb-2">JAMLOS</h3>
+                        <p class="text-muted small mb-0">Canvas bền đẹp, tối giản</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer container-fluid p-0 bg-secondary text-white py-5 text-center mt-5">
+            <a href="homePage.html" class="footer-logo-link text-decoration-none">
+                <h1 class="oswald-font fw-bold mb-2 footer-logo-text">BASAU.BAGS</h1>
+            </a>
+            <p class="small mb-0" style="cursor: default; opacity: 0.8;">© 2026 BASAU BAGS STORE - QUẢN LÝ TÚI XÁCH. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script src="bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="header.js"></script>
+    <script src="data.js"></script>
+    <script src="admin.js"></script>
+    <script src="cart.js"></script>
+    <script src="favourite.js"></script>
+    <script src="account.js"></script>
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+
+</html>

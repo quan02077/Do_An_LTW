@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh Toán Đơn Hàng - Basau Bags</title>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <!--font-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Oswald:wght@200..700&display=swap"
+        rel="stylesheet">
+    <!--bootstrap-->
+    <link href="bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
+    <!--css-->
+    <link rel="stylesheet" href="stylesMain.css">
+    <link rel="stylesheet" href="sidepanels.css">
+</head>
+
+<body class="bg-light">
+    <!-- Simple Header -->
+    <header class="bg-white border-bottom py-3 shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="homePage.html" class="text-decoration-none text-dark d-flex align-items-center gap-2">
+                <span class="oswald-font fw-bold fs-3" style="letter-spacing: 1px;">BASAU<span class="text-danger">.BAGS</span></span>
+            </a>
+            <a href="catalog.html" class="btn btn-outline-dark rounded-pill px-4 btn-sm fw-bold">&larr; Tiếp tục mua sắm</a>
+        </div>
+    </header>
+
+    <div class="container my-5" style="min-height: 65vh;">
+        <h2 class="fw-bold oswald-font mb-4">THÔNG TIN ĐẶT HÀNG TÚI XÁCH</h2>
+
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <form id="checkoutForm" class="p-4 border-0 rounded-4 shadow-sm bg-white"
+                    onsubmit="return processCheckout(event)">
+                    <h5 class="fw-bold border-bottom pb-2 mb-3">1. Thông tin khách hàng</h5>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-secondary">HỌ VÀ TÊN NGƯỜI NHẬN *</label>
+                        <input type="text" class="form-control form-control-lg bg-light border-0" id="cusName" required placeholder="VD: Nguyễn Nhật Minh Quân">
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-secondary">SỐ ĐIỆN THOẠI *</label>
+                            <input type="tel" class="form-control form-control-lg bg-light border-0" id="cusPhone" required placeholder="VD: 0901234567">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-secondary">ĐỊA CHỈ EMAIL (NHẬN HÓA ĐƠN) *</label>
+                            <input type="email" class="form-control form-control-lg bg-light border-0" id="cusEmail" required placeholder="VD: minhquan@gmail.com">
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold border-bottom pb-2 mt-4 mb-3">2. Địa chỉ giao hàng</h5>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4">
+                            <select class="form-select bg-light border-0 py-2" id="citySelect" required onchange="handleCityChange(this)">
+                                <option value="" selected disabled>Chọn Tỉnh / Thành</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select bg-light border-0 py-2" id="districtSelect" required disabled
+                                onchange="handleDistrictChange(this)">
+                                <option value="" selected disabled>Chọn Quận / Huyện</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select bg-light border-0 py-2" id="wardSelect" required disabled>
+                                <option value="" selected disabled>Chọn Phường / Xã</option>
+                            </select>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <input type="text" class="form-control form-control-lg bg-light border-0" id="homeAddress" required
+                                placeholder="Số nhà, tên đường, khu dân cư...">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-dark w-100 fw-bold fs-5 mt-4 py-3 rounded-pill shadow" id="btnSubmitOrder">
+                        XÁC NHẬN ĐẶT HÀNG
+                    </button>
+                </form>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="p-4 border-0 rounded-4 shadow-sm bg-white">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">Đơn hàng của bạn</h5>
+                    <div id="checkoutItems" class="mt-3">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="cart.js"></script>
+    <script src="checkout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+
+</html>
