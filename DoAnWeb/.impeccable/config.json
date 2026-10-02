@@ -1,0 +1,8 @@
+{
+  "buildPath": ".",
+  "detector": {
+    "ignoreFiles": [
+      "**/bootstrap-5.3.8-dist/**"
+    ]
+  }
+}

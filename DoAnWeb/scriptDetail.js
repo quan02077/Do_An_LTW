@@ -122,12 +122,12 @@ function updateFavBtnUI() {
     if (!btn || !currentProduct) return;
     let favList = (typeof getFavList === 'function') ? getFavList() : [];
     if (favList.includes(currentProduct.id)) {
-        btn.innerHTML = '❤️ Đã thêm vào yêu thích';
+        btn.innerHTML = 'ĐÃ LƯU VÀO DANH SÁCH YÊU THÍCH';
         btn.classList.remove('btn-outline-dark');
-        btn.classList.add('btn-danger');
+        btn.classList.add('btn-dark');
     } else {
-        btn.innerHTML = '♡ Thêm vào danh sách yêu thích';
-        btn.classList.remove('btn-danger');
+        btn.innerHTML = 'LƯU VÀO DANH SÁCH YÊU THÍCH';
+        btn.classList.remove('btn-dark');
         btn.classList.add('btn-outline-dark');
     }
 }

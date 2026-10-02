@@ -12,10 +12,10 @@ function injectFavHTML() {
     panel.innerHTML = `
         <div class="panel-header">
             <div>
-                <h5 class="panel-title">🤍 YÊU THÍCH</h5>
+                <h5 class="panel-title">DANH SÁCH YÊU THÍCH</h5>
                 <p id="favHeaderCount" class="panel-subtitle">0 sản phẩm</p>
             </div>
-            <button onclick="closeFavPanel()" class="panel-close-btn">✕</button>
+            <button onclick="closeFavPanel()" class="panel-close-btn">Đóng</button>
         </div>
         <div id="favItemsContainer" class="panel-body"></div>
     `;
@@ -106,10 +106,10 @@ function toggleFavorite(productId) {
 
     if (index === -1) {
         favs.push(productId);
-        showFavToast("Đã thêm vào danh sách yêu thích! ❤️", "#e74c3c");
+        showFavToast("Đã thêm vào danh sách yêu thích", "#111");
     } else {
         favs.splice(index, 1);
-        showFavToast("Đã bỏ khỏi danh sách yêu thích.", "#555");
+        showFavToast("Đã bỏ khỏi danh sách yêu thích", "#555");
     }
 
     saveFavList(favs);
@@ -139,9 +139,9 @@ function renderFavPanel() {
     if (favIds.length === 0) {
         container.innerHTML = `
             <div style="text-align:center; padding:70px 20px; color:#bbb;">
-                <div style="font-size:64px; margin-bottom:18px; filter:grayscale(1);">🤍</div>
-                <h5 style="color:#888;">Chưa có sản phẩm nào</h5>
-                <p style="font-size:14px; margin-bottom:15px;">Hãy thả tim những mẫu túi xách bạn yêu thích nhé!</p>
+                <p class="text-uppercase fw-bold text-secondary small mb-2" style="letter-spacing: 1px;">Danh sách trống</p>
+                <h5 style="color:#18181b;" class="fw-bold mb-2">Chưa có sản phẩm yêu thích</h5>
+                <p style="font-size:14px; margin-bottom:20px;">Lưu những mẫu túi xách bạn quan tâm để xem lại sau.</p>
                 <button onclick="closeFavPanel()" class="btn btn-dark rounded-pill px-4 py-2 fw-bold">XEM SẢN PHẨM</button>
             </div>`;
         return;
@@ -165,7 +165,7 @@ function renderFavPanel() {
                         <div style="color:#888; font-size:13px; margin:2px 0;">${p.brand} · ${p.category}</div>
                         <div style="color:#dc3545; font-weight:700; font-size:15px;">${priceFormat}</div>
                     </div>
-                    <button onclick="event.stopPropagation(); removeFavorite(${p.id})" class="cart-remove-btn" title="Xóa khỏi yêu thích">✕</button>
+                    <button onclick="event.stopPropagation(); removeFavorite(${p.id})" class="cart-remove-btn" title="Xóa khỏi yêu thích">Xóa</button>
                 </div>`;
         }
     }

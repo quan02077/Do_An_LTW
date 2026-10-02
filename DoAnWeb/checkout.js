@@ -225,7 +225,7 @@ function processCheckout(event) {
         localStorage.setItem('basau_orders', JSON.stringify(orders));
 
         Swal.fire({
-            title: 'Đặt hàng thành công! 🎉',
+            title: 'Đặt hàng thành công',
             html: `Mã đơn hàng: <strong>${orderId}</strong><br>Tổng tiền: <strong class="text-danger">${tongTien.toLocaleString('vi-VN')} ₫</strong><br>Cảm ơn bạn đã tin tưởng mua sắm tại Basau Bags!`,
             icon: 'success',
             confirmButtonColor: '#111',

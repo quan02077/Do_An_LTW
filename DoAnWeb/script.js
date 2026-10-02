@@ -283,7 +283,7 @@ function renderHotProducts() {
                             <img src="${p.img}" class="img-fluid" style="max-height: 100%; object-fit: contain;">
                         </div>
                         <span class="text-secondary small fw-bold text-uppercase">${p.brand} · ${p.category}</span>
-                        <h5 class="fw-bold my-2" style="font-size: 15px; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; line-height: 1.3;">${p.name}</h5>
+                        <h5 class="fw-bold my-2" style="font-size: 15px; min-height: 44px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; line-height: 1.45;">${p.name}</h5>
                         <div class="mt-auto">
                             <p class="mb-2">
                                 ${oldPriceHtml}

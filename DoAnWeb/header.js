@@ -1,5 +1,5 @@
 const headerHTML = `
-        <div class="rowHeader bg-light py-1 border-bottom">
+        <div class="rowHeader bg-light py-1 px-3 border-bottom">
             <div class="container-fluid px-4 d-flex justify-content-end align-items-center gap-4">
                 <div class="tienich" id="adminMenuWrap">
                     <a href="admin.html" class="text-secondary text-decoration-none" id="QL_btn">Quản lý sản phẩm</a>
@@ -18,7 +18,7 @@ const headerHTML = `
                 </div>
             </div>
         </div>
-        <div class="container-fluid rowMenu bg-white sticky-top shadow-sm py-3">
+        <div class="container-fluid rowMenu bg-white sticky-top shadow-sm py-3 px-4 px-md-5">
             <div class="container d-flex align-items-center justify-content-between">
 
                 <div class="logo d-flex justify-content-start align-items-center" style="flex: 1;">
@@ -37,7 +37,7 @@ const headerHTML = `
                     <a href="catalog.html" class="text-dark text-decoration-none menu-link">TẤT CẢ</a>
 
                     <div class="dropdown">
-                        <a href="#" class="text-dark text-decoration-none menu-link">LOẠI TÚI <small>▾</small></a>
+                        <a href="#" class="text-dark text-decoration-none menu-link">LOẠI TÚI</a>
                         <div class="mega-menu p-4">
                             <div class="container">
                                 <div class="row text-start g-3">
@@ -62,7 +62,7 @@ const headerHTML = `
                     </div>
 
                     <div class="dropdown">
-                        <a href="#" class="text-dark text-decoration-none menu-link">THƯƠNG HIỆU <small>▾</small></a>
+                        <a href="#" class="text-dark text-decoration-none menu-link">THƯƠNG HIỆU</a>
                         <div class="mega-menu p-4">
                             <div class="container">
                                 <div class="row text-start g-3">
@@ -99,7 +99,7 @@ const headerHTML = `
 
 function injectHeader() {
     const headerContainer = document.getElementById('main-header');
-    if (headerContainer) {
+    if (headerContainer && headerContainer.innerHTML.trim() === '') {
         headerContainer.innerHTML = headerHTML;
     }
     checkAdminRoleHeader();

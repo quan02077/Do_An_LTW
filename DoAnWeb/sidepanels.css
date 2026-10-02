@@ -60,26 +60,36 @@
     font-family: 'Oswald', sans-serif;
     font-size: 20px;
     letter-spacing: 2px;
+    line-height: 1.4;
 }
 
 .panel-subtitle {
     margin: 3px 0 0;
     font-size: 12px;
-    color: #aaa;
+    color: #a1a1aa;
+    line-height: 1.5;
 }
 
 .panel-close-btn {
-    background: rgba(255, 255, 255, .12);
-    border: none;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.25);
     color: #fff;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    font-size: 18px;
+    padding: 5px 14px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.panel-close-btn:hover {
+    background: #fff;
+    color: #111;
+    border-color: #fff;
 }
 
 .panel-body {
@@ -130,15 +140,17 @@
 .cart-remove-btn {
     background: none;
     border: none;
-    color: #aaa;
-    font-size: 20px;
+    color: #888;
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
     margin-left: auto;
-    transition: 0.2s;
+    padding: 4px 8px;
+    transition: color 0.2s;
 }
 
 .cart-remove-btn:hover {
-    color: #dc3545;
+    color: #b91c1c;
 }
 
 .acc-section-title {
@@ -148,6 +160,7 @@
     margin-bottom: 15px;
     font-size: 15px;
     text-transform: uppercase;
+    line-height: 1.5;
 }
 
 .panel-subtitle.green {

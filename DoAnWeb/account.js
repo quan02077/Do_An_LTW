@@ -12,10 +12,10 @@ function injectAccountHTML() {
     panel.innerHTML = `
         <div class="panel-header">
             <div>
-                <h5 class="panel-title">👤 HỒ SƠ TÀI KHOẢN</h5>
+                <h5 class="panel-title">HỒ SƠ TÀI KHOẢN</h5>
                 <p id="accHeaderRole" class="panel-subtitle green">Khách hàng</p>
             </div>
-            <button onclick="closeAccountPanel()" class="panel-close-btn">✕</button>
+            <button onclick="closeAccountPanel()" class="panel-close-btn">Đóng</button>
         </div>
         <div class="panel-body">
             <h6 class="acc-section-title">THÔNG TIN KHÁCH HÀNG</h6>
@@ -42,7 +42,7 @@ function injectAccountHTML() {
             <button onclick="saveAccountInfo()" class="btn btn-dark w-100 fw-bold mb-4 rounded-pill">LƯU THÔNG TIN MỚI</button>
 
             <div id="accAdminLinkWrap" class="mb-4 d-none">
-                <a href="admin.html" class="btn btn-warning w-100 fw-bold rounded-pill text-dark">⚙️ TRANG QUẢN TRỊ NGƯỜI BÁN</a>
+                <a href="admin.html" class="btn btn-dark w-100 fw-bold rounded-pill text-white">TRANG QUẢN TRỊ CỬA HÀNG</a>
             </div>
 
             <h6 class="acc-section-title">BẢO MẬT TÀI KHOẢN</h6>
@@ -51,7 +51,7 @@ function injectAccountHTML() {
                 <input type="password" id="accNewPass" class="form-control" placeholder="Nhập mật khẩu muốn đổi">
             </div>
             <button onclick="changeAccountPassword()" class="btn btn-outline-dark w-100 fw-bold mb-4 rounded-pill">CẬP NHẬT MẬT KHẨU</button>
-            <button onclick="viewMyOrders()" class="btn btn-outline-primary w-100 fw-bold mb-3 rounded-pill">📦 LỊCH SỬ ĐẶT HÀNG</button>
+            <button onclick="viewMyOrders()" class="btn btn-outline-dark w-100 fw-bold mb-3 rounded-pill">LỊCH SỬ ĐẶT HÀNG</button>
             <button onclick="logoutUser()" class="btn btn-danger w-100 fw-bold py-2 mt-2 rounded-pill">ĐĂNG XUẤT</button>
         </div>
     `;

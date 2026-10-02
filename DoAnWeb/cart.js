@@ -11,10 +11,10 @@ function injectCartHTML() {
     panel.innerHTML = `
         <div class="panel-header">
             <div>
-                <h5 class="panel-title">🛒 GIỎ HÀNG TÚI XÁCH</h5>
+                <h5 class="panel-title">GIỎ HÀNG</h5>
                 <p id="cartHeaderCount" class="panel-subtitle">0 sản phẩm</p>
             </div>
-            <button onclick="closeCartPanel()" class="panel-close-btn">✕</button>
+            <button onclick="closeCartPanel()" class="panel-close-btn">Đóng</button>
         </div>
         <div id="cartItemsContainer" class="panel-body"></div>
         <div id="cartFooter" class="panel-footer"></div>
@@ -93,10 +93,10 @@ function renderCartPanel() {
     if (cart.length === 0) {
         container.innerHTML = `
             <div style="text-align:center; padding:70px 20px; color:#bbb;">
-                <div style="font-size:64px; margin-bottom:18px; filter:grayscale(1);">👜</div>
-                <h5 style="color:#888;">Giỏ hàng túi xách đang trống</h5>
-                <p class="small text-muted">Hãy chọn cho mình một chiếc túi hoặc balo ưng ý nhé!</p>
-                <button onclick="closeCartPanel()" class="btn btn-dark rounded-pill mt-3 px-4 py-2 fw-bold">MUA SẮM NGAY</button>
+                <p class="text-uppercase fw-bold text-secondary small mb-2" style="letter-spacing: 1px;">Giỏ hàng trống</p>
+                <h5 style="color:#18181b;" class="fw-bold mb-2">Chưa có sản phẩm trong giỏ</h5>
+                <p class="small text-muted mb-4">Hãy chọn cho mình một chiếc túi hoặc balo ưng ý nhé!</p>
+                <button onclick="closeCartPanel()" class="btn btn-dark rounded-pill px-4 py-2 fw-bold">MUA SẮM NGAY</button>
             </div>`;
         footer.innerHTML = '';
         return;

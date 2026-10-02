@@ -202,21 +202,21 @@ function renderCatalog() {
 
         let statusTagHtml = "";
         if (p.badge === "Best Seller") {
-            statusTagHtml = `<span class="badge bg-warning-subtle text-dark border border-warning-subtle small fw-bold me-1">⭐ Bán chạy</span>`;
+            statusTagHtml = `<span class="badge bg-light text-dark border small fw-bold me-1">Bán chạy</span>`;
         } else if (p.badge === "New Arrival") {
-            statusTagHtml = `<span class="badge bg-info-subtle text-dark border border-info-subtle small fw-bold me-1">✨ Mới</span>`;
+            statusTagHtml = `<span class="badge bg-light text-dark border small fw-bold me-1">Mới về</span>`;
         }
 
         let stockText = (p.soluong !== undefined && p.soluong > 0) 
-            ? `<span class="badge bg-light text-success border">Còn ${p.soluong} cái</span>` 
-            : `<span class="badge bg-danger">Hết hàng</span>`;
+            ? `<span class="badge bg-light text-success border">Còn ${p.soluong}</span>` 
+            : `<span class="badge bg-secondary">Hết hàng</span>`;
 
         let isFav = favList.includes(p.id);
-        let heartIcon = isFav ? '❤️' : '🤍';
+        let favText = isFav ? 'Đã lưu' : 'Lưu';
 
         html += `
             <div class="col-12 col-sm-6 col-lg-4 mb-2">
-                <div class="product-card border rounded-4 p-3 shadow-sm h-100 d-flex flex-column position-relative">
+                <div class="product-card border p-3 shadow-sm h-100 d-flex flex-column position-relative">
                     
                     <!-- Khung ảnh túi xách -->
                     <a href="productDetail.html?id=${p.id}" class="text-decoration-none text-dark d-block">
@@ -225,11 +225,11 @@ function renderCatalog() {
                         </div>
                     </a>
 
-                    <!-- Nút yêu thích (yêu cầu đăng nhập) -->
-                    <button type="button" class="fav-card-btn" 
+                    <!-- Nút yêu thích (yêu cầu đăng nhập, không dùng icon) -->
+                    <button type="button" class="fav-card-btn ${isFav ? 'active' : ''}" 
                         onclick="toggleCatalogFav(${p.id})" 
-                        title="${isFav ? 'Bỏ thích' : 'Thêm vào yêu thích'}">
-                        ${heartIcon}
+                        title="${isFav ? 'Bỏ lưu' : 'Lưu vào danh sách yêu thích'}">
+                        ${favText}
                     </button>
 
                     <!-- Huy hiệu % giảm giá (nổi trên ảnh với z-index cao) -->
@@ -241,7 +241,7 @@ function renderCatalog() {
                     </div>
 
                     <a href="productDetail.html?id=${p.id}" class="text-decoration-none text-dark">
-                        <h5 class="fw-bold mb-1" style="font-size: 15px; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; line-height: 1.35;" title="${p.name}">${p.name}</h5>
+                        <h5 class="fw-bold mb-1" style="font-size: 15px; min-height: 44px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; line-height: 1.45;" title="${p.name}">${p.name}</h5>
                     </a>
 
                     <p class="text-muted small mb-3" style="display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; font-size: 13px;">${p.mota || ''}</p>
@@ -256,7 +256,7 @@ function renderCatalog() {
                                 Chi tiết
                             </a>
                             <button type="button" class="btn btn-dark rounded-pill fw-bold py-2 px-3 btn-quick-add" onclick="quickAddToCart(${p.id})" title="Thêm nhanh vào giỏ hàng" style="font-size: 13px;">
-                                🛒 Thêm
+                                Thêm
                             </button>
                         </div>
                     </div>
