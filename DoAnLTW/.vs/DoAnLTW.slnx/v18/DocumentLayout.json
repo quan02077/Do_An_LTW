@@ -1,12 +1,54 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\BaiTap\\Do_An_LTW\\DoAnLTW\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{775A2532-DDB6-3925-D775-085909613C3B}|DoAnLTW\\DoAnLTW.csproj|d:\\baitap\\do_an_ltw\\doanltw\\doanltw\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{775A2532-DDB6-3925-D775-085909613C3B}|DoAnLTW\\DoAnLTW.csproj|solutionrelative:doanltw\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{775A2532-DDB6-3925-D775-085909613C3B}|DoAnLTW\\DoAnLTW.csproj|d:\\baitap\\do_an_ltw\\doanltw\\doanltw\\data\\dbcontext_tuixach.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{775A2532-DDB6-3925-D775-085909613C3B}|DoAnLTW\\DoAnLTW.csproj|solutionrelative:doanltw\\data\\dbcontext_tuixach.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\BaiTap\\Do_An_LTW\\DoAnLTW\\DoAnLTW\\Program.cs",
+              "RelativeDocumentMoniker": "DoAnLTW\\Program.cs",
+              "ToolTip": "D:\\BaiTap\\Do_An_LTW\\DoAnLTW\\DoAnLTW\\Program.cs",
+              "RelativeToolTip": "DoAnLTW\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-04T12:29:57.696Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "DbContext_TuiXach.cs",
+              "DocumentMoniker": "D:\\BaiTap\\Do_An_LTW\\DoAnLTW\\DoAnLTW\\Data\\DbContext_TuiXach.cs",
+              "RelativeDocumentMoniker": "DoAnLTW\\Data\\DbContext_TuiXach.cs",
+              "ToolTip": "D:\\BaiTap\\Do_An_LTW\\DoAnLTW\\DoAnLTW\\Data\\DbContext_TuiXach.cs",
+              "RelativeToolTip": "DoAnLTW\\Data\\DbContext_TuiXach.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-04T12:21:04.443Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }
