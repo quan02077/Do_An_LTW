@@ -3,12 +3,24 @@
   "WorkspaceRootPath": "D:\\BaiTap\\Do_An_LTW\\DoAnLTW\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{775A2532-DDB6-3925-D775-085909613C3B}|DoAnLTW\\DoAnLTW.csproj|d:\\baitap\\do_an_ltw\\doanltw\\doanltw\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{775A2532-DDB6-3925-D775-085909613C3B}|DoAnLTW\\DoAnLTW.csproj|solutionrelative:doanltw\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{775A2532-DDB6-3925-D775-085909613C3B}|DoAnLTW\\DoAnLTW.csproj|d:\\baitap\\do_an_ltw\\doanltw\\doanltw\\models\\donhang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{775A2532-DDB6-3925-D775-085909613C3B}|DoAnLTW\\DoAnLTW.csproj|solutionrelative:doanltw\\models\\donhang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{775A2532-DDB6-3925-D775-085909613C3B}|DoAnLTW\\DoAnLTW.csproj|d:\\baitap\\do_an_ltw\\doanltw\\doanltw\\data\\dbcontext_tuixach.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{775A2532-DDB6-3925-D775-085909613C3B}|DoAnLTW\\DoAnLTW.csproj|solutionrelative:doanltw\\data\\dbcontext_tuixach.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{775A2532-DDB6-3925-D775-085909613C3B}|DoAnLTW\\DoAnLTW.csproj|d:\\baitap\\do_an_ltw\\doanltw\\doanltw\\models\\khachhang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{775A2532-DDB6-3925-D775-085909613C3B}|DoAnLTW\\DoAnLTW.csproj|solutionrelative:doanltw\\models\\khachhang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{775A2532-DDB6-3925-D775-085909613C3B}|DoAnLTW\\DoAnLTW.csproj|d:\\baitap\\do_an_ltw\\doanltw\\doanltw\\models\\giohang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{775A2532-DDB6-3925-D775-085909613C3B}|DoAnLTW\\DoAnLTW.csproj|solutionrelative:doanltw\\models\\giohang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{775A2532-DDB6-3925-D775-085909613C3B}|DoAnLTW\\DoAnLTW.csproj|d:\\baitap\\do_an_ltw\\doanltw\\doanltw\\models\\taikhoan.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{775A2532-DDB6-3925-D775-085909613C3B}|DoAnLTW\\DoAnLTW.csproj|solutionrelative:doanltw\\models\\taikhoan.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -23,15 +35,53 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\BaiTap\\Do_An_LTW\\DoAnLTW\\DoAnLTW\\Program.cs",
-              "RelativeDocumentMoniker": "DoAnLTW\\Program.cs",
-              "ToolTip": "D:\\BaiTap\\Do_An_LTW\\DoAnLTW\\DoAnLTW\\Program.cs",
-              "RelativeToolTip": "DoAnLTW\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB8AAAAAAAAAAAAAAA==",
+              "Title": "DonHang.cs",
+              "DocumentMoniker": "D:\\BaiTap\\Do_An_LTW\\DoAnLTW\\DoAnLTW\\Models\\DonHang.cs",
+              "RelativeDocumentMoniker": "DoAnLTW\\Models\\DonHang.cs",
+              "ToolTip": "D:\\BaiTap\\Do_An_LTW\\DoAnLTW\\DoAnLTW\\Models\\DonHang.cs",
+              "RelativeToolTip": "DoAnLTW\\Models\\DonHang.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-04T12:29:57.696Z",
+              "WhenOpened": "2026-10-04T13:17:52.166Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "GioHang.cs",
+              "DocumentMoniker": "D:\\BaiTap\\Do_An_LTW\\DoAnLTW\\DoAnLTW\\Models\\GioHang.cs",
+              "RelativeDocumentMoniker": "DoAnLTW\\Models\\GioHang.cs",
+              "ToolTip": "D:\\BaiTap\\Do_An_LTW\\DoAnLTW\\DoAnLTW\\Models\\GioHang.cs",
+              "RelativeToolTip": "DoAnLTW\\Models\\GioHang.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-04T13:17:02.268Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "KhachHang.cs",
+              "DocumentMoniker": "D:\\BaiTap\\Do_An_LTW\\DoAnLTW\\DoAnLTW\\Models\\KhachHang.cs",
+              "RelativeDocumentMoniker": "DoAnLTW\\Models\\KhachHang.cs",
+              "ToolTip": "D:\\BaiTap\\Do_An_LTW\\DoAnLTW\\DoAnLTW\\Models\\KhachHang.cs",
+              "RelativeToolTip": "DoAnLTW\\Models\\KhachHang.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAzwBwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-04T12:49:22.794Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "TaiKhoan.cs",
+              "DocumentMoniker": "D:\\BaiTap\\Do_An_LTW\\DoAnLTW\\DoAnLTW\\Models\\TaiKhoan.cs",
+              "RelativeDocumentMoniker": "DoAnLTW\\Models\\TaiKhoan.cs",
+              "ToolTip": "D:\\BaiTap\\Do_An_LTW\\DoAnLTW\\DoAnLTW\\Models\\TaiKhoan.cs",
+              "RelativeToolTip": "DoAnLTW\\Models\\TaiKhoan.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-04T12:36:21.618Z"
             },
             {
               "$type": "Document",
@@ -41,7 +91,7 @@
               "RelativeDocumentMoniker": "DoAnLTW\\Data\\DbContext_TuiXach.cs",
               "ToolTip": "D:\\BaiTap\\Do_An_LTW\\DoAnLTW\\DoAnLTW\\Data\\DbContext_TuiXach.cs",
               "RelativeToolTip": "DoAnLTW\\Data\\DbContext_TuiXach.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAACQAAAAAAAAAAAAywBMAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-04T12:21:04.443Z",
               "EditorCaption": ""
