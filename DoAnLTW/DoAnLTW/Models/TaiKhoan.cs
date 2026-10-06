@@ -11,7 +11,8 @@ namespace DoAnLTW.Models
         [Required]
         public string tenDangNhap { get; set; } = string.Empty;
 
-        [StringLength(8)]
+        // PasswordHasher của ASP.NET Core tạo chuỗi hash dài hơn 8 ký tự.
+        [StringLength(255)]
         [Required]
         public string matKhau { get; set; } = string.Empty;
 

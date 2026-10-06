@@ -4,6 +4,7 @@ using DoAnLTW.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DoAnLTW.Migrations
 {
     [DbContext(typeof(DbContext_TuiXach))]
-    partial class DbContext_TuiXachModelSnapshot : ModelSnapshot
+    [Migration("20261006145834_ExpandPasswordHashLength")]
+    partial class ExpandPasswordHashLength
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

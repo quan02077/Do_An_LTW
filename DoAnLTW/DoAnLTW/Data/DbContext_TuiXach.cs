@@ -56,6 +56,9 @@ namespace DoAnLTW.Data
                 .HasForeignKey(ct => ct.maTui)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<ChiTietGioHang>()
+                .ToTable(t => t.HasCheckConstraint("CK_ChiTietGioHang_SoLuong", "[soLuong] > 0"));
+
             // 4. Túi xách — Hình ảnh: 1-N (Cascade)
             modelBuilder.Entity<HinhAnhTui>()
                 .HasOne(ha => ha.TuiXach)
@@ -86,6 +89,20 @@ namespace DoAnLTW.Data
                 .WithMany(tx => tx.ChiTietDonHangs)
                 .HasForeignKey(ct => ct.maTui)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ChiTietDonHang>()
+                .ToTable(t => t.HasCheckConstraint("CK_ChiTietDonHang_SoLuong", "[soLuong] > 0"));
+
+            // Những trạng thái này được dùng nhất quán ở luồng khách hàng và trang quản trị.
+            modelBuilder.Entity<DonHang>()
+                .ToTable(t =>
+                {
+                    t.HasCheckConstraint("CK_DonHang_TongTien", "[tongTien] >= 0");
+                    t.HasCheckConstraint("CK_DonHang_TrangThai", "[trangThai] IN (N'Chờ duyệt', N'Đang giao', N'Hoàn tất', N'Đã hủy')");
+                });
+
+            modelBuilder.Entity<TuiXach>()
+                .ToTable(t => t.HasCheckConstraint("CK_TuiXach_SoLuong", "[soLuong] >= 0"));
 
             // 7. Thương hiệu — Túi xách: 1-N (Restrict - không cho xóa thương hiệu nếu còn túi)
             modelBuilder.Entity<TuiXach>()

@@ -1,0 +1,41 @@
+@model DoAnLTW.ViewModels.CheckoutPageViewModel
+@{
+    ViewData["Title"] = "Thanh toán";
+}
+
+<section class="shop-page">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">THANH TOÁN</p>
+            <h1>Xác nhận đơn hàng</h1>
+        </div>
+        <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-dark">Quay lại giỏ hàng</a>
+    </div>
+
+    <form asp-action="Checkout" method="post" class="cart-layout checkout-layout">
+        <div class="checkout-form">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <h2>Thông tin giao hàng</h2>
+            <div class="mb-3">
+                <label asp-for="Checkout.DiaChiNhan" class="form-label"></label>
+                <textarea asp-for="Checkout.DiaChiNhan" class="form-control" rows="4" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"></textarea>
+                <span asp-validation-for="Checkout.DiaChiNhan" class="text-danger"></span>
+            </div>
+            <p class="checkout-note">Bạn có thể hủy đơn khi đơn còn ở trạng thái <strong>Chờ duyệt</strong>.</p>
+            <button type="submit" class="btn btn-dark">Đặt hàng</button>
+        </div>
+        <aside class="order-summary">
+            <h2>Đơn hàng (@Model.Cart.TongSoLuong)</h2>
+            @foreach (var item in Model.Cart.Items)
+            {
+                <div class="summary-line"><span>@item.TenTui × @item.SoLuong</span><strong>@item.ThanhTien.ToString("N0") đ</strong></div>
+            }
+            <hr />
+            <div class="summary-total"><span>Tổng thanh toán</span><strong>@Model.Cart.TongTien.ToString("N0") đ</strong></div>
+        </aside>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

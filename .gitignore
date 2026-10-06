@@ -19,3 +19,19 @@ logs/
 # beside it.
 /.plugins/
 /.opencode-skills/
+
+# .NET / ASP.NET Core build output
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio / Rider local workspace settings
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Local publish and database settings
+[Pp]ublish/
+appsettings.Local.json
+appsettings.Development.Local.json
