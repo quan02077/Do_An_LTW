@@ -9,7 +9,8 @@ public record ProductCardItemViewModel(
     decimal DonGiaHienTai,
     double PhanTramGiam,
     string? HinhAnh,
-    int SoLuongTonKho
+    int SoLuongTonKho,
+    string? Badge = null
 );
 
 public record BrandItemViewModel(

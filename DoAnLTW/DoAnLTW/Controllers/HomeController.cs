@@ -57,7 +57,8 @@ namespace DoAnLTW.Controllers
                     DonGiaHienTai: priceInfo.DonGiaApDung,
                     PhanTramGiam: phanTramGiam,
                     HinhAnh: mainImg,
-                    SoLuongTonKho: t.soLuong
+                    SoLuongTonKho: t.soLuong,
+                    Badge: t.badge
                 );
             }).ToList();
 

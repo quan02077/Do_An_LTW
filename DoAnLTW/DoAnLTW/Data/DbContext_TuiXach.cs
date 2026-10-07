@@ -102,7 +102,11 @@ namespace DoAnLTW.Data
                 });
 
             modelBuilder.Entity<TuiXach>()
-                .ToTable(t => t.HasCheckConstraint("CK_TuiXach_SoLuong", "[soLuong] >= 0"));
+                .ToTable(t =>
+                {
+                    t.HasCheckConstraint("CK_TuiXach_SoLuong", "[soLuong] >= 0");
+                    t.HasCheckConstraint("CK_TuiXach_Badge", "[badge] IS NULL OR [badge] IN (N'Đang giảm giá (Sale)', N'Bán chạy (Best Seller)', N'Hàng mới về (New Arrival)', N'Sale', N'Best Seller', N'New Arrival')");
+                });
 
             // 7. Thương hiệu — Túi xách: 1-N (Restrict - không cho xóa thương hiệu nếu còn túi)
             modelBuilder.Entity<TuiXach>()

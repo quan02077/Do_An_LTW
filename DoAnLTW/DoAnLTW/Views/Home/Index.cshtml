@@ -111,22 +111,38 @@
                 var imgUrl = ResolveImage(product.HinhAnh);
                 <div class="col-6 col-md-4 col-lg-3">
                     <div class="product-card border p-3 rounded shadow-sm text-center position-relative h-100 d-flex flex-column bg-white">
-                        <!-- Nhãn khuyến mãi hoặc trạng thái -->
+                        <!-- Nhãn badge từ CSDL (3 loại: Đang giảm giá, Bán chạy, Hàng mới về) -->
                         @if (product.SoLuongTonKho <= 0)
                         {
-                            <span class="badge bg-secondary position-absolute top-0 end-0 m-2">Hết hàng</span>
+                            <span class="badge bg-secondary position-absolute top-0 end-0 m-2 shadow-sm">Hết hàng</span>
+                        }
+                        else if (!string.IsNullOrEmpty(product.Badge))
+                        {
+                            if (product.Badge.Contains("Sale") || product.Badge.Contains("giảm giá", StringComparison.OrdinalIgnoreCase))
+                            {
+                                var saleText = product.PhanTramGiam > 0 ? $"-{(int)product.PhanTramGiam}%" : "SALE";
+                                <span class="badge bg-danger position-absolute top-0 end-0 m-2 shadow-sm" title="@product.Badge">@saleText</span>
+                            }
+                            else if (product.Badge.Contains("Best Seller", StringComparison.OrdinalIgnoreCase) || product.Badge.Contains("Bán chạy", StringComparison.OrdinalIgnoreCase))
+                            {
+                                <span class="badge bg-dark position-absolute top-0 end-0 m-2 shadow-sm" title="@product.Badge">BEST SELLER</span>
+                            }
+                            else if (product.Badge.Contains("New Arrival", StringComparison.OrdinalIgnoreCase) || product.Badge.Contains("mới", StringComparison.OrdinalIgnoreCase))
+                            {
+                                <span class="badge bg-primary position-absolute top-0 end-0 m-2 shadow-sm" title="@product.Badge">NEW ARRIVAL</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-dark position-absolute top-0 end-0 m-2 shadow-sm">@product.Badge</span>
+                            }
                         }
                         else if (product.PhanTramGiam > 0)
                         {
-                            <span class="badge bg-danger position-absolute top-0 end-0 m-2">-@((int)product.PhanTramGiam)%</span>
+                            <span class="badge bg-danger position-absolute top-0 end-0 m-2 shadow-sm">-@((int)product.PhanTramGiam)%</span>
                         }
                         else if (product.SoLuongTonKho <= 5)
                         {
-                            <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2">Sắp hết</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-dark position-absolute top-0 end-0 m-2">HOT</span>
+                            <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2 shadow-sm">Sắp hết</span>
                         }
 
                         <!-- Ảnh sản phẩm -->

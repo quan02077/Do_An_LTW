@@ -28,6 +28,9 @@ namespace DoAnLTW.Models
         [StringLength(1000)]
         public string? moTa { get; set; }
 
+        [StringLength(50)]
+        public string? badge { get; set; }
+
         public Guid? maKM { get; set; }
         public KhuyenMai? KhuyenMai { get; set; }
 
