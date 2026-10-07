@@ -10,6 +10,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<DbContext_TuiXach>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IHomeRender, HomeRender>();
 builder.Services.AddSingleton<IProductPricingService, ProductPricingService>();
 builder.Services.AddScoped<ICurrentCustomerService, CurrentCustomerService>();
 builder.Services.AddHttpContextAccessor();
