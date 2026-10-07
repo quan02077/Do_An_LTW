@@ -20,7 +20,7 @@ html {
 body {
   background: #faf9f7;
   color: #1f1a17;
-  margin-bottom: 60px;
+  margin-bottom: 0;
 }
 
 .shop-page { max-width: 1120px; margin: 2.5rem auto; }

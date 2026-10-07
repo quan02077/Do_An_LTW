@@ -110,11 +110,12 @@ public class HomeRender : IHomeRender
     private static string? GetBrandLogo(string brandName) =>
         brandName.Trim().ToLowerInvariant() switch
         {
-            "charles & keith" => "/HinhAnh/ck.jpg",
-            "natoli" => "/HinhAnh/natoli.jpg",
-            "pedro" => "/HinhAnh/pedro.jpg",
-            "elly" => "/HinhAnh/elly.jpg",
-            "jamlos" => "/HinhAnh/jamlos.jpg",
+            "charles & keith" => "/HinhAnh/C&K_brand.png",
+            "c&k" => "/HinhAnh/C&K_brand.png",
+            "natoli" => "/HinhAnh/Natoli_brand.png",
+            "pedro" => "/HinhAnh/Pedro_brand.png",
+            "elly" => "/HinhAnh/Elly_brand.png",
+            "jamlos" => "/HinhAnh/Jamlos_brand.png",
             _ => null
         };
 }

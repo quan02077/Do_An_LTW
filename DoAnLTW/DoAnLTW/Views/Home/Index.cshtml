@@ -207,7 +207,7 @@
 
 <!-- Khối Banner Flash Sale Mùa Thu -->
 <section class="container-fluid my-5 px-4 px-md-5">
-    <div class="flash-sale-banner row align-items-center rounded-4 overflow-hidden p-4 p-md-5 text-white">
+    <div class="flash-sale-banner row m-0 align-items-center rounded-4 overflow-hidden p-4 p-md-5 text-white">
         <div class="col-md-7 pe-md-5">
             <h2 class="display-6 fw-bold text-white mb-2 oswald-font">ƯU ĐÃI ĐẶC QUYỀN MÙA THU</h2>
             <p class="text-white-50 fs-5 mb-4">Săn túi xách và balo chính hãng từ các thương hiệu hàng đầu với ưu đãi giảm giá lên đến 30%.</p>
@@ -237,28 +237,31 @@
     </div>
 </section>
 
-<!-- Khối Thương Hiệu Hợp Tác -->
+<!-- Khối Thương Hiệu Nổi Bật (Editorial Showcase) -->
 <section class="container-fluid my-5 px-4 px-md-5">
-    <div class="text-center mb-5">
-        <h2 class="fw-bold oswald-font mb-2" style="font-size: 2rem; line-height: 1.4;">THƯƠNG HIỆU HỢP TÁC</h2>
-        <p class="text-secondary small">Những thương hiệu túi xách và balo được ủy quyền phân phối</p>
+    <div class="text-center mb-4">
+        <h2 class="fw-bold oswald-font text-uppercase" style="font-size: 2.25rem; letter-spacing: 1.5px; color: #111;">
+            THƯƠNG HIỆU NỔI BẬT
+        </h2>
     </div>
 
-    <div class="row justify-content-center g-4">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4 g-lg-5 justify-content-center">
         @if (Model.Brands != null && Model.Brands.Any())
         {
             @foreach (var brand in Model.Brands)
             {
-                <div class="col-6 col-md-4 col-lg-2">
-                    <div class="brand-card h-100">
-                        @if (!string.IsNullOrEmpty(brand.LogoUrl))
-                        {
-                            <div style="height: 40px; display: flex; align-items: center; justify-content: center;" class="mb-2">
-                                <img src="@Url.Content("~" + brand.LogoUrl)" alt="@brand.TenThuongHieu" style="max-height: 36px; max-width: 90px; object-fit: contain; border-radius: 4px;" />
-                            </div>
-                        }
-                        <h3 class="oswald-font fw-bold" style="font-size: 1.15rem;">@brand.TenThuongHieu.ToUpper()</h3>
-                        <p class="text-muted small mb-0">@(brand.MoTa ?? $"{brand.SoLuongSanPham} sản phẩm")</p>
+                var logoImg = ResolveImage(brand.LogoUrl);
+                <div class="col">
+                    <div class="brand-highlight-card text-center h-100">
+                        <div class="brand-highlight-img-wrap">
+                            <img src="@logoImg" 
+                                 alt="@brand.TenThuongHieu" 
+                                 class="brand-highlight-img" 
+                                 loading="lazy" />
+                        </div>
+                        <h4 class="brand-highlight-name">
+                            @brand.TenThuongHieu
+                        </h4>
                     </div>
                 </div>
             }

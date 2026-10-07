@@ -128,15 +128,17 @@
             </div>
         </header>
 
-        <main class="site-main">
+        <main class="site-main flex-grow-1">
             @RenderBody()
         </main>
 
-        <footer class="footer container-fluid p-0 bg-secondary text-white py-5 text-center mt-5">
-            <a asp-controller="Home" asp-action="Index" class="footer-logo-link text-decoration-none">
-                <h1 class="oswald-font fw-bold mb-2 footer-logo-text">BASAU.BAGS</h1>
-            </a>
-            <p class="small mb-0" style="cursor: default; opacity: 0.8;">© 2026 BASAU BAGS STORE - QUẢN LÝ TÚI XÁCH. All rights reserved.</p>
+        <footer class="site-footer w-100 text-white text-center py-5 mt-auto">
+            <div class="container py-2">
+                <a asp-controller="Home" asp-action="Index" class="footer-logo-link text-decoration-none">
+                    <h1 class="oswald-font fw-bold mb-2 footer-logo-text">BASAU<span class="text-danger">.BAGS</span></h1>
+                </a>
+                <p class="small mb-0 text-white-50" style="cursor: default;">© 2026 BASAU BAGS STORE - QUẢN LÝ TÚI XÁCH. All rights reserved.</p>
+            </div>
         </footer>
     </div>
 
