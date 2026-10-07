@@ -22,8 +22,26 @@ public class AccountController(DbContext_TuiXach db) : Controller
         if (!ModelState.IsValid) return View(request);
 
         var account = await db.TaiKhoans.SingleOrDefaultAsync(x => x.tenDangNhap == request.TenDangNhap, ct);
-        var verified = account is not null &&
-            new PasswordHasher<TaiKhoan>().VerifyHashedPassword(account, account.matKhau, request.MatKhau) != PasswordVerificationResult.Failed;
+        var verified = false;
+        if (account is not null)
+        {
+            // Hỗ trợ cả mật khẩu thường (nhập tay từ SQL) lẫn mật khẩu đã mã hóa (PasswordHasher)
+            if (account.matKhau == request.MatKhau)
+            {
+                verified = true;
+            }
+            else
+            {
+                try
+                {
+                    verified = new PasswordHasher<TaiKhoan>().VerifyHashedPassword(account, account.matKhau, request.MatKhau) != PasswordVerificationResult.Failed;
+                }
+                catch
+                {
+                    verified = false;
+                }
+            }
+        }
         if (!verified)
         {
             ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không đúng.");

@@ -1,0 +1,243 @@
+/* ================================================================
+   BASAU BAGS - CATALOG STYLES
+   ================================================================ */
+
+body {
+    font-family: 'Josefin Sans', sans-serif;
+    background-color: #fafafa;
+}
+
+/* Breadcrumb navigation */
+.breadcrumb-bar {
+    font-size: 13px;
+    color: #71717a;
+    padding: 10px 0;
+}
+
+.breadcrumb-bar a {
+    color: #71717a;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.breadcrumb-bar a:hover {
+    color: #18181b;
+}
+
+/* Catalog Title & Results */
+.catalog-title {
+    font-family: "Oswald", sans-serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #18181b;
+}
+
+.result-count {
+    font-size: 15px;
+    color: #71717a;
+    font-weight: 500;
+}
+
+/* Brand Tabs */
+.brand-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 25px;
+}
+
+.brand-tab {
+    padding: 8px 18px;
+    border: 1px solid #e4e4e7;
+    border-radius: 9999px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    background-color: #ffffff;
+    color: #52525b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.brand-tab.active,
+.brand-tab:hover {
+    background-color: #18181b;
+    color: #ffffff;
+    border-color: #18181b;
+}
+
+/* Filter Sidebar */
+.filter-sidebar {
+    background-color: #ffffff;
+    padding: 22px;
+    border: 1px solid #e4e4e7;
+    border-radius: 12px;
+}
+
+.filter-group {
+    border-bottom: 1px solid #f4f4f5;
+    padding: 16px 0;
+}
+
+.filter-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #18181b;
+}
+
+.filter-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.filter-check input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #18181b;
+}
+
+.filter-check span {
+    font-size: 14px;
+    color: #52525b;
+    transition: color 0.15s;
+}
+
+.filter-check:hover span {
+    color: #18181b;
+}
+
+.clear-btn {
+    font-size: 12px;
+    color: #71717a;
+    background: none;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.clear-btn:hover {
+    color: #b91c1c;
+}
+
+/* Sort Select */
+.sort-select {
+    padding: 8px 18px;
+    font-size: 13px;
+    border-radius: 9999px;
+    border: 1px solid #e4e4e7;
+    font-family: 'Josefin Sans', sans-serif;
+    background-color: #ffffff;
+    color: #18181b;
+    cursor: pointer;
+    outline: none;
+    font-weight: 600;
+    transition: border-color 0.2s;
+}
+
+.sort-select:focus {
+    border-color: #18181b;
+}
+
+/* Product Cards */
+.product-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    background: #ffffff;
+    border: 1px solid #e4e4e7 !important;
+    border-radius: 12px;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    border-color: #18181b !important;
+    box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.08) !important;
+}
+
+.product-img-wrap {
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.product-img-wrap img {
+    max-height: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain;
+    transition: transform 0.35s ease;
+}
+
+.product-card:hover .product-img-wrap img {
+    transform: scale(1.05);
+}
+
+/* Favorite Button inside Card (Text tag, zero icons) */
+.fav-card-btn {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    border: 1px solid #e4e4e7;
+    background-color: rgba(255, 255, 255, 0.95);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #52525b;
+    transition: all 0.2s ease;
+    z-index: 20;
+    cursor: pointer;
+}
+
+.fav-card-btn:hover {
+    border-color: #18181b;
+    color: #18181b;
+}
+
+.fav-card-btn.active {
+    background-color: #18181b;
+    color: #ffffff;
+    border-color: #18181b;
+}
+
+/* Pagination */
+.page-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 9999px;
+    border: 1px solid #e4e4e7;
+    background: #ffffff;
+    color: #18181b;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.page-btn:hover,
+.page-btn.active {
+    background-color: #18181b;
+    color: #ffffff;
+    border-color: #18181b;
+}

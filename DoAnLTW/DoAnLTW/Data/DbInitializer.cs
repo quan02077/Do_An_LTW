@@ -16,7 +16,7 @@ public static class DbInitializer
         var db = scope.ServiceProvider.GetRequiredService<DbContext_TuiXach>();
         await db.Database.MigrateAsync();
 
-        if (await db.TaiKhoans.AnyAsync(x => x.tenDangNhap == "customer.demo"))
+        if (await db.TaiKhoans.AnyAsync())
         {
             return;
         }

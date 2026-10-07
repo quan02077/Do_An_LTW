@@ -1,8 +1,255 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model DoAnLTW.ViewModels.HomeIndexViewModel
+@{
+    ViewData["Title"] = "Trang chủ - Cửa Hàng Túi Xách & Balo Thời Trang";
+
+    string ResolveImage(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return Url.Content("~/HinhAnh/logo.jpg");
+        if (path.StartsWith("~"))
+            return Url.Content(path);
+        if (path.StartsWith("/"))
+            return Url.Content("~" + path);
+        return Url.Content("~/HinhAnh/" + path);
+    }
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- Thông báo thao tác giỏ hàng -->
+@if (TempData["CartSuccess"] != null)
+{
+    <div class="container my-3">
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["CartSuccess"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+}
+@if (TempData["CartError"] != null)
+{
+    <div class="container my-3">
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["CartError"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+}
+
+<!-- Hero Slider Carousel -->
+<section id="heroSlider" class="carousel slide carousel-fade" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#heroSlider" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#heroSlider" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#heroSlider" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+
+    <div class="carousel-inner">
+        <div class="carousel-item active" data-bs-interval="5000">
+            <div class="container-fluid p-0 hero-slide-content">
+                <img src="~/HinhAnh/banner1.jpg" class="d-block w-100 hero-bg-img" alt="CHARLES & KEITH">
+                <div class="hero-text-overlay text-center">
+                    <div class="container">
+                        <h1 class="hero-main-title text-uppercase oswald-font">CHARLES & KEITH</h1>
+                        <p class="hero-description">Đẳng cấp, tinh tế và thanh lịch với các thiết kế túi xách cao cấp hàng đầu.</p>
+                        <a href="#featured-products" class="btn hero-btn text-uppercase">Khám phá ngay</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="carousel-item" data-bs-interval="5000">
+            <div class="container-fluid p-0 hero-slide-content">
+                <img src="~/HinhAnh/banner2.jpg" class="d-block w-100 hero-bg-img" alt="NATOLI & JAMLOS">
+                <div class="hero-text-overlay text-center">
+                    <div class="container">
+                        <h1 class="hero-main-title text-uppercase oswald-font">NATOLI & JAMLOS</h1>
+                        <p class="hero-description">Balo và túi đeo chéo cá tính, đồng hành cùng bạn trên mọi hành trình.</p>
+                        <a href="#featured-products" class="btn hero-btn text-uppercase">Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="carousel-item" data-bs-interval="5000">
+            <div class="container-fluid p-0 hero-slide-content">
+                <img src="~/HinhAnh/banner3.jpg" class="d-block w-100 hero-bg-img" alt="PEDRO & ELLY">
+                <div class="hero-text-overlay text-center">
+                    <div class="container">
+                        <h1 class="hero-main-title text-uppercase oswald-font">PEDRO & ELLY</h1>
+                        <p class="hero-description">Chất liệu cao cấp, phom dáng chuẩn mực cho công sở và dạ tiệc.</p>
+                        <a href="#featured-products" class="btn hero-btn text-uppercase">Mua ngay</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroSlider" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon opacity-50" aria-hidden="true"></span>
+        <span class="visually-hidden">Trước</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroSlider" data-bs-slide="next">
+        <span class="carousel-control-next-icon opacity-50" aria-hidden="true"></span>
+        <span class="visually-hidden">Sau</span>
+    </button>
+</section>
+
+<!-- Lưới Sản Phẩm Nổi Bật & Bán Chạy -->
+<section id="featured-products" class="container-fluid my-5 px-4 px-md-5 py-3">
+    <div class="d-flex justify-content-between align-items-end mb-4 pb-2 border-bottom">
+        <div>
+            <h2 class="fw-bold oswald-font mb-1" style="font-size: 2rem; line-height: 1.4;">TÚI XÁCH BÁN CHẠY & NỔI BẬT</h2>
+            <p class="text-secondary small mb-0">Các mẫu túi xách và balo được chọn lọc nhiều nhất trong tháng (@Model.HotProducts.Count sản phẩm)</p>
+        </div>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-dark rounded-pill px-4 btn-sm fw-bold">Tất cả sản phẩm</a>
+    </div>
+
+    <div class="row g-4" id="hotProductsContainer">
+        @if (Model.HotProducts != null && Model.HotProducts.Any())
+        {
+            @foreach (var product in Model.HotProducts)
+            {
+                var imgUrl = ResolveImage(product.HinhAnh);
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="product-card border p-3 rounded shadow-sm text-center position-relative h-100 d-flex flex-column bg-white">
+                        <!-- Nhãn khuyến mãi hoặc trạng thái -->
+                        @if (product.SoLuongTonKho <= 0)
+                        {
+                            <span class="badge bg-secondary position-absolute top-0 end-0 m-2">Hết hàng</span>
+                        }
+                        else if (product.PhanTramGiam > 0)
+                        {
+                            <span class="badge bg-danger position-absolute top-0 end-0 m-2">-@((int)product.PhanTramGiam)%</span>
+                        }
+                        else if (product.SoLuongTonKho <= 5)
+                        {
+                            <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2">Sắp hết</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-dark position-absolute top-0 end-0 m-2">HOT</span>
+                        }
+
+                        <!-- Ảnh sản phẩm -->
+                        <div style="height: 190px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 12px;">
+                            <img src="@imgUrl" class="img-fluid" style="max-height: 100%; object-fit: contain;" alt="@product.TenTui" loading="lazy">
+                        </div>
+
+                        <!-- Thông tin thương hiệu & loại túi -->
+                        <span class="text-secondary small fw-bold text-uppercase">@product.TenThuongHieu · @product.TenLoai</span>
+
+                        <!-- Tên sản phẩm -->
+                        <h5 class="fw-bold my-2" style="font-size: 15px; min-height: 44px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.45;" title="@product.TenTui">
+                            @product.TenTui
+                        </h5>
+
+                        <!-- Giá & Nút thêm giỏ hàng -->
+                        <div class="mt-auto">
+                            <p class="mb-2">
+                                @if (product.PhanTramGiam > 0)
+                                {
+                                    <span class="text-muted text-decoration-line-through small me-2">@product.DonGiaGoc.ToString("N0") ₫</span>
+                                    <span class="text-danger fw-bold fs-5">@product.DonGiaHienTai.ToString("N0") ₫</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger fw-bold fs-5">@product.DonGiaHienTai.ToString("N0") ₫</span>
+                                }
+                            </p>
+
+                            @if (product.SoLuongTonKho > 0)
+                            {
+                                <form asp-controller="Cart" asp-action="Add" method="post" class="w-100">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="MaTui" value="@product.MaTui" />
+                                    <input type="hidden" name="SoLuong" value="1" />
+                                    <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                                    <button type="submit" class="btn btn-dark w-100 rounded-pill fw-bold py-2">
+                                        <i class="bi bi-cart-plus me-1"></i> Thêm vào giỏ
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-secondary w-100 rounded-pill fw-bold py-2" disabled>
+                                    Hết hàng
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-3">Hiện chưa có sản phẩm nào trong cơ sở dữ liệu.</p>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Khối Banner Flash Sale Mùa Thu -->
+<section class="container-fluid my-5 px-4 px-md-5">
+    <div class="flash-sale-banner row align-items-center rounded-4 overflow-hidden p-4 p-md-5 text-white">
+        <div class="col-md-7 pe-md-5">
+            <h2 class="display-6 fw-bold text-white mb-2 oswald-font">ƯU ĐÃI ĐẶC QUYỀN MÙA THU</h2>
+            <p class="text-white-50 fs-5 mb-4">Săn túi xách và balo chính hãng từ các thương hiệu hàng đầu với ưu đãi giảm giá lên đến 30%.</p>
+            <div class="countdown d-flex gap-3 mb-4">
+                <div class="countdown-box">
+                    <div class="count-num" id="days">02</div>
+                    <span class="count-lbl">Ngày</span>
+                </div>
+                <div class="countdown-box">
+                    <div class="count-num" id="hours">14</div>
+                    <span class="count-lbl">Giờ</span>
+                </div>
+                <div class="countdown-box">
+                    <div class="count-num" id="minutes">45</div>
+                    <span class="count-lbl">Phút</span>
+                </div>
+                <div class="countdown-box">
+                    <div class="count-num text-danger" id="seconds">30</div>
+                    <span class="count-lbl">Giây</span>
+                </div>
+            </div>
+            <a href="#featured-products" class="btn btn-light btn-lg px-5 fw-bold rounded-pill text-dark">SĂN SALE NGAY</a>
+        </div>
+        <div class="col-md-5 p-4 text-center">
+            <img src="~/HinhAnh/tui1_1.png" class="img-fluid" style="max-height: 280px; object-fit: contain;" alt="Túi xách Basau">
+        </div>
+    </div>
+</section>
+
+<!-- Khối Thương Hiệu Hợp Tác -->
+<section class="container-fluid my-5 px-4 px-md-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold oswald-font mb-2" style="font-size: 2rem; line-height: 1.4;">THƯƠNG HIỆU HỢP TÁC</h2>
+        <p class="text-secondary small">Những thương hiệu túi xách và balo được ủy quyền phân phối</p>
+    </div>
+
+    <div class="row justify-content-center g-4">
+        @if (Model.Brands != null && Model.Brands.Any())
+        {
+            @foreach (var brand in Model.Brands)
+            {
+                <div class="col-6 col-md-4 col-lg-2">
+                    <div class="brand-card h-100">
+                        @if (!string.IsNullOrEmpty(brand.LogoUrl))
+                        {
+                            <div style="height: 40px; display: flex; align-items: center; justify-content: center;" class="mb-2">
+                                <img src="@Url.Content("~" + brand.LogoUrl)" alt="@brand.TenThuongHieu" style="max-height: 36px; max-width: 90px; object-fit: contain; border-radius: 4px;" />
+                            </div>
+                        }
+                        <h3 class="oswald-font fw-bold" style="font-size: 1.15rem;">@brand.TenThuongHieu.ToUpper()</h3>
+                        <p class="text-muted small mb-0">@(brand.MoTa ?? $"{brand.SoLuongSanPham} sản phẩm")</p>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center text-muted">Chưa có thương hiệu nào.</div>
+        }
+    </div>
+</section>
