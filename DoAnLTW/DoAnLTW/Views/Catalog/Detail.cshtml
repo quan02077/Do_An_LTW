@@ -1,0 +1,161 @@
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm";
+    var productId = ViewData["ProductId"] ?? 1;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/stylesDetail.css" asp-append-version="true" />
+}
+
+<main class="site-main container-fluid px-4 px-md-5 mt-4 pb-5">
+    <!-- Breadcrumbs -->
+    <nav class="breadcrumb-bar mb-4" aria-label="breadcrumb">
+        <a asp-controller="Home" asp-action="Index" class="text-decoration-none text-secondary">Trang chủ</a> &nbsp;/&nbsp;
+        <a asp-controller="Catalog" asp-action="Index" class="text-decoration-none text-secondary">Túi xách</a> &nbsp;/&nbsp;
+        <span id="breadcrumbDetailName" class="text-dark fw-bold">Chi tiết sản phẩm</span>
+    </nav>
+
+    <!-- Khối Chi Tiết Sản Phẩm: Ảnh (col-lg-6) & Thông tin (col-lg-6) -->
+    <div class="row mx-0 g-4 g-lg-5">
+        <!-- Hình ảnh sản phẩm và Thumbnail Gallery -->
+        <div class="col-lg-6 text-center">
+            <div class="main-img-container bg-light rounded-4 p-4 shadow-sm position-relative d-flex align-items-center justify-content-center" style="min-height: 460px;">
+                <span id="detailBadge" class="badge bg-danger position-absolute top-0 start-0 m-3 px-3 py-2 fs-6 d-none"></span>
+                <img src="/HinhAnh/tui1_1.png" id="mainProductImg" class="img-fluid" style="max-height: 400px; object-fit: contain; transition: transform 0.3s ease;" alt="Chi tiết túi xách">
+            </div>
+
+            <!-- Thumbnails row tương ứng hinhanhtui -->
+            <div class="d-flex justify-content-center gap-3 mt-3" id="thumbnailsContainer">
+            </div>
+        </div>
+
+        <!-- Thông tin chi tiết sản phẩm túi xách -->
+        <div class="col-lg-6 ps-lg-4 mt-4 mt-lg-0">
+            <div class="product-info">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-dark px-3 py-2 text-uppercase" id="productBrand">Thương hiệu</span>
+                    <span class="badge bg-light text-dark border px-3 py-2 text-uppercase" id="productCategory">Loại túi</span>
+                </div>
+
+                <h1 class="fw-bold oswald-font mb-3" id="productName" style="font-size: 2.2rem;">Tên Túi Xách</h1>
+
+                <!-- Giá & Khuyến mãi -->
+                <div class="p-3 bg-light rounded-3 my-3 border">
+                    <div class="d-flex align-items-baseline gap-3">
+                        <div class="fw-bold text-danger mb-0 fs-2" id="productPrice">0 ₫</div>
+                        <span class="text-muted text-decoration-line-through fs-5 d-none" id="productOldPrice">0 ₫</span>
+                        <span class="badge bg-danger fs-6 d-none" id="productDiscountPercent">-0%</span>
+                    </div>
+                    <p class="text-success small fw-bold mb-0 mt-2 d-none" id="productPromoTag">
+                        Áp dụng: <span id="productPromoName"></span>
+                    </p>
+                </div>
+
+                <!-- Trạng thái tồn kho -->
+                <div class="mb-4">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold small text-secondary text-uppercase">Tình trạng kho:</span>
+                        <span class="badge bg-white text-dark border px-3 py-2 fw-bold" id="productStock">Còn 0 sản phẩm</span>
+                    </div>
+                </div>
+
+                <!-- Bộ chọn số lượng mua -->
+                <div class="mb-4">
+                    <label class="fw-bold d-block mb-2 small text-secondary text-uppercase">Số lượng mua:</label>
+                    <div class="d-inline-flex align-items-center border rounded-pill p-1 bg-light">
+                        <button class="btn btn-outline-dark rounded-circle border-0" style="width: 36px; height: 36px;" onclick="changeBuyQty(-1)">−</button>
+                        <input type="number" id="buyQuantity" class="form-control text-center border-0 bg-transparent fw-bold fs-5" value="1" min="1" max="100" style="width: 60px;" readonly>
+                        <button class="btn btn-outline-dark rounded-circle border-0" style="width: 36px; height: 36px;" onclick="changeBuyQty(1)">+</button>
+                    </div>
+                </div>
+
+                <!-- Nút mua hàng & Yêu thích -->
+                <div class="d-grid gap-3">
+                    <button class="btn btn-dark btn-lg rounded-pill py-3 fw-bold shadow-sm" id="btnAddToCart" onclick="addToCart()">
+                        THÊM VÀO GIỎ HÀNG
+                    </button>
+                    <button class="btn btn-outline-dark rounded-pill py-3 fw-bold" id="btnToggleFav" onclick="toggleCurrentFavorite()">
+                        LƯU VÀO DANH SÁCH YÊU THÍCH
+                    </button>
+                </div>
+
+                <!-- Bảng thuộc tính chi tiết -->
+                <div class="mt-4 pt-3 border-top">
+                    <div class="fw-bold text-uppercase text-secondary mb-3 small">Thông số sản phẩm</div>
+                    <table class="table table-sm table-borderless small mb-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted" style="width: 140px;">Mã sản phẩm:</td>
+                                <td class="fw-bold" id="specId">#0</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Thương hiệu:</td>
+                                <td class="fw-bold" id="specBrand">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Loại túi xách:</td>
+                                <td class="fw-bold" id="specCategory">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Chương trình KM:</td>
+                                <td class="fw-bold text-danger" id="specPromo">Không</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Tồn kho hiện tại:</td>
+                                <td class="fw-bold" id="specStock">0 cái</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Mô tả chi tiết sản phẩm -->
+    <div class="row mt-5 mx-0">
+        <div class="col-12 p-4 bg-light rounded-4 border">
+            <h2 class="h4 fw-bold oswald-font border-bottom pb-3 mb-3">MÔ TẢ SẢN PHẨM</h2>
+            <p class="fs-5 leading-relaxed text-secondary mb-0" id="productDescription">
+                Mô tả đang được cập nhật...
+            </p>
+        </div>
+    </div>
+
+    <!-- Sản phẩm liên quan -->
+    <div class="row mt-5 pt-4 border-top mb-5 mx-0">
+        <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+            <h2 class="h4 fw-bold m-0 oswald-font">CÓ THỂ BẠN CŨNG THÍCH</h2>
+            <a asp-controller="Catalog" asp-action="Index" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">Xem thêm</a>
+        </div>
+
+        <div class="col-12 d-flex flex-nowrap overflow-auto hide-scrollbar gap-3" id="relatedProducts">
+            <!-- Nạp động từ scriptDetail.js -->
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/data.js" asp-append-version="true"></script>
+    <script src="~/js/cart.js" asp-append-version="true"></script>
+    <script src="~/js/favourite.js" asp-append-version="true"></script>
+    <script src="~/js/scriptDetail.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Đảm bảo URL có param id
+            const urlParams = new URLSearchParams(window.location.search);
+            if (!urlParams.get('id')) {
+                const currentId = '@productId';
+                const newUrl = window.location.pathname + '?id=' + currentId;
+                window.history.replaceState(null, '', newUrl);
+            }
+            if (typeof initProductDetail === 'function') {
+                initProductDetail();
+            }
+            if (typeof updateFavBtnUI === 'function') {
+                updateFavBtnUI();
+            }
+        });
+    </script>
+}

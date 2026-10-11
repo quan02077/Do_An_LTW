@@ -57,6 +57,36 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
+    name: "catalog_html",
+    pattern: "catalog.html",
+    defaults: new { controller = "Catalog", action = "Index" });
+
+app.MapControllerRoute(
+    name: "productDetail_html",
+    pattern: "productDetail.html",
+    defaults: new { controller = "Catalog", action = "Detail" });
+
+app.MapControllerRoute(
+    name: "flashSale_html",
+    pattern: "flashSale.html",
+    defaults: new { controller = "FlashSale", action = "Index" });
+
+app.MapControllerRoute(
+    name: "admin_html",
+    pattern: "admin.html",
+    defaults: new { controller = "Admin", action = "Index" });
+
+app.MapControllerRoute(
+    name: "home_html",
+    pattern: "homePage.html",
+    defaults: new { controller = "Home", action = "Index" });
+
+app.MapControllerRoute(
+    name: "login_html",
+    pattern: "login.html",
+    defaults: new { controller = "Account", action = "Login" });
+
+app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 

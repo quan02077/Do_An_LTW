@@ -1,0 +1,82 @@
+<!-- TAB 1: THÊM SẢN PHẨM MỚI -->
+<div class="adm-panel active" id="adm-panel-add">
+    <div class="bg-white border rounded-4 p-4 p-md-5 shadow-sm">
+        <h2 class="fs-5 fw-bold border-bottom pb-2 mb-4">THÔNG TIN TÚI XÁCH MỚI (BẢNG TUIXACH)</h2>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <label class="form-label fw-bold text-secondary small">Tên túi xách (tentui) *</label>
+                <input id="add_name" class="form-control form-control-lg bg-light border-0" type="text"
+                    placeholder="Vd: Túi đeo chéo nữ CHARLES & KEITH">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold text-secondary small">Thương hiệu (thuonghieu) *</label>
+                <select id="add_brand" class="form-select form-select-lg bg-light border-0">
+                    <option value="1">CHARLES & KEITH</option>
+                    <option value="2">Natoli</option>
+                    <option value="3">Pedro</option>
+                    <option value="4">ELLY</option>
+                    <option value="5">Jamlos</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold text-secondary small">Loại túi (loaitui) *</label>
+                <select id="add_category" class="form-select form-select-lg bg-light border-0">
+                    <option value="1">Balo</option>
+                    <option value="2" selected>Túi đeo chéo</option>
+                    <option value="3">Túi tote</option>
+                    <option value="4">Túi dự tiệc</option>
+                    <option value="5">Túi đeo vai</option>
+                    <option value="6">Clutch</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold text-secondary small">Chương trình khuyến mãi (khuyenmai)</label>
+                <select id="add_km" class="form-select form-select-lg bg-light border-0">
+                    <option value="0">Không khuyến mãi (0%)</option>
+                    <option value="1">Khuyến mãi tháng 9 (-10%)</option>
+                    <option value="2">Sale cuối tuần (-15%)</option>
+                    <option value="3">Ưu đãi khách hàng mới (-20%)</option>
+                    <option value="4">Sale mùa thu (-25%)</option>
+                    <option value="5">Siêu sale cuối năm (-30%)</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold text-secondary small">Đơn giá bán (dongia) (₫) *</label>
+                <input id="add_price" class="form-control form-control-lg bg-light border-0" type="number"
+                    placeholder="Vd: 899000">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold text-secondary small">Số lượng tồn kho (soluong) *</label>
+                <input id="add_stock" class="form-control form-control-lg bg-light border-0" type="number"
+                    placeholder="Vd: 15" value="10">
+            </div>
+            <div class="col-12">
+                <label class="form-label fw-bold text-secondary small">Đường dẫn hình ảnh chính (hinhanhtui) *</label>
+                <input id="add_img" class="form-control form-control-lg bg-light border-0" type="text"
+                    placeholder="Vd: /HinhAnh/tui1_1.png">
+            </div>
+            <div class="col-12">
+                <label class="form-label fw-bold text-secondary small">Mô tả sản phẩm (mota)</label>
+                <textarea id="add_mota" class="form-control bg-light border-0" rows="3"
+                    placeholder="Nhập mô tả kiểu dáng, chất liệu, tính năng của túi..."></textarea>
+            </div>
+        </div>
+
+        <h2 class="fs-5 fw-bold border-bottom pb-2 mt-5 mb-4">NHÃN NỔI BẬT</h2>
+        <input type="hidden" id="add_badge" value="">
+        <div class="d-flex flex-wrap gap-2" id="addBadgeRow">
+            <button type="button" class="btn btn-outline-dark adm-badge-opt selected" data-v=""
+                onclick="selectBadge('add',this)">Mặc định</button>
+            <button type="button" class="btn btn-outline-dark adm-badge-opt" data-v="New Arrival"
+                onclick="selectBadge('add',this)">New Arrival</button>
+            <button type="button" class="btn btn-outline-dark adm-badge-opt" data-v="Best Seller"
+                onclick="selectBadge('add',this)">Best Seller</button>
+            <button type="button" class="btn btn-outline-dark adm-badge-opt" data-v="Sale Off"
+                onclick="selectBadge('add',this)">Sale Off</button>
+        </div>
+
+        <button class="btn btn-dark w-100 py-3 mt-5 fw-bold fs-5 shadow-sm rounded-pill" onclick="submitAddProduct()">
+            THÊM TÚI XÁCH VÀO KHO
+        </button>
+    </div>
+</div>

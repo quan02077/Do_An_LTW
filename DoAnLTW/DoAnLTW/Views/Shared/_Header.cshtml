@@ -1,0 +1,115 @@
+<header id="main-header" class="site-header">
+    <div class="rowHeader bg-light py-1 px-3 border-bottom">
+        <div class="container-fluid px-4 d-flex justify-content-end align-items-center gap-4">
+            <div class="tienich" id="adminMenuWrap">
+                <a asp-controller="Admin" asp-action="Index" class="text-secondary text-decoration-none" id="QL_btn">Quản lý sản phẩm</a>
+            </div>
+            <div class="tienich">
+                <a href="#" class="text-secondary text-decoration-none" onclick="if (typeof handleCartLinkClick === 'function') { handleCartLinkClick(event); } else { window.location.href='/Cart'; }">
+                    <span id="cartCountText">Giỏ hàng</span>
+                </a>
+            </div>
+            <div class="tienich">
+                <a asp-controller="Orders" asp-action="History" class="text-secondary text-decoration-none">Đơn hàng</a>
+            </div>
+            <div class="tienich">
+                <a href="#" class="text-secondary text-decoration-none" onclick="handleFavLinkClick(event)">
+                    <span>Yêu thích</span>
+                </a>
+            </div>
+            <div class="tienich">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <span class="text-secondary me-2">Xin chào, <strong>@User.Identity.Name</strong></span>
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline" onsubmit="try { localStorage.removeItem('currentUser'); } catch(e) {}">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-link text-danger text-decoration-none p-0 small fw-bold">Đăng xuất</button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="text-secondary text-decoration-none fw-bold" id="userAccountLink">
+                        <span id="userAccountText">Đăng nhập</span>
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid rowMenu bg-white sticky-top shadow-sm py-3 px-4 px-md-5">
+        <div class="container d-flex align-items-center justify-content-between">
+            <div class="logo d-flex justify-content-start align-items-center" style="flex: 1;">
+                <a asp-controller="Home" asp-action="Index" class="text-decoration-none text-dark d-flex align-items-center gap-2">
+                    <span class="oswald-font fw-bold fs-2" style="letter-spacing: 2px;">BASAU<span class="text-danger">.BAGS</span></span>
+                </a>
+            </div>
+
+            <div class="menu-toggle d-lg-none" style="cursor: pointer;" id="mobileMenuToggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+
+            <nav class="menu d-none d-lg-flex justify-content-center align-items-center" id="nav-menu" style="flex: 2;">
+                <a asp-controller="Catalog" asp-action="Index" class="text-dark text-decoration-none menu-link">TẤT CẢ</a>
+
+                <div class="dropdown">
+                    <a asp-controller="Catalog" asp-action="Index" class="text-dark text-decoration-none menu-link">LOẠI TÚI</a>
+                    <div class="mega-menu p-4">
+                        <div class="container">
+                            <div class="row text-start g-3">
+                                <div class="col-4">
+                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">THÔNG DỤNG</h6>
+                                    <a href="/Catalog?category=Balo" class="d-block text-white-50 text-decoration-none py-1 hover-white">Balo thời trang</a>
+                                    <a href="/Catalog?category=Túi đeo chéo" class="d-block text-white-50 text-decoration-none py-1 hover-white">Túi đeo chéo</a>
+                                </div>
+                                <div class="col-4">
+                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">THANH LỊCH</h6>
+                                    <a href="/Catalog?category=Túi đeo vai" class="d-block text-white-50 text-decoration-none py-1 hover-white">Túi đeo vai</a>
+                                    <a href="/Catalog?category=Túi tote" class="d-block text-white-50 text-decoration-none py-1 hover-white">Túi tote</a>
+                                </div>
+                                <div class="col-4">
+                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">SỰ KIỆN</h6>
+                                    <a href="/Catalog?category=Clutch" class="d-block text-white-50 text-decoration-none py-1 hover-white">Clutch dự tiệc</a>
+                                    <a href="/Catalog?category=Túi dự tiệc" class="d-block text-white-50 text-decoration-none py-1 hover-white">Túi dự tiệc</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dropdown">
+                    <a asp-controller="Catalog" asp-action="Index" class="text-dark text-decoration-none menu-link">THƯƠNG HIỆU</a>
+                    <div class="mega-menu p-4">
+                        <div class="container">
+                            <div class="row text-start g-3">
+                                <div class="col-4">
+                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">QUỐC TẾ</h6>
+                                    <a href="/Catalog?brand=CHARLES %26 KEITH" class="d-block text-white-50 text-decoration-none py-1 hover-white">CHARLES & KEITH</a>
+                                    <a href="/Catalog?brand=Pedro" class="d-block text-white-50 text-decoration-none py-1 hover-white">Pedro</a>
+                                </div>
+                                <div class="col-4">
+                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">NỘI ĐỊA CAO CẤP</h6>
+                                    <a href="/Catalog?brand=ELLY" class="d-block text-white-50 text-decoration-none py-1 hover-white">ELLY</a>
+                                </div>
+                                <div class="col-4">
+                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">TRẺ TRUNG & TIỆN ÍCH</h6>
+                                    <a href="/Catalog?brand=Natoli" class="d-block text-white-50 text-decoration-none py-1 hover-white">Natoli</a>
+                                    <a href="/Catalog?brand=Jamlos" class="d-block text-white-50 text-decoration-none py-1 hover-white">Jamlos</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a asp-controller="FlashSale" asp-action="Index" class="text-danger text-decoration-none menu-link fw-bold">KHUYẾN MÃI</a>
+            </nav>
+
+            <div class="searchBar d-none d-lg-flex" style="flex: 1; justify-content: flex-end;">
+                <form action="/Catalog" method="get" class="w-auto">
+                    <input type="text" name="q" class="form-control rounded-pill custom-search" placeholder="Tìm kiếm túi xách, balo...">
+                </form>
+            </div>
+        </div>
+    </div>
+</header>

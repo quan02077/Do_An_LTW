@@ -1,0 +1,51 @@
+@model DoAnLTW.ViewModels.HomeIndexViewModel
+@{
+    string ResolveImage(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return Url.Content("~/HinhAnh/logo.jpg");
+        if (path.StartsWith("~"))
+            return Url.Content(path);
+        if (path.StartsWith("/"))
+            return Url.Content("~" + path);
+        return Url.Content("~/HinhAnh/" + path);
+    }
+}
+
+<!-- Khối Thương Hiệu Nổi Bật (Editorial Showcase) -->
+<section class="container-fluid my-5 px-4 px-md-5">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold oswald-font text-uppercase" style="font-size: 2.25rem; letter-spacing: 1.5px; color: #111;">
+            THƯƠNG HIỆU NỔI BẬT
+        </h2>
+    </div>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4 g-lg-5 justify-content-center">
+        @if (Model.Brands != null && Model.Brands.Any())
+        {
+            @foreach (var brand in Model.Brands)
+            {
+                var logoImg = ResolveImage(brand.LogoUrl);
+                <div class="col">
+                    <a href="/Catalog?brand=@brand.TenThuongHieu" class="text-decoration-none text-dark d-block h-100">
+                        <div class="brand-highlight-card text-center h-100">
+                            <div class="brand-highlight-img-wrap">
+                                <img src="@logoImg"
+                                     alt="@brand.TenThuongHieu"
+                                     class="brand-highlight-img"
+                                     loading="lazy" />
+                            </div>
+                            <h4 class="brand-highlight-name">
+                                @brand.TenThuongHieu
+                            </h4>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center text-muted">Chưa có thương hiệu nào.</div>
+        }
+    </div>
+</section>

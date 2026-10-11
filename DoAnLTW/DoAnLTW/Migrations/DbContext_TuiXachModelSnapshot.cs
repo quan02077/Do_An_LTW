@@ -282,6 +282,10 @@ namespace DoAnLTW.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("badge")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<decimal>("donGia")
                         .HasColumnType("decimal(18,2)");
 
@@ -316,6 +320,8 @@ namespace DoAnLTW.Migrations
 
                     b.ToTable("TuiXachs", t =>
                         {
+                            t.HasCheckConstraint("CK_TuiXach_Badge", "[badge] IS NULL OR [badge] IN (N'Đang giảm giá (Sale)', N'Bán chạy (Best Seller)', N'Hàng mới về (New Arrival)', N'Sale', N'Best Seller', N'New Arrival')");
+
                             t.HasCheckConstraint("CK_TuiXach_SoLuong", "[soLuong] >= 0");
                         });
                 });

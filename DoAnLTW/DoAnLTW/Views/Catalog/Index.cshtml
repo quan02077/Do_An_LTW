@@ -1,0 +1,164 @@
+@{
+    ViewData["Title"] = "Bộ Sưu Tập Túi Xách & Balo";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/catalog.css" asp-append-version="true" />
+}
+
+<main class="site-main container-fluid px-4 px-md-5 mt-4 pb-5">
+    <!-- Breadcrumbs -->
+    <nav class="breadcrumb-bar mb-3" aria-label="breadcrumb">
+        <a asp-controller="Home" asp-action="Index">Trang chủ</a> &nbsp;/&nbsp;
+        <span id="breadcrumbCurrent">Tất cả túi xách</span>
+    </nav>
+
+    <!-- Tiêu đề trang & Đếm kết quả -->
+    <div class="d-flex align-items-baseline gap-3 mb-3">
+        <h1 class="catalog-title mb-0" id="pageTitle">Tất cả túi xách</h1>
+        <span class="result-count" id="resultCount">(0 sản phẩm)</span>
+    </div>
+
+    <!-- Tab Phân Loại Thương Hiệu -->
+    <div class="brand-tabs" id="brandTabs">
+        <div class="brand-tab active" data-brand="all" onclick="selectBrand(this)">Tất cả</div>
+        <div class="brand-tab" data-brand="CHARLES & KEITH" onclick="selectBrand(this)">CHARLES & KEITH</div>
+        <div class="brand-tab" data-brand="Natoli" onclick="selectBrand(this)">Natoli</div>
+        <div class="brand-tab" data-brand="Pedro" onclick="selectBrand(this)">Pedro</div>
+        <div class="brand-tab" data-brand="ELLY" onclick="selectBrand(this)">ELLY</div>
+        <div class="brand-tab" data-brand="Jamlos" onclick="selectBrand(this)">Jamlos</div>
+    </div>
+
+    <!-- Nút bật/tắt bộ lọc trên thiết bị di động -->
+    <button class="btn btn-outline-dark d-lg-none w-100 mb-3 fw-bold rounded-pill shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filterSidebarCollapse">
+        BỘ LỌC & PHÂN LOẠI
+    </button>
+
+    <!-- Bố cục 2 cột: Sidebar Bộ lọc & Lưới Sản phẩm -->
+    <div class="row g-4 mt-1">
+        <aside class="col-lg-3">
+            <div class="collapse d-lg-block" id="filterSidebarCollapse">
+                <div class="filter-sidebar shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                        <span class="fw-bold" style="font-size:14px; letter-spacing:0.5px;">BỘ LỌC TÚI XÁCH</span>
+                        <button class="clear-btn" onclick="clearAllFilters()">Xóa tất cả</button>
+                    </div>
+
+                    <!-- Bộ lọc Loại túi -->
+                    <div class="filter-group">
+                        <div class="filter-title">Loại túi</div>
+                        <div class="filter-options">
+                            <label class="filter-check"><input type="checkbox" value="Balo" onchange="applyFilters()">
+                                <span>Balo</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Túi đeo chéo" onchange="applyFilters()">
+                                <span>Túi đeo chéo</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Túi tote" onchange="applyFilters()">
+                                <span>Túi tote</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Túi dự tiệc" onchange="applyFilters()">
+                                <span>Túi dự tiệc</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Túi đeo vai" onchange="applyFilters()">
+                                <span>Túi đeo vai</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Clutch" onchange="applyFilters()">
+                                <span>Clutch</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Bộ lọc Khuyến mãi & Trạng thái -->
+                    <div class="filter-group">
+                        <div class="filter-title">Khuyến mãi & Trạng thái</div>
+                        <div class="filter-options">
+                            <label class="filter-check"><input type="checkbox" value="Sale Off" onchange="applyFilters()"> <span>Đang giảm giá (Sale)</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Best Seller" onchange="applyFilters()"> <span>Bán chạy (Best Seller)</span></label>
+                            <label class="filter-check"><input type="checkbox" value="New Arrival" onchange="applyFilters()"> <span>Hàng mới về (New Arrival)</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Khuyến mãi tháng 9" onchange="applyFilters()"> <span>Khuyến mãi tháng 9 (-10%)</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Sale cuối tuần" onchange="applyFilters()"> <span>Sale cuối tuần (-15%)</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Ưu đãi khách hàng mới" onchange="applyFilters()"> <span>Ưu đãi mới (-20%)</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Sale mùa thu" onchange="applyFilters()"> <span>Sale mùa thu (-25%)</span></label>
+                            <label class="filter-check"><input type="checkbox" value="Siêu sale cuối năm" onchange="applyFilters()"> <span>Siêu sale cuối năm (-30%)</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Bộ lọc Khoảng giá -->
+                    <div class="filter-group border-bottom-0 pb-0">
+                        <div class="filter-title">Khoảng giá</div>
+                        <div class="filter-options">
+                            <label class="filter-check"><input type="checkbox" value="under700k" onchange="applyFilters()"> <span>Dưới 700.000₫</span></label>
+                            <label class="filter-check"><input type="checkbox" value="700k-1.2m" onchange="applyFilters()"> <span>700.000₫ – 1.200.000₫</span></label>
+                            <label class="filter-check"><input type="checkbox" value="over1.2m" onchange="applyFilters()"> <span>Trên 1.200.000₫</span></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Lưới sản phẩm & sắp xếp -->
+        <section class="col-lg-9">
+            <div class="sort-bar d-flex justify-content-end mb-4">
+                <select class="sort-select shadow-sm" id="sortSelect" onchange="applySort()">
+                    <option value="featured">Sắp xếp: Mặc định</option>
+                    <option value="price-asc">Giá: Thấp đến Cao</option>
+                    <option value="price-desc">Giá: Cao đến Thấp</option>
+                    <option value="stock-desc">Số lượng tồn: Nhiều nhất</option>
+                </select>
+            </div>
+
+            <!-- Lưới hiển thị túi xách -->
+            <div class="row g-4" id="productGrid">
+                <!-- Nạp động từ catalog.js -->
+            </div>
+
+            <!-- Phân trang -->
+            <div id="phantrang" class="d-flex justify-content-center mt-5 gap-2">
+            </div>
+
+            <!-- Trạng thái trống (Không tìm thấy kết quả) -->
+            <div class="no-results d-none text-center py-5 bg-white rounded-4 border shadow-sm my-3" id="noResults">
+                <p class="text-uppercase fw-bold text-secondary small mb-2">Không có kết quả</p>
+                <h2 class="fw-bold mb-2 fs-5">Không tìm thấy mẫu túi xách phù hợp</h2>
+                <p class="text-muted small mb-4">Hãy thử bỏ bớt bộ lọc hoặc tìm kiếm với từ khóa khác.</p>
+                <button class="btn btn-dark rounded-pill px-4 btn-sm fw-bold" onclick="clearAllFilters()">Xóa tất cả bộ lọc</button>
+            </div>
+        </section>
+    </div>
+</main>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/data.js" asp-append-version="true"></script>
+    <script src="~/js/catalog.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const cat = urlParams.get('category');
+            const brand = urlParams.get('brand');
+            const q = urlParams.get('q');
+
+            if (cat) {
+                const checkboxes = document.querySelectorAll('.filter-check input[type="checkbox"]');
+                checkboxes.forEach(cb => {
+                    if (cb.value.toLowerCase() === cat.toLowerCase()) {
+                        cb.checked = true;
+                    }
+                });
+                if (typeof applyFilters === 'function') applyFilters();
+            }
+
+            if (brand) {
+                const tabs = document.querySelectorAll('.brand-tab');
+                tabs.forEach(tab => {
+                    if (tab.getAttribute('data-brand')?.toLowerCase() === brand.toLowerCase()) {
+                        if (typeof selectBrand === 'function') selectBrand(tab);
+                    }
+                });
+            }
+
+            if (q) {
+                const searchInputs = document.querySelectorAll('.custom-search');
+                searchInputs.forEach(input => input.value = q);
+                if (typeof handleCatalogSearch === 'function') {
+                    handleCatalogSearch({ key: 'Enter' }, { value: q });
+                }
+            }
+        });
+    </script>
+}
