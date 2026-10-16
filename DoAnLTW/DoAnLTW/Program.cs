@@ -87,6 +87,11 @@ app.MapControllerRoute(
     defaults: new { controller = "Account", action = "Login" });
 
 app.MapControllerRoute(
+    name: "register_html",
+    pattern: "register.html",
+    defaults: new { controller = "Account", action = "Register" });
+
+app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 

@@ -38,17 +38,19 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         window.serverUsername = '@(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "")';
+        window.serverRole = '@(User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value ?? "")';
         window.serverIsAuthenticated = @(User.Identity?.IsAuthenticated == true ? "true" : "false");
 
         // Đồng bộ trạng thái đăng nhập từ server vào localStorage để các script phía client nhận diện
         if (window.serverIsAuthenticated && window.serverUsername) {
             try {
                 let localUser = localStorage.getItem('currentUser');
-                if (!localUser || localUser === "null") {
+                let parsed = localUser ? JSON.parse(localUser) : null;
+                if (!parsed || parsed.username !== window.serverUsername || parsed.role !== window.serverRole) {
                     localStorage.setItem('currentUser', JSON.stringify({
                         username: window.serverUsername,
                         fullname: window.serverUsername,
-                        role: 'customer'
+                        role: window.serverRole || 'Khách hàng'
                     }));
                 }
             } catch (e) {}

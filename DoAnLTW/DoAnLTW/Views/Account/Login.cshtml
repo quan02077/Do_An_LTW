@@ -3,26 +3,59 @@
     ViewData["Title"] = "Đăng nhập";
 }
 
-<section class="auth-page">
-    <form asp-action="Login" method="post" class="auth-card">
-        <input asp-for="ReturnUrl" type="hidden" />
-        <p class="eyebrow">TÀI KHOẢN</p>
-        <h1>Đăng nhập</h1>
-        <p class="text-muted">Đăng nhập để sử dụng giỏ hàng và theo dõi đơn hàng.</p>
-        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-        <div class="mb-3">
-            <label asp-for="TenDangNhap" class="form-label"></label>
-            <input asp-for="TenDangNhap" class="form-control" autocomplete="username" />
-            <span asp-validation-for="TenDangNhap" class="text-danger"></span>
+<section class="auth-page py-5">
+    <div class="auth-card shadow-sm p-4 p-md-5 rounded-4 bg-white border" style="max-width: 480px; margin: 0 auto;">
+        @if (TempData["AuthSuccess"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show small py-2 mb-3 shadow-sm" role="alert">
+                <i class="bi bi-check-circle-fill me-1"></i> @TempData["AuthSuccess"]
+                <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="text-center mb-4 pb-2 border-bottom">
+            <p class="eyebrow text-uppercase text-secondary small fw-bold mb-1">TÀI KHOẢN</p>
+            <h1 class="fw-bold oswald-font mb-1" style="font-size: 2rem;">ĐĂNG NHẬP</h1>
+            <p class="text-muted small mb-0">Đăng nhập để sử dụng giỏ hàng và theo dõi đơn hàng</p>
         </div>
-        <div class="mb-4">
-            <label asp-for="MatKhau" class="form-label"></label>
-            <input asp-for="MatKhau" class="form-control" autocomplete="current-password" />
-            <span asp-validation-for="MatKhau" class="text-danger"></span>
-        </div>
-        <button type="submit" class="btn btn-dark w-100">Đăng nhập</button>
-        <p class="demo-account">Tài khoản demo: <strong>admin</strong> / <strong>123456</strong> (Người bán) hoặc <strong>minhquan</strong> / <strong>123456</strong> (Khách hàng)</p>
-    </form>
+
+        <form asp-action="Login" method="post">
+            @Html.AntiForgeryToken()
+            <input asp-for="ReturnUrl" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="TenDangNhap" class="form-label text-uppercase fw-bold small text-secondary">Tên đăng nhập *</label>
+                <input asp-for="TenDangNhap" class="form-control rounded-3" autocomplete="username" placeholder="Nhập tên đăng nhập" />
+                <span asp-validation-for="TenDangNhap" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="MatKhau" class="form-label text-uppercase fw-bold small text-secondary">Mật khẩu *</label>
+                <input asp-for="MatKhau" class="form-control rounded-3 password-field" id="loginPassword" autocomplete="current-password" placeholder="Nhập mật khẩu" />
+                <span asp-validation-for="MatKhau" class="text-danger small"></span>
+            </div>
+
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" role="switch" id="showPassLogin" onchange="document.getElementById('loginPassword').type = this.checked ? 'text' : 'password'">
+                <label class="form-check-label small text-secondary" for="showPassLogin">Hiển thị mật khẩu</label>
+            </div>
+
+            <button type="submit" class="btn btn-dark w-100 rounded-pill py-3 fw-bold shadow-sm text-uppercase" style="letter-spacing: 1px;">
+                <i class="bi bi-box-arrow-in-right me-1"></i> ĐĂNG NHẬP
+            </button>
+
+            <div class="text-center mt-4 pt-3 border-top small">
+                <span class="text-secondary">Chưa có tài khoản?</span>
+                <a asp-controller="Account" asp-action="Register" class="text-dark fw-bold text-decoration-none ms-1">Đăng ký tài khoản mới</a>
+            </div>
+
+            <p class="demo-account text-muted small mt-3 mb-0 text-center">
+                Tài khoản mẫu: <strong>admin</strong> / <strong>123456</strong> (Người bán) hoặc <strong>minhquan</strong> / <strong>123456</strong> (Khách hàng)
+            </p>
+        </form>
+    </div>
 </section>
 
 @section Scripts {
