@@ -7,15 +7,15 @@ namespace DoAnLTW.Services;
 
 public interface ICartService
 {
-    Task<CartViewModel> GetAsync(Guid maKh, CancellationToken cancellationToken = default);
-    Task<CartViewModel> AddAsync(Guid maKh, AddCartItemViewModel request, CancellationToken cancellationToken = default);
-    Task<CartViewModel> UpdateAsync(Guid maKh, Guid maTui, UpdateCartItemViewModel request, CancellationToken cancellationToken = default);
-    Task<CartViewModel> RemoveAsync(Guid maKh, Guid maTui, CancellationToken cancellationToken = default);
+    Task<CartViewModel> GetAsync(int maKh, CancellationToken cancellationToken = default);
+    Task<CartViewModel> AddAsync(int maKh, AddCartItemViewModel request, CancellationToken cancellationToken = default);
+    Task<CartViewModel> UpdateAsync(int maKh, int maTui, UpdateCartItemViewModel request, CancellationToken cancellationToken = default);
+    Task<CartViewModel> RemoveAsync(int maKh, int maTui, CancellationToken cancellationToken = default);
 }
 
 public class CartService(DbContext_TuiXach db, IProductPricingService pricingService) : ICartService
 {
-    public async Task<CartViewModel> GetAsync(Guid maKh, CancellationToken ct = default)
+    public async Task<CartViewModel> GetAsync(int maKh, CancellationToken ct = default)
     {
         var cart = await GetOrCreateAsync(maKh, ct);
         await db.Entry(cart).Collection(x => x.ChiTietGioHangs).Query()
@@ -37,7 +37,7 @@ public class CartService(DbContext_TuiXach db, IProductPricingService pricingSer
         return new CartViewModel(items, items.Sum(x => x.SoLuong), items.Sum(x => x.ThanhTien));
     }
 
-    public async Task<CartViewModel> AddAsync(Guid maKh, AddCartItemViewModel request, CancellationToken ct = default)
+    public async Task<CartViewModel> AddAsync(int maKh, AddCartItemViewModel request, CancellationToken ct = default)
     {
         var product = await db.TuiXachs.FindAsync([request.MaTui], ct) ?? throw new KeyNotFoundException("Không tìm thấy túi xách.");
         var cart = await GetOrCreateAsync(maKh, ct);
@@ -49,7 +49,7 @@ public class CartService(DbContext_TuiXach db, IProductPricingService pricingSer
         return await GetAsync(maKh, ct);
     }
 
-    public async Task<CartViewModel> UpdateAsync(Guid maKh, Guid maTui, UpdateCartItemViewModel request, CancellationToken ct = default)
+    public async Task<CartViewModel> UpdateAsync(int maKh, int maTui, UpdateCartItemViewModel request, CancellationToken ct = default)
     {
         var cart = await GetOrCreateAsync(maKh, ct);
         var item = await db.ChiTietGioHangs.FindAsync([cart.maGioHang, maTui], ct) ?? throw new KeyNotFoundException("Sản phẩm không có trong giỏ.");
@@ -58,17 +58,17 @@ public class CartService(DbContext_TuiXach db, IProductPricingService pricingSer
         item.soLuong = request.SoLuong; await db.SaveChangesAsync(ct); return await GetAsync(maKh, ct);
     }
 
-    public async Task<CartViewModel> RemoveAsync(Guid maKh, Guid maTui, CancellationToken ct = default)
+    public async Task<CartViewModel> RemoveAsync(int maKh, int maTui, CancellationToken ct = default)
     {
         var cart = await GetOrCreateAsync(maKh, ct); var item = await db.ChiTietGioHangs.FindAsync([cart.maGioHang, maTui], ct);
         if (item is not null) { db.ChiTietGioHangs.Remove(item); await db.SaveChangesAsync(ct); }
         return await GetAsync(maKh, ct);
     }
 
-    private async Task<GioHang> GetOrCreateAsync(Guid maKh, CancellationToken ct)
+    private async Task<GioHang> GetOrCreateAsync(int maKh, CancellationToken ct)
     {
         var cart = await db.GioHangs.SingleOrDefaultAsync(x => x.maKH == maKh, ct);
         if (cart is not null) return cart;
-        cart = new GioHang { maGioHang = Guid.NewGuid(), maKH = maKh, ngayTao = DateTime.Now }; db.GioHangs.Add(cart); await db.SaveChangesAsync(ct); return cart;
+        cart = new GioHang { maKH = maKh, ngayTao = DateTime.Now }; db.GioHangs.Add(cart); await db.SaveChangesAsync(ct); return cart;
     }
 }

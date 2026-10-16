@@ -32,23 +32,10 @@ public class HomeRender : IHomeRender
             .Include(t => t.LoaiTui)
             .Include(t => t.KhuyenMai)
             .Include(t => t.HinhAnhTuis)
-            .Where(t => t.badge != null && (t.badge.Contains("Best Seller") || t.badge.Contains("Bán chạy")))
-            .OrderByDescending(t => t.soLuong)
+            .OrderByDescending(t => t.maKM.HasValue)
+            .ThenByDescending(t => t.soLuong)
             .Take(4)
             .ToListAsync(ct);
-
-        if (!products.Any())
-        {
-            products = await _db.TuiXachs
-                .AsNoTracking()
-                .Include(t => t.ThuongHieu)
-                .Include(t => t.LoaiTui)
-                .Include(t => t.KhuyenMai)
-                .Include(t => t.HinhAnhTuis)
-                .OrderByDescending(t => t.soLuong)
-                .Take(4)
-                .ToListAsync(ct);
-        }
 
         var productCards = products.Select(t =>
         {
@@ -62,6 +49,10 @@ public class HomeRender : IHomeRender
                 ? (double)Math.Round((priceInfo.SoTienGiam / priceInfo.DonGiaGoc) * 100, 0)
                 : 0;
 
+            string? computedBadge = t.KhuyenMai != null 
+                ? (phanTramGiam > 0 ? $"-{(int)phanTramGiam}%" : "Sale")
+                : (t.soLuong >= 12 ? "Best Seller" : "New Arrival");
+
             return new ProductCardItemViewModel(
                 MaTui: t.maTui,
                 TenTui: t.tenTui,
@@ -72,7 +63,7 @@ public class HomeRender : IHomeRender
                 PhanTramGiam: phanTramGiam,
                 HinhAnh: mainImg,
                 SoLuongTonKho: t.soLuong,
-                Badge: t.badge
+                Badge: computedBadge
             );
         }).ToList();
 

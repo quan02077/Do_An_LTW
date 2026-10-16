@@ -16,14 +16,14 @@ public static class OrderStatus
 
 public interface IOrderService
 {
-    Task<OrderViewModel> CheckoutAsync(Guid maKh, CheckoutViewModel request, CancellationToken cancellationToken = default);
-    Task<IReadOnlyCollection<OrderViewModel>> GetHistoryAsync(Guid maKh, CancellationToken cancellationToken = default);
-    Task CancelAsync(Guid maKh, Guid maDh, CancellationToken cancellationToken = default);
+    Task<OrderViewModel> CheckoutAsync(int maKh, CheckoutViewModel request, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<OrderViewModel>> GetHistoryAsync(int maKh, CancellationToken cancellationToken = default);
+    Task CancelAsync(int maKh, int maDh, CancellationToken cancellationToken = default);
 }
 
 public class OrderService(DbContext_TuiXach db, IProductPricingService pricingService) : IOrderService
 {
-    public async Task<OrderViewModel> CheckoutAsync(Guid maKh, CheckoutViewModel request, CancellationToken ct = default)
+    public async Task<OrderViewModel> CheckoutAsync(int maKh, CheckoutViewModel request, CancellationToken ct = default)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, ct);
         try
@@ -52,7 +52,6 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
 
             var order = new DonHang
             {
-                maDH = Guid.NewGuid(),
                 maKH = maKh,
                 ngayDat = DateTime.Now,
                 trangThai = OrderStatus.ChoDuyet,
@@ -65,7 +64,6 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
                 var price = pricingService.GetPrice(product, order.ngayDat);
                 order.ChiTietDonHangs.Add(new ChiTietDonHang
                 {
-                    maDH = order.maDH,
                     maTui = product.maTui,
                     soLuong = cartItem.soLuong,
                     // Snapshot: giá chốt được lưu trực tiếp, không phụ thuộc giá hiện tại của sản phẩm.
@@ -89,7 +87,7 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
         }
     }
 
-    public async Task<IReadOnlyCollection<OrderViewModel>> GetHistoryAsync(Guid maKh, CancellationToken ct = default)
+    public async Task<IReadOnlyCollection<OrderViewModel>> GetHistoryAsync(int maKh, CancellationToken ct = default)
     {
         var orders = await db.DonHangs
             .Where(x => x.maKH == maKh)
@@ -100,7 +98,7 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
         return orders.Select(Map).ToList();
     }
 
-    public async Task CancelAsync(Guid maKh, Guid maDh, CancellationToken ct = default)
+    public async Task CancelAsync(int maKh, int maDh, CancellationToken ct = default)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, ct);
         try

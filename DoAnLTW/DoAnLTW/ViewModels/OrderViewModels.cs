@@ -11,7 +11,7 @@ public class CheckoutViewModel
 }
 
 public record OrderItemViewModel(
-    Guid MaTui,
+    int MaTui,
     string TenTui,
     string? Anh,
     int SoLuong,
@@ -19,7 +19,7 @@ public record OrderItemViewModel(
     decimal ThanhTien);
 
 public record OrderViewModel(
-    Guid MaDonHang,
+    int MaDonHang,
     DateTime NgayDat,
     string TrangThai,
     string DiaChiNhan,

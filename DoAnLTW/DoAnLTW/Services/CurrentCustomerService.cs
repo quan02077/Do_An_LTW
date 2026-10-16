@@ -10,22 +10,22 @@ namespace DoAnLTW.Services;
 /// </summary>
 public interface ICurrentCustomerService
 {
-    Task<Guid> GetRequiredCustomerIdAsync(CancellationToken cancellationToken = default);
+    Task<int> GetRequiredCustomerIdAsync(CancellationToken cancellationToken = default);
 }
 
 public class CurrentCustomerService(IHttpContextAccessor httpContextAccessor, DbContext_TuiXach db) : ICurrentCustomerService
 {
-    public async Task<Guid> GetRequiredCustomerIdAsync(CancellationToken cancellationToken = default)
+    public async Task<int> GetRequiredCustomerIdAsync(CancellationToken cancellationToken = default)
     {
         var accountValue = httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (!Guid.TryParse(accountValue, out var maTk))
+        if (!int.TryParse(accountValue, out var maTk))
         {
             throw new UnauthorizedAccessException("Phiên đăng nhập không hợp lệ.");
         }
 
         var maKh = await db.KhachHangs
             .Where(x => x.matk == maTk)
-            .Select(x => (Guid?)x.maKH)
+            .Select(x => (int?)x.maKH)
             .SingleOrDefaultAsync(cancellationToken);
 
         return maKh ?? throw new UnauthorizedAccessException("Tài khoản này chưa có hồ sơ khách hàng.");

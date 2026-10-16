@@ -1,15 +1,20 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DoAnLTW.Models
 {
+    [Table("giohang")]
     public class GioHang
     {
         [Key]
-        public Guid maGioHang { get; set; }
+        [Column("magiohang")]
+        public int maGioHang { get; set; }
 
-        public Guid maKH { get; set; }
+        [Column("makh")]
+        public int maKH { get; set; }
         public KhachHang? KhachHang { get; set; }
 
+        [Column("ngaytao")]
         [Required]
         public DateTime ngayTao { get; set; } = DateTime.Now;
 
@@ -17,3 +22,4 @@ namespace DoAnLTW.Models
         public ICollection<ChiTietGioHang> ChiTietGioHangs { get; set; } = new List<ChiTietGioHang>();
     }
 }
+

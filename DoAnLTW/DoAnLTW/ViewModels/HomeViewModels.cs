@@ -1,7 +1,7 @@
 namespace DoAnLTW.ViewModels;
 
 public record ProductCardItemViewModel(
-    Guid MaTui,
+    int MaTui,
     string TenTui,
     string TenThuongHieu,
     string TenLoai,
@@ -14,7 +14,7 @@ public record ProductCardItemViewModel(
 );
 
 public record BrandItemViewModel(
-    Guid MaThuongHieu,
+    int MaThuongHieu,
     string TenThuongHieu,
     int SoLuongSanPham,
     string? MoTa = null,

@@ -3,23 +3,28 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DoAnLTW.Models
 {
+    [Table("chitietdonhang")]
     public class ChiTietDonHang
     {
-        public Guid maDH { get; set; }
+        [Column("madh")]
+        public int maDH { get; set; }
         public DonHang? DonHang { get; set; }
 
-        public Guid maTui { get; set; }
+        [Column("matui")]
+        public int maTui { get; set; }
         public TuiXach? TuiXach { get; set; }
 
+        [Column("soluong")]
         [Required]
         public int soLuong { get; set; }
 
+        [Column("dongia", TypeName = "decimal(15,2)")]
         [Required]
-        [Column(TypeName = "decimal(18,2)")]
         public decimal donGia { get; set; }
 
+        [Column("thanhtien", TypeName = "decimal(15,2)")]
         [Required]
-        [Column(TypeName = "decimal(18,2)")]
         public decimal thanhTien { get; set; }
     }
 }
+

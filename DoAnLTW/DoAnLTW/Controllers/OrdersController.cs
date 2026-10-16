@@ -38,7 +38,7 @@ public class OrdersController(
         try
         {
             var order = await orderService.CheckoutAsync(maKh, request, ct);
-            TempData["OrderSuccess"] = $"Đã tạo đơn hàng #{order.MaDonHang.ToString()[..8]}.";
+            TempData["OrderSuccess"] = $"Đã tạo đơn hàng #{order.MaDonHang}.";
             return RedirectToAction(nameof(History));
         }
         catch (InvalidOperationException ex)
@@ -54,7 +54,7 @@ public class OrdersController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Cancel(Guid maDh, CancellationToken ct)
+    public async Task<IActionResult> Cancel(int maDh, CancellationToken ct)
     {
         try
         {

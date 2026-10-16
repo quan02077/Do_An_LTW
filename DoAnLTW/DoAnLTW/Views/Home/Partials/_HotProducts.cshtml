@@ -10,24 +10,6 @@
             return Url.Content("~" + path);
         return Url.Content("~/HinhAnh/" + path);
     }
-
-    int ResolveProductId(string? imgPath, string? name)
-    {
-        if (!string.IsNullOrEmpty(imgPath))
-        {
-            var match = System.Text.RegularExpressions.Regex.Match(imgPath, @"tui(\d+)");
-            if (match.Success && int.TryParse(match.Groups[1].Value, out int id))
-                return id;
-        }
-        if (!string.IsNullOrEmpty(name))
-        {
-            if (name.Contains("Jamlos", StringComparison.OrdinalIgnoreCase) && name.Contains("chéo", StringComparison.OrdinalIgnoreCase)) return 14;
-            if (name.Contains("Natoli", StringComparison.OrdinalIgnoreCase) && name.Contains("chéo", StringComparison.OrdinalIgnoreCase)) return 4;
-            if (name.Contains("Jamlos", StringComparison.OrdinalIgnoreCase) && (name.Contains("Balo", StringComparison.OrdinalIgnoreCase) || name.Contains("balo", StringComparison.OrdinalIgnoreCase))) return 13;
-            if (name.Contains("Natoli", StringComparison.OrdinalIgnoreCase) && name.Contains("tote", StringComparison.OrdinalIgnoreCase)) return 5;
-        }
-        return 1;
-    }
 }
 
 <!-- Lưới Sản Phẩm Nổi Bật & Bán Chạy -->
@@ -83,7 +65,7 @@
                         }
 
                         <!-- Ảnh sản phẩm có link chi tiết -->
-                        <a href="/Catalog/Detail?id=@ResolveProductId(product.HinhAnh, product.TenTui)" class="text-decoration-none text-dark d-block">
+                        <a href="/Catalog/Detail?id=@product.MaTui" class="text-decoration-none text-dark d-block">
                             <div style="height: 190px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 12px;">
                                 <img src="@imgUrl" class="img-fluid" style="max-height: 100%; object-fit: contain;" alt="@product.TenTui" loading="lazy">
                             </div>

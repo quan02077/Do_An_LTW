@@ -37,7 +37,7 @@ public class CartController(ICartService cartService, ICurrentCustomerService cu
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Update(Guid maTui, UpdateCartItemViewModel request, CancellationToken ct)
+    public async Task<IActionResult> Update(int maTui, UpdateCartItemViewModel request, CancellationToken ct)
     {
         try
         {
@@ -54,7 +54,7 @@ public class CartController(ICartService cartService, ICurrentCustomerService cu
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Remove(Guid maTui, CancellationToken ct)
+    public async Task<IActionResult> Remove(int maTui, CancellationToken ct)
     {
         await cartService.RemoveAsync(await currentCustomer.GetRequiredCustomerIdAsync(ct), maTui, ct);
         TempData["CartSuccess"] = "Đã xóa sản phẩm khỏi giỏ hàng.";

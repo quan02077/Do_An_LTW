@@ -1,12 +1,16 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DoAnLTW.Models
 {
+    [Table("thuonghieu")]
     public class ThuongHieu
     {
         [Key]
-        public Guid maThuongHieu { get; set; }
+        [Column("mathuonghieu")]
+        public int maThuongHieu { get; set; }
 
+        [Column("tenthuonghieu")]
         [Required]
         [StringLength(100)]
         public string tenThuongHieu { get; set; } = string.Empty;
@@ -15,3 +19,4 @@ namespace DoAnLTW.Models
         public ICollection<TuiXach> TuiXachs { get; set; } = new List<TuiXach>();
     }
 }
+

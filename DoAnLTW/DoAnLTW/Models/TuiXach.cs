@@ -3,35 +3,42 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DoAnLTW.Models
 {
+    [Table("tuixach")]
     public class TuiXach
     {
         [Key]
-        public Guid maTui { get; set; }
+        [Column("matui")]
+        public int maTui { get; set; }
 
+        [Column("tentui")]
         [Required]
-        [StringLength(200)]
+        [StringLength(150)]
         public string tenTui { get; set; } = string.Empty;
 
-        public Guid maThuongHieu { get; set; }
+        [Column("mathuonghieu")]
+        public int maThuongHieu { get; set; }
         public ThuongHieu? ThuongHieu { get; set; }
 
-        public Guid maLoai { get; set; }
+        [Column("maloai")]
+        public int maLoai { get; set; }
         public LoaiTui? LoaiTui { get; set; }
 
+        [Column("dongia", TypeName = "decimal(15,2)")]
         [Required]
-        [Column(TypeName = "decimal(18,2)")]
         public decimal donGia { get; set; }
 
+        [Column("soluong")]
         [Required]
         public int soLuong { get; set; }
 
-        [StringLength(1000)]
+        [Column("mota")]
         public string? moTa { get; set; }
 
-        [StringLength(50)]
+        [NotMapped]
         public string? badge { get; set; }
 
-        public Guid? maKM { get; set; }
+        [Column("makm")]
+        public int? maKM { get; set; }
         public KhuyenMai? KhuyenMai { get; set; }
 
         // Quan hệ 1 - N với Hình ảnh túi
@@ -44,3 +51,4 @@ namespace DoAnLTW.Models
         public ICollection<ChiTietDonHang> ChiTietDonHangs { get; set; } = new List<ChiTietDonHang>();
     }
 }
+

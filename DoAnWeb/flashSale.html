@@ -214,30 +214,34 @@
 
             <!-- Danh Sách Các Chiến Dịch Khuyến Mãi Đang Chạy -->
             <section class="container mt-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-secondary small fw-bold text-uppercase">Bấm vào chiến dịch để lọc sản phẩm:</span>
+                    <button id="btnShowAllPromo" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold d-none" onclick="filterByPromo(0)">Xem tất cả khuyến mãi</button>
+                </div>
                 <div class="row g-3">
                     <div class="col-md-3 col-6">
-                        <div class="p-3 bg-white border rounded-3 shadow-sm text-center">
+                        <div class="promo-campaign-card p-3 bg-white border rounded-3 shadow-sm text-center h-100" style="cursor: pointer; transition: all 0.25s;" data-kmid="1" onclick="filterByPromo(1)">
                             <span class="badge bg-danger mb-1">-10%</span>
                             <div class="fw-bold mb-1">Khuyến mãi tháng 9</div>
                             <small class="text-muted">01/09 - 30/09</small>
                         </div>
                     </div>
                     <div class="col-md-3 col-6">
-                        <div class="p-3 bg-white border rounded-3 shadow-sm text-center">
+                        <div class="promo-campaign-card p-3 bg-white border rounded-3 shadow-sm text-center h-100" style="cursor: pointer; transition: all 0.25s;" data-kmid="2" onclick="filterByPromo(2)">
                             <span class="badge bg-danger mb-1">-15%</span>
                             <div class="fw-bold mb-1">Sale cuối tuần</div>
                             <small class="text-muted">05/09 - 30/09</small>
                         </div>
                     </div>
                     <div class="col-md-3 col-6">
-                        <div class="p-3 bg-white border rounded-3 shadow-sm text-center">
+                        <div class="promo-campaign-card p-3 bg-white border rounded-3 shadow-sm text-center h-100" style="cursor: pointer; transition: all 0.25s;" data-kmid="3" onclick="filterByPromo(3)">
                             <span class="badge bg-danger mb-1">-20%</span>
                             <div class="fw-bold mb-1">Ưu đãi khách hàng mới</div>
                             <small class="text-muted">01/09 - 31/12</small>
                         </div>
                     </div>
                     <div class="col-md-3 col-6">
-                        <div class="p-3 bg-white border rounded-3 shadow-sm text-center">
+                        <div class="promo-campaign-card p-3 bg-white border rounded-3 shadow-sm text-center h-100" style="cursor: pointer; transition: all 0.25s;" data-kmid="4" onclick="filterByPromo(4)">
                             <span class="badge bg-danger mb-1">-25%</span>
                             <div class="fw-bold mb-1">Sale mùa thu</div>
                             <small class="text-muted">15/09 - 15/10</small>
@@ -248,9 +252,12 @@
 
             <!-- Lưới Sản Phẩm Đang Áp Dụng Khuyến Mãi -->
             <section class="container my-5 bg-white p-4 p-md-5 rounded-4 border shadow-sm">
-                <div class="mb-4 pb-2 border-bottom">
-                    <h2 class="fw-bold oswald-font mb-1" style="font-size: 1.8rem; line-height: 1.4;">DANH SÁCH TÚI XÁCH ĐANG KHUYẾN MÃI</h2>
-                    <p class="text-secondary small mb-0">Các sản phẩm đang áp dụng mã giảm giá theo chiến dịch</p>
+                <div class="mb-4 pb-2 border-bottom d-flex justify-content-between align-items-end flex-wrap gap-2">
+                    <div>
+                        <h2 class="fw-bold oswald-font mb-1" style="font-size: 1.8rem; line-height: 1.4;" id="flashSaleHeading">DANH SÁCH TÚI XÁCH ĐANG KHUYẾN MÃI</h2>
+                        <p class="text-secondary small mb-0" id="flashSaleSubheading">Các sản phẩm đang áp dụng mã giảm giá theo chiến dịch</p>
+                    </div>
+                    <span id="flashSaleCountBadge" class="badge bg-dark px-3 py-2">0 sản phẩm</span>
                 </div>
 
                 <div class="row g-4" id="flashSaleRow">
@@ -291,29 +298,72 @@
     <script src="account.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        let currentSelectedKm = 0;
+
+        function filterByPromo(kmId) {
+            if (currentSelectedKm === kmId && kmId !== 0) {
+                currentSelectedKm = 0; // Bấm lại thì hủy lọc
+            } else {
+                currentSelectedKm = kmId;
+            }
+            renderFlashSaleProducts();
+        }
+
+        function renderFlashSaleProducts() {
             const container = document.getElementById('flashSaleRow');
             if (!container) return;
 
             let prods = (typeof getAllProducts === 'function') ? getAllProducts() : (typeof productsDatabase !== 'undefined' ? productsDatabase : []);
-            let saleProds = prods.filter(p => p.khuyenmai && p.khuyenmai > 0);
+            
+            // Lọc các sản phẩm có khuyến mãi
+            let saleProds = prods.filter(p => (p.makm && p.makm > 0) || (p.discountPercent && p.discountPercent > 0));
+
+            // Cập nhật giao diện các card chiến dịch
+            const cards = document.querySelectorAll('.promo-campaign-card');
+            cards.forEach(card => {
+                let id = parseInt(card.getAttribute('data-kmid') || 0);
+                if (currentSelectedKm > 0 && id === currentSelectedKm) {
+                    card.classList.add('border-danger', 'border-2', 'bg-light', 'shadow');
+                } else {
+                    card.classList.remove('border-danger', 'border-2', 'bg-light', 'shadow');
+                }
+            });
+
+            const btnShowAll = document.getElementById('btnShowAllPromo');
+            const headingEl = document.getElementById('flashSaleHeading');
+            const subheadEl = document.getElementById('flashSaleSubheading');
+            const countBadge = document.getElementById('flashSaleCountBadge');
+
+            if (currentSelectedKm > 0) {
+                if (btnShowAll) btnShowAll.classList.remove('d-none');
+                saleProds = saleProds.filter(p => p.makm === currentSelectedKm);
+                const kmNames = { 1: "Khuyến mãi tháng 9 (-10%)", 2: "Sale cuối tuần (-15%)", 3: "Ưu đãi khách hàng mới (-20%)", 4: "Sale mùa thu (-25%)" };
+                if (headingEl) headingEl.innerText = (kmNames[currentSelectedKm] || "CHIẾN DỊCH KHUYẾN MÃI").toUpperCase();
+                if (subheadEl) subheadEl.innerText = `Danh sách các sản phẩm đang áp dụng gói ${kmNames[currentSelectedKm] || ''}`;
+            } else {
+                if (btnShowAll) btnShowAll.classList.add('d-none');
+                if (headingEl) headingEl.innerText = "DANH SÁCH TÚI XÁCH ĐANG KHUYẾN MÃI";
+                if (subheadEl) subheadEl.innerText = "Các sản phẩm đang áp dụng mã giảm giá theo chiến dịch";
+            }
+
+            if (countBadge) countBadge.innerText = `${saleProds.length} sản phẩm`;
 
             if (saleProds.length === 0) {
-                container.innerHTML = '<div class="col-12 text-center py-5 text-muted">Hiện chưa có chương trình khuyến mãi nào được áp dụng.</div>';
+                container.innerHTML = '<div class="col-12 text-center py-5 text-muted">Không tìm thấy sản phẩm nào đang áp dụng chương trình khuyến mãi này.</div>';
                 return;
             }
 
             let html = '';
             saleProds.forEach(p => {
-                let disc = (p.khuyenmai === 1 ? 10 : p.khuyenmai === 2 ? 15 : p.khuyenmai === 3 ? 20 : p.khuyenmai === 4 ? 25 : 30);
-                let oldP = Math.round(p.price / (1 - disc / 100));
+                let disc = p.discountPercent || (p.makm === 1 ? 10 : p.makm === 2 ? 15 : p.makm === 3 ? 20 : p.makm === 4 ? 25 : 30);
+                let oldP = p.oldPrice || Math.round(p.price / (1 - disc / 100));
 
                 html += `
                     <div class="col-6 col-md-3">
-                        <a href="productDetail.html?id=${p.id}" class="text-decoration-none text-dark">
+                        <a href="productDetail.html?id=${p.id}" class="text-decoration-none text-dark d-block h-100">
                             <div class="flash-sale-card bg-white p-3 rounded-4 border shadow-sm h-100 d-flex flex-column position-relative">
                                 <div class="sale-badge position-absolute top-0 end-0 m-2">-${disc}%</div>
-                                <div class="img-wrap mb-3 d-flex align-items-center justify-content-center bg-light rounded-3">
+                                <div class="img-wrap mb-3 d-flex align-items-center justify-content-center bg-light rounded-3" style="aspect-ratio: 1/1; overflow: hidden;">
                                     <img src="${p.img}" class="img-fluid" style="max-height: 100%; object-fit: contain;" alt="${p.name}">
                                 </div>
                                 <span class="category-text text-secondary small fw-bold text-uppercase mb-1">${p.brand} · ${p.category}</span>
@@ -330,6 +380,10 @@
                 `;
             });
             container.innerHTML = html;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderFlashSaleProducts();
         });
     </script>
     <!-- [/BLOCK: SCRIPTS] -->

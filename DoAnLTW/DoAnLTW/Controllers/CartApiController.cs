@@ -18,11 +18,11 @@ public class CartApiController(ICartService cartService, ICurrentCustomerService
     public async Task<CartViewModel> Add(AddCartItemViewModel request, CancellationToken ct) =>
         await cartService.AddAsync(await currentCustomer.GetRequiredCustomerIdAsync(ct), request, ct);
 
-    [HttpPut("{maTui:guid}")]
-    public async Task<CartViewModel> Update(Guid maTui, UpdateCartItemViewModel request, CancellationToken ct) =>
+    [HttpPut("{maTui:int}")]
+    public async Task<CartViewModel> Update(int maTui, UpdateCartItemViewModel request, CancellationToken ct) =>
         await cartService.UpdateAsync(await currentCustomer.GetRequiredCustomerIdAsync(ct), maTui, request, ct);
 
-    [HttpDelete("{maTui:guid}")]
-    public async Task<CartViewModel> Remove(Guid maTui, CancellationToken ct) =>
+    [HttpDelete("{maTui:int}")]
+    public async Task<CartViewModel> Remove(int maTui, CancellationToken ct) =>
         await cartService.RemoveAsync(await currentCustomer.GetRequiredCustomerIdAsync(ct), maTui, ct);
 }

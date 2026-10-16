@@ -3,14 +3,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DoAnLTW.Models
 {
+    [Table("chitietgiohang")]
     public class ChiTietGioHang
     {
-        public Guid maGioHang { get; set; }
+        [Column("magiohang")]
+        public int maGioHang { get; set; }
         public GioHang? GioHang { get; set; }
 
-        public Guid maTui { get; set; }
+        [Column("matui")]
+        public int maTui { get; set; }
         public TuiXach? TuiXach { get; set; }
 
+        [Column("soluong")]
         [Required]
         public int soLuong { get; set; }
     }

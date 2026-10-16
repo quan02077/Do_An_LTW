@@ -3,25 +3,31 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DoAnLTW.Models
 {
+    [Table("donhang")]
     public class DonHang
     {
         [Key]
-        public Guid maDH { get; set; }
+        [Column("madh")]
+        public int maDH { get; set; }
 
-        public Guid maKH { get; set; }
+        [Column("makh")]
+        public int maKH { get; set; }
         public KhachHang? KhachHang { get; set; }
 
+        [Column("ngaydat")]
         [Required]
         public DateTime ngayDat { get; set; } = DateTime.Now;
 
+        [Column("tongtien", TypeName = "decimal(15,2)")]
         [Required]
-        [Column(TypeName = "decimal(18,2)")]
         public decimal tongTien { get; set; }
 
+        [Column("trangthai")]
         [Required]
         [StringLength(50)]
         public string trangThai { get; set; } = string.Empty;
 
+        [Column("diachinhan")]
         [Required]
         [StringLength(255)]
         public string diaChiNhan { get; set; } = string.Empty;
@@ -30,3 +36,4 @@ namespace DoAnLTW.Models
         public ICollection<ChiTietDonHang> ChiTietDonHangs { get; set; } = new List<ChiTietDonHang>();
     }
 }
+

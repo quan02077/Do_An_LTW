@@ -147,34 +147,67 @@ function toggleCurrentFavorite() {
     }
 }
 
+//lay duong dan trang chi tiet tuy theo moi truong (MVC / static HTML)
+function getProductDetailUrl(id) {
+    let pathname = window.location.pathname;
+    if (pathname.toLowerCase().includes('/catalog/detail')) {
+        return `/Catalog/Detail?id=${id}`;
+    }
+    return `productDetail.html?id=${id}`;
+}
+
+//selectrelatedproduct: chuyen doi sang san pham lien quan truc tiep tren trang
+function selectRelatedProduct(id, e) {
+    if (e) {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.which === 2) {
+            return;
+        }
+        e.preventDefault();
+    }
+    let targetUrl = getProductDetailUrl(id);
+    if (window.history && window.history.pushState) {
+        window.history.pushState({ id: id }, '', targetUrl);
+    }
+    initProductDetail(id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Lang nghe su kien Back / Forward cua trinh duyet
+window.addEventListener('popstate', function(event) {
+    let idFromState = (event && event.state && event.state.id) ? event.state.id : null;
+    initProductDetail(idFromState);
+});
+
 //renderrandomrelatedproducts: tải sản phẩm cùng thương hiệu hoặc danh mục
 function renderRandomRelatedProducts(currentProd) {
     let container = document.getElementById('relatedProducts');
     if (!container || typeof productsDatabase === 'undefined') return;
 
     let allProds = (typeof getAllProducts === 'function') ? getAllProducts() : productsDatabase;
-    let related = allProds.filter(p => p.id !== currentProd.id && (p.brand === currentProd.brand || p.category === currentProd.category));
+    let currentId = currentProd.id || currentProd.matui;
+    let related = allProds.filter(p => (p.id !== currentId && p.matui !== currentId) && (p.brand === currentProd.brand || p.category === currentProd.category));
 
-    if (related.length < 3) {
-        let others = allProds.filter(p => p.id !== currentProd.id && !related.includes(p));
-        for (let i = 0; i < others.length && related.length < 3; i++) {
+    if (related.length < 4) {
+        let others = allProds.filter(p => (p.id !== currentId && p.matui !== currentId) && !related.some(r => r.id === p.id));
+        for (let i = 0; i < others.length && related.length < 4; i++) {
             related.push(others[i]);
         }
     }
 
     let htmlContent = "";
-    related.slice(0, 3).forEach(p => {
+    related.slice(0, 4).forEach(p => {
         let priceFormat = p.price.toLocaleString('vi-VN') + ' ₫';
+        let detailUrl = getProductDetailUrl(p.id);
         htmlContent += `
-            <div class="col-10 col-md-4 flex-shrink-0">
-                <a href="productDetail.html?id=${p.id}" class="text-decoration-none text-dark related-card">
-                    <div class="border rounded-4 p-3 bg-white shadow-sm h-100">
+            <div class="col-10 col-md-3 flex-shrink-0">
+                <a href="${detailUrl}" onclick="selectRelatedProduct(${p.id}, event)" class="text-decoration-none text-dark related-card d-block h-100" style="cursor: pointer;">
+                    <div class="border rounded-4 p-3 bg-white shadow-sm h-100 d-flex flex-column transition-hover">
                         <div class="mb-3 bg-light rounded-3 d-flex align-items-center justify-content-center" style="aspect-ratio: 1/1; overflow: hidden;">
-                            <img src="${p.img}" class="img-fluid w-100 h-100 object-fit-contain p-3">
+                            <img src="${p.img}" class="img-fluid w-100 h-100 object-fit-contain p-3" alt="${p.name}">
                         </div>
                         <span class="text-secondary small fw-bold text-uppercase">${p.brand} · ${p.category}</span>
-                        <h5 class="fw-bold my-1 text-truncate">${p.name}</h5>
-                        <h5 class="fw-bold mt-2 text-danger">${priceFormat}</h5>
+                        <h5 class="fw-bold my-1 text-truncate" title="${p.name}">${p.name}</h5>
+                        <h5 class="fw-bold mt-auto pt-2 text-danger">${priceFormat}</h5>
                     </div>
                 </a>
             </div>`;
@@ -183,12 +216,27 @@ function renderRandomRelatedProducts(currentProd) {
 }
 
 //initproductdetail: tải thông tin chi tiết sản phẩm túi xách
-function initProductDetail() {
-    let urlParams = new URLSearchParams(window.location.search);
-    let productId = parseInt(urlParams.get('id')) || 1;
+function initProductDetail(targetId) {
+    let numId = targetId;
+    if (!numId) {
+        let urlParams = new URLSearchParams(window.location.search);
+        let idParam = urlParams.get('id');
+        if (idParam) {
+            numId = parseInt(idParam, 10);
+        }
+    }
 
     let allProds = (typeof getAllProducts === 'function') ? getAllProducts() : (typeof productsDatabase !== 'undefined' ? productsDatabase : []);
-    let product = allProds.find(p => p.id === productId);
+    let product = null;
+
+    if (numId && !isNaN(numId) && numId > 0) {
+        product = allProds.find(p => p.id === numId || p.matui === numId);
+    }
+
+    // Nếu không tìm thấy theo id, lấy sản phẩm đầu tiên làm mặc định để không bị trắng giao diện
+    if (!product && allProds.length > 0) {
+        product = allProds[0];
+    }
 
     if (product) {
         currentProduct = product;
@@ -215,7 +263,7 @@ function initProductDetail() {
 
         if (priceEl) priceEl.innerText = product.price.toLocaleString('vi-VN') + " ₫";
 
-        if (product.discountPercent > 0 && product.oldPrice > product.price) {
+        if (product.discountPercent > 0 && product.oldPrice && product.oldPrice > product.price) {
             if (oldPriceEl) {
                 oldPriceEl.innerText = product.oldPrice.toLocaleString('vi-VN') + " ₫";
                 oldPriceEl.classList.remove('d-none');
@@ -228,12 +276,20 @@ function initProductDetail() {
                 promoName.innerText = product.promotionName || "Khuyến mãi đặc biệt";
                 promoTag.classList.remove('d-none');
             }
+        } else {
+            if (oldPriceEl) oldPriceEl.classList.add('d-none');
+            if (discountEl) discountEl.classList.add('d-none');
+            if (promoTag) promoTag.classList.add('d-none');
         }
 
-        // Tồn kho
+        // Tồn kho & Số lượng
         let stockEl = document.getElementById('productStock');
         let btnAddToCart = document.getElementById('btnAddToCart');
         let qtyInput = document.getElementById('buyQuantity');
+
+        if (qtyInput) {
+            qtyInput.value = 1;
+        }
 
         if (product.soluong > 0) {
             if (stockEl) {
@@ -241,7 +297,10 @@ function initProductDetail() {
                 stockEl.className = "badge bg-success-subtle text-success border border-success px-3 py-2 fw-bold";
             }
             if (qtyInput) qtyInput.max = product.soluong;
-            if (btnAddToCart) btnAddToCart.disabled = false;
+            if (btnAddToCart) {
+                btnAddToCart.disabled = false;
+                btnAddToCart.innerText = "THÊM VÀO GIỎ HÀNG";
+            }
         } else {
             if (stockEl) {
                 stockEl.innerText = "Tạm hết hàng";
@@ -269,7 +328,7 @@ function initProductDetail() {
         if (specId) specId.innerText = `#TX${product.id}`;
         if (specBrand) specBrand.innerText = product.brand;
         if (specCat) specCat.innerText = product.category;
-        if (specPromo) specPromo.innerText = product.promotionName || "Không áp dụng";
+        if (specPromo) specPromo.innerText = product.promotionName || (product.discountPercent > 0 ? `Giảm ${product.discountPercent}%` : "Không áp dụng");
         if (specStock) specStock.innerText = `${product.soluong} cái`;
 
         // Ảnh chính
@@ -278,13 +337,14 @@ function initProductDetail() {
 
         // Thumbnails Gallery (bảng hinhanhtui)
         let thumbsContainer = document.getElementById('thumbnailsContainer');
-        if (thumbsContainer && product.thumbnails && product.thumbnails.length > 0) {
+        if (thumbsContainer) {
+            let thumbs = (product.thumbnails && product.thumbnails.length > 0) ? product.thumbnails : [product.img];
             let thumbHtml = "";
-            product.thumbnails.forEach((tSrc, idx) => {
+            thumbs.forEach((tSrc, idx) => {
                 let borderClass = idx === 0 ? "border-dark shadow" : "";
                 thumbHtml += `
                     <div class="thumb-item border rounded-3 p-1 bg-white ${borderClass}" style="width: 75px; height: 75px; cursor: pointer; transition: all 0.2s;" onclick="switchMainImg('${tSrc}', this)">
-                        <img src="${tSrc}" class="w-100 h-100 object-fit-contain">
+                        <img src="${tSrc}" class="w-100 h-100 object-fit-contain" alt="thumb">
                     </div>
                 `;
             });
@@ -293,9 +353,14 @@ function initProductDetail() {
 
         // Badge
         let badgeEl = document.getElementById('detailBadge');
-        if (badgeEl && product.badge) {
-            badgeEl.innerText = product.badge;
-            badgeEl.classList.remove('d-none');
+        if (badgeEl) {
+            if (product.badge) {
+                badgeEl.innerText = product.badge;
+                badgeEl.classList.remove('d-none');
+            } else {
+                badgeEl.innerText = "";
+                badgeEl.classList.add('d-none');
+            }
         }
 
         renderRandomRelatedProducts(product);
@@ -303,4 +368,11 @@ function initProductDetail() {
     }
 }
 
-window.onload = initProductDetail;
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => initProductDetail());
+} else {
+    initProductDetail();
+}
+window.onload = function() {
+    initProductDetail();
+};
