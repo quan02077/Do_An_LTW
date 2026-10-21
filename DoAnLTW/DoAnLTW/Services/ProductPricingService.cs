@@ -3,8 +3,8 @@ using DoAnLTW.Models;
 namespace DoAnLTW.Services;
 
 /// <summary>
-/// Điểm dùng chung để tính giá hiển thị và giá chốt khi tạo đơn.
-/// Khi phần khuyến mãi hoàn thiện, chỉ cần mở rộng service này.
+/// điểm dùng chung để tính giá hiển thị và giá chốt khi tạo đơn.
+/// khi phần khuyến mãi hoàn thiện, chỉ cần mở rộng service này.
 /// </summary>
 public interface IProductPricingService
 {

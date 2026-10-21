@@ -38,7 +38,7 @@ public class OrdersController(
         try
         {
             var order = await orderService.CheckoutAsync(maKh, request, ct);
-            TempData["OrderSuccess"] = $"Đã tạo đơn hàng #{order.MaDonHang}.";
+            TempData["OrderSuccess"] = $"Đã tạo đơn hàng #{order.MaHienThi}.";
             return RedirectToAction(nameof(History));
         }
         catch (InvalidOperationException ex)

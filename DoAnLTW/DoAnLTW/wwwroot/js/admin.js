@@ -470,7 +470,7 @@ function loadStatsDashboard() {
     if (ordEl) ordEl.textContent = orders.length + ' đơn';
     if (prodEl) prodEl.textContent = totalStock + ' cái (' + products.length + ' mẫu)';
 
-    // Thống kê theo 5 thương hiệu túi xách
+    // thống kê theo 5 thương hiệu túi xách
     let brandCounts = {};
     products.forEach(p => {
         let b = p.brand || 'Khác';
@@ -493,7 +493,7 @@ function loadStatsDashboard() {
         });
     }
 
-    // Thống kê theo 6 loại túi xách
+    // thống kê theo 6 loại túi xách
     let catCounts = {};
     products.forEach(p => {
         let c = p.category || 'Khác';
@@ -522,7 +522,7 @@ function loadStatsDashboard() {
     }
 }
 
-//initadminpage: kiểm tra quyền Người bán và khởi tạo trang admin
+//initadminpage: kiểm tra quyền người bán và khởi tạo trang admin
 function initAdminPage() {
     let label = document.getElementById('adminUserLabel');
     if (label) {
@@ -533,11 +533,11 @@ function initAdminPage() {
         let userData = localStorage.getItem('currentUser');
         let user = userData ? JSON.parse(userData) : null;
 
-        // Xác định vai trò từ server hoặc localStorage
+        // xác định vai trò từ server hoặc localstorage
         let role = serverAuth ? serverRole : (user ? (user.role || '') : '');
         let isSeller = role === 'Người bán' || role === 'NguoiBan' || role.toLowerCase() === 'admin';
 
-        // Nếu không có vai trò Người bán (ví dụ tài khoản khách hàng hoặc chưa đăng nhập)
+        // nếu không có vai trò người bán (ví dụ tài khoản khách hàng hoặc chưa đăng nhập)
         if (!isSeller) {
             Swal.fire({
                 icon: 'warning',

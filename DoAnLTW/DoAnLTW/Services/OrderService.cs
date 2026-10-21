@@ -66,7 +66,6 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
                 {
                     maTui = product.maTui,
                     soLuong = cartItem.soLuong,
-                    // Snapshot: giá chốt được lưu trực tiếp, không phụ thuộc giá hiện tại của sản phẩm.
                     donGia = price.DonGiaApDung,
                     thanhTien = price.DonGiaApDung * cartItem.soLuong
                 });

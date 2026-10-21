@@ -4,7 +4,7 @@ namespace DoAnLTW.Controllers;
 
 public class FlashSaleController : Controller
 {
-    // GET: /FlashSale hoặc /FlashSale/Index
+    // get: /flashsale hoặc /flashsale/index
     public IActionResult Index()
     {
         return View();

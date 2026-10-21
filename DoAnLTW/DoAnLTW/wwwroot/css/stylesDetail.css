@@ -1,6 +1,4 @@
-/* ================================================================
-   BASAU BAGS - PRODUCT DETAIL STYLES
-   ================================================================ */
+/* basau bags - product detail styles */
 
 body {
     font-family: 'Josefin Sans', sans-serif;
@@ -11,7 +9,7 @@ body {
     font-family: "Oswald", sans-serif;
 }
 
-/* Main Image Container */
+/* main image container */
 .main-img-container {
     min-height: 480px;
     background-color: #f8f9fa !important;
@@ -22,7 +20,7 @@ body {
     justify-content: center;
 }
 
-/* Thumbnail Gallery */
+/* thumbnail gallery */
 .thumb-item {
     width: 72px;
     height: 72px;
@@ -47,7 +45,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* Related Products Cards */
+/* related products cards */
 .related-card {
     transition: transform 0.25s ease;
 }

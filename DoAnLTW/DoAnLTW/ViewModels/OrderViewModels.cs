@@ -16,7 +16,10 @@ public record OrderItemViewModel(
     string? Anh,
     int SoLuong,
     decimal DonGia,
-    decimal ThanhTien);
+    decimal ThanhTien)
+{
+    public string MaHienThi => $"TX{MaTui:D2}";
+}
 
 public record OrderViewModel(
     int MaDonHang,
@@ -24,6 +27,9 @@ public record OrderViewModel(
     string TrangThai,
     string DiaChiNhan,
     decimal TongTien,
-    IReadOnlyCollection<OrderItemViewModel> Items);
+    IReadOnlyCollection<OrderItemViewModel> Items)
+{
+    public string MaHienThi => $"DH{MaDonHang:D2}";
+}
 
 public record CheckoutPageViewModel(CartViewModel Cart, CheckoutViewModel Checkout);

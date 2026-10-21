@@ -26,7 +26,6 @@ public class AccountController(DbContext_TuiXach db) : Controller
         var verified = false;
         if (account is not null)
         {
-            // Hỗ trợ cả mật khẩu thường (nhập tay từ SQL) lẫn mật khẩu đã mã hóa (PasswordHasher)
             if (account.matKhau == request.MatKhau)
             {
                 verified = true;
@@ -83,7 +82,7 @@ public class AccountController(DbContext_TuiXach db) : Controller
         var trimmedUsername = request.TenDangNhap.Trim();
         var trimmedEmail = request.Email.Trim();
 
-        // 1. Kiểm tra trùng tên đăng nhập
+        // kiểm tra trùng tên đăng nhập
         var usernameExists = await db.TaiKhoans.AnyAsync(x => x.tenDangNhap.ToLower() == trimmedUsername.ToLower(), ct);
         if (usernameExists)
         {
@@ -91,7 +90,7 @@ public class AccountController(DbContext_TuiXach db) : Controller
             return View(request);
         }
 
-        // 2. Kiểm tra trùng email
+        // kiểm tra trùng email
         var emailExists = await db.KhachHangs.AnyAsync(x => x.email != null && x.email.ToLower() == trimmedEmail.ToLower(), ct);
         if (emailExists)
         {
@@ -104,7 +103,7 @@ public class AccountController(DbContext_TuiXach db) : Controller
         {
             var role = request.VaiTro == Roles.Admin ? Roles.Admin : Roles.Customer;
 
-            // 3. Tạo tài khoản đăng nhập (taikhoan)
+            // tạo tài khoản đăng nhập (taikhoan) - identity tự tăng matk
             var account = new TaiKhoan
             {
                 tenDangNhap = trimmedUsername,
@@ -114,10 +113,10 @@ public class AccountController(DbContext_TuiXach db) : Controller
             db.TaiKhoans.Add(account);
             await db.SaveChangesAsync(ct);
 
-            // 4. Tạo hồ sơ khách hàng (khachhang) liên kết với tài khoản
+            // tạo hồ sơ khách hàng (khachhang) - identity tự tăng makh
             var customer = new KhachHang
             {
-                matk = account.maTK,
+                maTK = account.maTK,
                 hoTen = request.HoTen.Trim(),
                 email = trimmedEmail,
                 sdt = request.SoDienThoai.Trim(),
@@ -126,7 +125,7 @@ public class AccountController(DbContext_TuiXach db) : Controller
             db.KhachHangs.Add(customer);
             await db.SaveChangesAsync(ct);
 
-            // 5. Khởi tạo giỏ hàng (giohang) cho khách hàng
+            // khởi tạo giỏ hàng (giohang) cho khách hàng - identity tự tăng magiohang
             var cart = new GioHang
             {
                 maKH = customer.maKH,
@@ -137,7 +136,7 @@ public class AccountController(DbContext_TuiXach db) : Controller
 
             await transaction.CommitAsync(ct);
 
-            // 6. Đăng nhập tự động ngay sau khi đăng ký
+            // đăng nhập tự động ngay sau khi đăng ký
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, account.maTK.ToString()),
@@ -166,9 +165,7 @@ public class AccountController(DbContext_TuiXach db) : Controller
         }
     }
 
-    // ==========================================
-    // HỒ SƠ KHÁCH HÀNG (CUSTOMER PROFILE)
-    // ==========================================
+    // hồ sơ khách hàng (customer profile)
     [HttpGet]
     [Authorize]
     public async Task<IActionResult> Profile(CancellationToken ct)
@@ -194,10 +191,9 @@ public class AccountController(DbContext_TuiXach db) : Controller
         var customer = account.KhachHang;
         if (customer == null)
         {
-            // Tự động tạo hồ sơ khách hàng nếu tài khoản chưa có
             customer = new KhachHang
             {
-                matk = account.maTK,
+                maTK = account.maTK,
                 hoTen = account.tenDangNhap,
                 email = $"{account.tenDangNhap}@gmail.com",
                 sdt = "0900000000",
@@ -247,13 +243,13 @@ public class AccountController(DbContext_TuiXach db) : Controller
         var customer = account.KhachHang;
         if (customer == null)
         {
-            customer = new KhachHang { matk = account.maTK };
+            customer = new KhachHang { maTK = account.maTK };
             db.KhachHangs.Add(customer);
         }
 
         var trimmedEmail = request.Email.Trim();
         var emailExists = await db.KhachHangs.AnyAsync(
-            x => x.matk != maTk && x.email != null && x.email.ToLower() == trimmedEmail.ToLower(), ct);
+            x => x.maTK != maTk && x.email != null && x.email.ToLower() == trimmedEmail.ToLower(), ct);
 
         if (emailExists)
         {
@@ -281,9 +277,7 @@ public class AccountController(DbContext_TuiXach db) : Controller
         return RedirectToAction(nameof(Profile));
     }
 
-    // ==========================================
-    // ĐỔI MẬT KHẨU TỪ TRANG HỒ SƠ
-    // ==========================================
+    // đổi mật khẩu từ trang hồ sơ
     [HttpPost]
     [Authorize]
     [ValidateAntiForgeryToken]
@@ -308,7 +302,6 @@ public class AccountController(DbContext_TuiXach db) : Controller
             return RedirectToAction(nameof(Login));
         }
 
-        // Kiểm tra mật khẩu hiện tại
         var verified = false;
         if (account.matKhau == request.MatKhauHienTai)
         {
@@ -339,9 +332,7 @@ public class AccountController(DbContext_TuiXach db) : Controller
         return RedirectToAction(nameof(Profile));
     }
 
-    // ==========================================
-    // QUÊN MẬT KHẨU & ĐẶT LẠI MẬT KHẨU
-    // ==========================================
+    // quên mật khẩu & đặt lại mật khẩu
     [HttpGet]
     public IActionResult ForgotPassword(string? username) => View(new ForgotPasswordViewModel { TenDangNhap = username ?? string.Empty });
 
@@ -364,8 +355,7 @@ public class AccountController(DbContext_TuiXach db) : Controller
             return View(request);
         }
 
-        // Kiểm tra email tương ứng với tài khoản
-        var customer = account.KhachHang ?? await db.KhachHangs.FirstOrDefaultAsync(k => k.matk == account.maTK, ct);
+        var customer = account.KhachHang ?? await db.KhachHangs.FirstOrDefaultAsync(k => k.maTK == account.maTK, ct);
         if (customer == null || string.IsNullOrWhiteSpace(customer.email))
         {
             ModelState.AddModelError(nameof(request.Email), "Tài khoản này chưa có email xác minh trong hệ thống.");
@@ -378,7 +368,6 @@ public class AccountController(DbContext_TuiXach db) : Controller
             return View(request);
         }
 
-        // Cập nhật mật khẩu mới
         account.matKhau = request.MatKhauMoi;
         await db.SaveChangesAsync(ct);
 

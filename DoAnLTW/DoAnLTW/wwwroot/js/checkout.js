@@ -244,7 +244,7 @@ function processCheckout(event) {
     return false;
 }
 
-//initcheckout: khởi tạo trang thanh toán (Yêu cầu đăng nhập)
+//initcheckout: khởi tạo trang thanh toán (yêu cầu đăng nhập)
 function initCheckout() {
     let userData = localStorage.getItem('currentUser');
     if (!userData || userData === "null") {

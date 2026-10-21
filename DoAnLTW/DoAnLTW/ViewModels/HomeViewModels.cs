@@ -10,16 +10,20 @@ public record ProductCardItemViewModel(
     double PhanTramGiam,
     string? HinhAnh,
     int SoLuongTonKho,
-    string? Badge = null
-);
+    string? Badge = null)
+{
+    public string MaHienThi => $"TX{MaTui:D2}";
+}
 
 public record BrandItemViewModel(
     int MaThuongHieu,
     string TenThuongHieu,
     int SoLuongSanPham,
     string? MoTa = null,
-    string? LogoUrl = null
-);
+    string? LogoUrl = null)
+{
+    public string MaHienThi => $"TH{MaThuongHieu:D2}";
+}
 
 public class HomeIndexViewModel
 {

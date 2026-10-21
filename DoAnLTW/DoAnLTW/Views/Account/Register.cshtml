@@ -17,21 +17,21 @@
 
             <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-3" role="alert"></div>
 
-            <!-- Họ và tên -->
+            <!-- họ và tên -->
             <div class="mb-3">
                 <label asp-for="HoTen" class="form-label text-uppercase fw-bold small text-secondary">Họ và tên *</label>
                 <input asp-for="HoTen" class="form-control rounded-3" placeholder="VD: Nguyễn Văn A" autocomplete="name" />
                 <span asp-validation-for="HoTen" class="text-danger small"></span>
             </div>
 
-            <!-- Tên đăng nhập -->
+            <!-- tên đăng nhập -->
             <div class="mb-3">
                 <label asp-for="TenDangNhap" class="form-label text-uppercase fw-bold small text-secondary">Tên đăng nhập *</label>
                 <input asp-for="TenDangNhap" class="form-control rounded-3" placeholder="VD: nguyenvana (từ 3 ký tự)" autocomplete="username" />
                 <span asp-validation-for="TenDangNhap" class="text-danger small"></span>
             </div>
 
-            <!-- Email & Số điện thoại (2 cột trên desktop) -->
+            <!-- email & số điện thoại (2 cột trên desktop) -->
             <div class="row g-2 mb-3">
                 <div class="col-md-7">
                     <label asp-for="Email" class="form-label text-uppercase fw-bold small text-secondary">Địa chỉ Email *</label>
@@ -45,14 +45,14 @@
                 </div>
             </div>
 
-            <!-- Địa chỉ giao hàng -->
+            <!-- địa chỉ giao hàng -->
             <div class="mb-3">
                 <label asp-for="DiaChi" class="form-label text-uppercase fw-bold small text-secondary">Địa chỉ giao hàng (Tùy chọn)</label>
                 <input asp-for="DiaChi" class="form-control rounded-3" placeholder="VD: 12 Nguyễn Văn Bảo, Gò Vấp, TP.HCM" autocomplete="street-address" />
                 <span asp-validation-for="DiaChi" class="text-danger small"></span>
             </div>
 
-            <!-- Mật khẩu & Xác nhận mật khẩu (2 cột) -->
+            <!-- mật khẩu & xác nhận mật khẩu (2 cột) -->
             <div class="row g-2 mb-2">
                 <div class="col-md-6">
                     <label asp-for="MatKhau" class="form-label text-uppercase fw-bold small text-secondary">Mật khẩu *</label>
@@ -66,13 +66,13 @@
                 </div>
             </div>
 
-            <!-- Checkbox hiện mật khẩu -->
+            <!-- checkbox hiện mật khẩu -->
             <div class="form-check form-switch mb-3">
                 <input class="form-check-input" type="checkbox" role="switch" id="togglePasswordSwitch" onchange="togglePasswords(this)">
                 <label class="form-check-label small text-secondary" for="togglePasswordSwitch">Hiển thị mật khẩu</label>
             </div>
 
-            <!-- Vai trò tài khoản -->
+            <!-- vai trò tài khoản -->
             <div class="mb-4">
                 <label asp-for="VaiTro" class="form-label text-uppercase fw-bold small text-secondary">Vai trò tài khoản *</label>
                 <select asp-for="VaiTro" class="form-select rounded-3">

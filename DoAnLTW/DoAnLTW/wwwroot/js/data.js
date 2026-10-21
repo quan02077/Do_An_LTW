@@ -1,8 +1,6 @@
-// ================================================================
-// CƠ SỞ DỮ LIỆU ĐỒ ÁN QUẢN LÝ TÚI XÁCH (KHỚP CHUẨN VỚI quan_ly_tui_xach.sql)
-// ================================================================
+// cơ sở dữ liệu đồ án quản lý túi xách (khớp chuẩn với quan_ly_tui_xach.sql)
 
-// 1. BẢNG THƯƠNG HIỆU (thuonghieu)
+// bảng thương hiệu (thuonghieu)
 const thuongHieuList = [
     { mathuonghieu: 1, tenthuonghieu: "CHARLES & KEITH" },
     { mathuonghieu: 2, tenthuonghieu: "Natoli" },
@@ -11,7 +9,7 @@ const thuongHieuList = [
     { mathuonghieu: 5, tenthuonghieu: "Jamlos" }
 ];
 
-// 2. BẢNG LOẠI TÚI (loaitui)
+// bảng loại túi (loaitui)
 const loaiTuiList = [
     { maloai: 1, tenloai: "Balo" },
     { maloai: 2, tenloai: "Túi đeo chéo" },
@@ -21,7 +19,7 @@ const loaiTuiList = [
     { maloai: 6, tenloai: "Clutch" }
 ];
 
-// 3. BẢNG KHUYẾN MÃI (khuyenmai)
+// bảng khuyến mãi (khuyenmai)
 const khuyenMaiList = [
     { makm: 1, tenkm: "Khuyến mãi tháng 9", phantramgiam: 10, ngaybatdau: "2026-09-01", ngayketthuc: "2026-09-30", trangthai: 1 },
     { makm: 2, tenkm: "Sale cuối tuần", phantramgiam: 15, ngaybatdau: "2026-09-05", ngayketthuc: "2026-09-30", trangthai: 1 },
@@ -30,7 +28,7 @@ const khuyenMaiList = [
     { makm: 5, tenkm: "Siêu sale cuối năm", phantramgiam: 30, ngaybatdau: "2026-12-01", ngayketthuc: "2026-12-31", trangthai: 1 }
 ];
 
-// 4. BẢNG HÌNH ẢNH TÚI (hinhanhtui)
+// bảng hình ảnh túi (hinhanhtui)
 const hinhAnhTuiList = [];
 for (let i = 1; i <= 15; i++) {
     hinhAnhTuiList.push({ mahinhanh: (i - 1) * 3 + 1, matui: i, tenhinhanh: `/HinhAnh/tui${i}_1.png`, laanhchinh: 1, thutu: 1 });
@@ -38,9 +36,9 @@ for (let i = 1; i <= 15; i++) {
     hinhAnhTuiList.push({ mahinhanh: (i - 1) * 3 + 3, matui: i, tenhinhanh: `/HinhAnh/tui${i}_3.png`, laanhchinh: 0, thutu: 3 });
 }
 
-// 5. BẢNG TÚI XÁCH (tuixach) & SẢN PHẨM DATABASE CHO WEBSITE
+// bảng túi xách (tuixach) & sản phẩm database cho website
 let productsDatabase = [
-    // CHARLES & KEITH
+    // charles & keith
     {
         id: 1,
         matui: 1,
@@ -102,7 +100,7 @@ let productsDatabase = [
         thumbnails: ["/HinhAnh/tui3_1.png", "/HinhAnh/tui3_2.png", "/HinhAnh/tui3_3.png"]
     },
 
-    // NATOLI
+    // natoli
     {
         id: 4,
         matui: 4,
@@ -164,7 +162,7 @@ let productsDatabase = [
         thumbnails: ["/HinhAnh/tui6_1.png", "/HinhAnh/tui6_2.png", "/HinhAnh/tui6_3.png"]
     },
 
-    // PEDRO
+    // pedro
     {
         id: 7,
         matui: 7,
@@ -226,7 +224,7 @@ let productsDatabase = [
         thumbnails: ["/HinhAnh/tui9_1.png", "/HinhAnh/tui9_2.png", "/HinhAnh/tui9_3.png"]
     },
 
-    // ELLY
+    // elly
     {
         id: 10,
         matui: 10,
@@ -288,7 +286,7 @@ let productsDatabase = [
         thumbnails: ["/HinhAnh/tui12_1.png", "/HinhAnh/tui12_2.png", "/HinhAnh/tui12_3.png"]
     },
 
-    // JAMLOS
+    // jamlos
     {
         id: 13,
         matui: 13,
@@ -351,7 +349,7 @@ let productsDatabase = [
     }
 ];
 
-// 6. BẢNG TÀI KHOẢN & KHÁCH HÀNG (taikhoan, khachhang)
+// bảng tài khoản & khách hàng (taikhoan, khachhang)
 const taiKhoanInitialList = [
     { matk: 1, username: "admin", email: "admin@tuixach.vn", password: "123456", role: "Người bán" },
     { matk: 2, username: "minhquan", email: "minhquan@gmail.com", password: "123456", role: "Khách hàng", hoten: "Nguyễn Nhật Minh Quân", phone: "0901234567", address: "TP. Hồ Chí Minh" },

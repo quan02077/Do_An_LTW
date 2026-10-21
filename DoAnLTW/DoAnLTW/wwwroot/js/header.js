@@ -112,7 +112,7 @@ function checkAdminRoleHeader() {
         try {
             let u = JSON.parse(userData);
             if (u.role !== 'Người bán') {
-                // Keep visible or highlight seller mode
+                // keep visible or highlight seller mode
             }
         } catch(e) {}
     }

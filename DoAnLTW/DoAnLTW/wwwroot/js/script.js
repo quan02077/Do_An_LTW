@@ -51,7 +51,7 @@ function initMockData() {
     let needsReset = false;
     if (users) {
         let parsed = JSON.parse(users);
-        // Nếu có role cũ Nhân viên thì cập nhật lại
+        // nếu có role cũ nhân viên thì cập nhật lại
         if (parsed.some(u => u.role === 'Nhân viên')) needsReset = true;
     } else {
         needsReset = true;
@@ -253,7 +253,7 @@ function renderHotProducts() {
 
     let allProds = (typeof getAllProducts === 'function') ? getAllProducts() : (typeof productsDatabase !== 'undefined' ? productsDatabase : []);
     
-    // Ưu tiên hiển thị túi có khuyến mãi hoặc badge
+    // ưu tiên hiển thị túi có khuyến mãi hoặc badge
     let hotProds = allProds.filter(p => p.badge && p.badge !== "");
     if (hotProds.length < 8) {
         let normalProds = allProds.filter(p => !p.badge || p.badge === "");

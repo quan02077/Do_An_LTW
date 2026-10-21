@@ -1,6 +1,4 @@
-/* ================================================================
-   BASAU BAGS - HEADER & NAVIGATION STYLES
-   ================================================================ */
+/* basau bags - header & navigation styles */
 
 .rowHeader {
     background-color: #f4f4f5;
@@ -25,7 +23,7 @@
     display: inline-block;
 }
 
-/* Main Navigation Bar */
+/* main navigation bar */
 .rowMenu {
     position: sticky;
     top: 0;
@@ -78,7 +76,7 @@
     background-color: #b91c1c;
 }
 
-/* Dropdown & Mega Menu */
+/* dropdown & mega menu */
 .dropdown {
     position: static;
 }
@@ -133,7 +131,7 @@
     transform: translateX(4px);
 }
 
-/* Search Bar */
+/* search bar */
 .custom-search {
     width: 240px;
     font-size: 13px;
@@ -152,7 +150,7 @@
     outline: none;
 }
 
-/* Mobile Menu Toggle */
+/* mobile menu toggle */
 .menu-toggle {
     display: flex;
     flex-direction: column;

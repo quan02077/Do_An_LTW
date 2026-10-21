@@ -3,30 +3,26 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DoAnLTW.Models
 {
-    [Table("taikhoan")]
     public class TaiKhoan
     {
         [Key]
-        [Column("matk")]
         public int maTK { get; set; }
 
-        [Column("tendangnhap")]
-        [StringLength(50)]
+        [NotMapped]
+        public string MaHienThi => $"TK{maTK:D2}";
+
         [Required]
+        [StringLength(50)]
         public string tenDangNhap { get; set; } = string.Empty;
 
-        // PasswordHasher của ASP.NET Core tạo chuỗi hash dài hơn 8 ký tự.
-        [Column("matkhau")]
-        [StringLength(255)]
         [Required]
+        [StringLength(255)]
         public string matKhau { get; set; } = string.Empty;
 
-        [Column("vaitro")]
         [Required]
+        [StringLength(20)]
         public string vaiTro { get; set; } = string.Empty;
 
-        // Quan hệ 1 - 1 với Khách hàng
         public KhachHang? KhachHang { get; set; }
     }
 }
-

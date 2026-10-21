@@ -1,7 +1,4 @@
-/* ================================================================
-   BASAU BAGS - ADMIN MANAGEMENT STYLES
-   Editorial & Luxury Boutique Dashboard
-   ================================================================ */
+/* basau bags - admin management styles - editorial & luxury boutique dashboard */
 
 * {
     margin: 0;
@@ -49,7 +46,7 @@ h3 {
     font-size: 16px !important;
 }
 
-/* Ẩn hiện các panel */
+/* ẩn hiện các panel */
 .adm-panel {
     display: none;
 }
@@ -58,7 +55,7 @@ h3 {
     display: block;
 }
 
-/* Chỉnh tab navigation */
+/* chỉnh tab navigation */
 .adm-tab {
     transition: all 0.2s ease-in-out;
     border-bottom: 3px solid transparent !important;
@@ -75,7 +72,7 @@ h3 {
     color: #121214 !important;
 }
 
-/* Chỉnh nhãn dán */
+/* chỉnh nhãn dán */
 .adm-badge-opt {
     transition: 0.2s;
 }
@@ -86,7 +83,7 @@ h3 {
     border-color: #121214 !important;
 }
 
-/* Chỉnh kích cỡ (size) */
+/* chỉnh kích cỡ (size) */
 .adm-size-chip {
     padding: 6px 14px;
     border: 1px solid #ced4da;
@@ -108,7 +105,7 @@ h3 {
     border-color: #121214;
 }
 
-/* Hàng hiển thị sản phẩm */
+/* hàng hiển thị sản phẩm */
 .adm-product-row {
     display: flex;
     align-items: center;
@@ -168,7 +165,7 @@ h3 {
     background-color: #991b1b;
 }
 
-/* Thanh cuộn danh sách */
+/* thanh cuộn danh sách */
 .adm-scroll-list::-webkit-scrollbar {
     width: 6px;
 }
@@ -187,7 +184,7 @@ h3 {
     background: #aaa;
 }
 
-/* Stat Cards & Charts for Admin Dashboard */
+/* stat cards & charts for admin dashboard */
 .admin-stat-card {
     border-radius: 16px;
     padding: 24px;

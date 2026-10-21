@@ -44,7 +44,14 @@ public class CartService(DbContext_TuiXach db, IProductPricingService pricingSer
         var item = await db.ChiTietGioHangs.FindAsync([cart.maGioHang, request.MaTui], ct);
         var quantity = (item?.soLuong ?? 0) + request.SoLuong;
         if (quantity > product.soLuong) throw new InvalidOperationException("Số lượng vượt quá tồn kho.");
-        if (item is null) db.ChiTietGioHangs.Add(new ChiTietGioHang { maGioHang = cart.maGioHang, maTui = request.MaTui, soLuong = request.SoLuong }); else item.soLuong = quantity;
+        if (item is null)
+        {
+            db.ChiTietGioHangs.Add(new ChiTietGioHang { maGioHang = cart.maGioHang, maTui = request.MaTui, soLuong = request.SoLuong });
+        }
+        else
+        {
+            item.soLuong = quantity;
+        }
         await db.SaveChangesAsync(ct);
         return await GetAsync(maKh, ct);
     }
@@ -55,13 +62,20 @@ public class CartService(DbContext_TuiXach db, IProductPricingService pricingSer
         var item = await db.ChiTietGioHangs.FindAsync([cart.maGioHang, maTui], ct) ?? throw new KeyNotFoundException("Sản phẩm không có trong giỏ.");
         var product = await db.TuiXachs.FindAsync([maTui], ct) ?? throw new KeyNotFoundException("Không tìm thấy túi xách.");
         if (request.SoLuong > product.soLuong) throw new InvalidOperationException("Số lượng vượt quá tồn kho.");
-        item.soLuong = request.SoLuong; await db.SaveChangesAsync(ct); return await GetAsync(maKh, ct);
+        item.soLuong = request.SoLuong;
+        await db.SaveChangesAsync(ct);
+        return await GetAsync(maKh, ct);
     }
 
     public async Task<CartViewModel> RemoveAsync(int maKh, int maTui, CancellationToken ct = default)
     {
-        var cart = await GetOrCreateAsync(maKh, ct); var item = await db.ChiTietGioHangs.FindAsync([cart.maGioHang, maTui], ct);
-        if (item is not null) { db.ChiTietGioHangs.Remove(item); await db.SaveChangesAsync(ct); }
+        var cart = await GetOrCreateAsync(maKh, ct);
+        var item = await db.ChiTietGioHangs.FindAsync([cart.maGioHang, maTui], ct);
+        if (item is not null)
+        {
+            db.ChiTietGioHangs.Remove(item);
+            await db.SaveChangesAsync(ct);
+        }
         return await GetAsync(maKh, ct);
     }
 
@@ -69,6 +83,14 @@ public class CartService(DbContext_TuiXach db, IProductPricingService pricingSer
     {
         var cart = await db.GioHangs.SingleOrDefaultAsync(x => x.maKH == maKh, ct);
         if (cart is not null) return cart;
-        cart = new GioHang { maKH = maKh, ngayTao = DateTime.Now }; db.GioHangs.Add(cart); await db.SaveChangesAsync(ct); return cart;
+
+        cart = new GioHang
+        {
+            maKH = maKh,
+            ngayTao = DateTime.Now
+        };
+        db.GioHangs.Add(cart);
+        await db.SaveChangesAsync(ct);
+        return cart;
     }
 }

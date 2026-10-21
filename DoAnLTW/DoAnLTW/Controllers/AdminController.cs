@@ -8,7 +8,7 @@ namespace DoAnLTW.Controllers;
 
 public class AdminController : Controller
 {
-    // GET: /Admin hoặc /Admin/Index
+    // get: /admin hoặc /admin/index
     public IActionResult Index()
     {
         return View();

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DoAnLTW.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialDatabase : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,9 +15,10 @@ namespace DoAnLTW.Migrations
                 name: "KhuyenMais",
                 columns: table => new
                 {
-                    maKM = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    maKM = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     tenKM = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    phanTramGiam = table.Column<double>(type: "float", nullable: false),
+                    phanTramGiam = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
                     ngayBatDau = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ngayKetThuc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     trangThai = table.Column<bool>(type: "bit", nullable: false)
@@ -31,7 +32,8 @@ namespace DoAnLTW.Migrations
                 name: "LoaiTuis",
                 columns: table => new
                 {
-                    maLoai = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    maLoai = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     tenLoai = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
@@ -43,10 +45,11 @@ namespace DoAnLTW.Migrations
                 name: "TaiKhoans",
                 columns: table => new
                 {
-                    maTK = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    maTK = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     tenDangNhap = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    matKhau = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
-                    vaiTro = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    matKhau = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    vaiTro = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -57,7 +60,8 @@ namespace DoAnLTW.Migrations
                 name: "ThuongHieus",
                 columns: table => new
                 {
-                    maThuongHieu = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    maThuongHieu = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     tenThuongHieu = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
@@ -69,19 +73,20 @@ namespace DoAnLTW.Migrations
                 name: "KhachHangs",
                 columns: table => new
                 {
-                    maKH = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    hoTen = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    email = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    sdt = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    diaChi = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    matk = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    maKH = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    maTK = table.Column<int>(type: "int", nullable: false),
+                    hoTen = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    sdt = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
+                    diaChi = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_KhachHangs", x => x.maKH);
                     table.ForeignKey(
-                        name: "FK_KhachHangs_TaiKhoans_matk",
-                        column: x => x.matk,
+                        name: "FK_KhachHangs_TaiKhoans_maTK",
+                        column: x => x.maTK,
                         principalTable: "TaiKhoans",
                         principalColumn: "maTK",
                         onDelete: ReferentialAction.Cascade);
@@ -91,14 +96,16 @@ namespace DoAnLTW.Migrations
                 name: "TuiXachs",
                 columns: table => new
                 {
-                    maTui = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    tenTui = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    maThuongHieu = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    maLoai = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    donGia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    maTui = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    tenTui = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    maThuongHieu = table.Column<int>(type: "int", nullable: false),
+                    maLoai = table.Column<int>(type: "int", nullable: false),
+                    donGia = table.Column<decimal>(type: "decimal(15,2)", nullable: false),
                     soLuong = table.Column<int>(type: "int", nullable: false),
-                    moTa = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    maKM = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    moTa = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    badge = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    maKM = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -107,30 +114,30 @@ namespace DoAnLTW.Migrations
                         name: "FK_TuiXachs_KhuyenMais_maKM",
                         column: x => x.maKM,
                         principalTable: "KhuyenMais",
-                        principalColumn: "maKM",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "maKM");
                     table.ForeignKey(
                         name: "FK_TuiXachs_LoaiTuis_maLoai",
                         column: x => x.maLoai,
                         principalTable: "LoaiTuis",
                         principalColumn: "maLoai",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_TuiXachs_ThuongHieus_maThuongHieu",
                         column: x => x.maThuongHieu,
                         principalTable: "ThuongHieus",
                         principalColumn: "maThuongHieu",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "DonHangs",
                 columns: table => new
                 {
-                    maDH = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    maKH = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    maDH = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    maKH = table.Column<int>(type: "int", nullable: false),
                     ngayDat = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    tongTien = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    tongTien = table.Column<decimal>(type: "decimal(15,2)", nullable: false),
                     trangThai = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     diaChiNhan = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
                 },
@@ -142,15 +149,16 @@ namespace DoAnLTW.Migrations
                         column: x => x.maKH,
                         principalTable: "KhachHangs",
                         principalColumn: "maKH",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "GioHangs",
                 columns: table => new
                 {
-                    maGioHang = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    maKH = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    maGioHang = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    maKH = table.Column<int>(type: "int", nullable: false),
                     ngayTao = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -168,8 +176,9 @@ namespace DoAnLTW.Migrations
                 name: "HinhAnhTuis",
                 columns: table => new
                 {
-                    maHinhAnh = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    maTui = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    maHinhAnh = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    maTui = table.Column<int>(type: "int", nullable: false),
                     tenHinhAnh = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     laAnhChinh = table.Column<bool>(type: "bit", nullable: false),
                     thuTu = table.Column<int>(type: "int", nullable: false)
@@ -189,11 +198,11 @@ namespace DoAnLTW.Migrations
                 name: "ChiTietDonHangs",
                 columns: table => new
                 {
-                    maDH = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    maTui = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    maDH = table.Column<int>(type: "int", nullable: false),
+                    maTui = table.Column<int>(type: "int", nullable: false),
                     soLuong = table.Column<int>(type: "int", nullable: false),
-                    donGia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    thanhTien = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    donGia = table.Column<decimal>(type: "decimal(15,2)", nullable: false),
+                    thanhTien = table.Column<decimal>(type: "decimal(15,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -209,15 +218,15 @@ namespace DoAnLTW.Migrations
                         column: x => x.maTui,
                         principalTable: "TuiXachs",
                         principalColumn: "maTui",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "ChiTietGioHangs",
                 columns: table => new
                 {
-                    maGioHang = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    maTui = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    maGioHang = table.Column<int>(type: "int", nullable: false),
+                    maTui = table.Column<int>(type: "int", nullable: false),
                     soLuong = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -264,9 +273,9 @@ namespace DoAnLTW.Migrations
                 column: "maTui");
 
             migrationBuilder.CreateIndex(
-                name: "IX_KhachHangs_matk",
+                name: "IX_KhachHangs_maTK",
                 table: "KhachHangs",
-                column: "matk",
+                column: "maTK",
                 unique: true);
 
             migrationBuilder.CreateIndex(

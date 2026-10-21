@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<DbContext_TuiXach>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<ICartService, CartService>();
@@ -34,17 +34,17 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 var app = builder.Build();
 
-// Chỉ môi trường phát triển tự áp dụng migration và nạp dữ liệu demo.
+// chỉ môi trường phát triển tự áp dụng migration và nạp dữ liệu demo.
 if (app.Environment.IsDevelopment())
 {
     await DbInitializer.InitializeAsync(app.Services);
 }
 
-// Configure the HTTP request pipeline.
+// configure the http request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    // the default hsts value is 30 days. you may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

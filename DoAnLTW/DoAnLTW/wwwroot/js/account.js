@@ -119,7 +119,7 @@ function saveAccountInfo() {
     user.address = newAddress;
     localStorage.setItem('currentUser', JSON.stringify(user));
 
-    // Cập nhật vào danh sách users chung
+    // cập nhật vào danh sách users chung
     let allUsers = JSON.parse(localStorage.getItem('users')) || [];
     let idx = allUsers.findIndex(u => u.username === user.username);
     if (idx !== -1) {

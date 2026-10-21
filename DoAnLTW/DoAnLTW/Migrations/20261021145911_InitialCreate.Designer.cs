@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DoAnLTW.Migrations
 {
     [DbContext(typeof(DbContext_TuiXach))]
-    [Migration("20261011074725_AddBadgeToTuiXach")]
-    partial class AddBadgeToTuiXach
+    [Migration("20261021145911_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,38 +27,35 @@ namespace DoAnLTW.Migrations
 
             modelBuilder.Entity("DoAnLTW.Models.ChiTietDonHang", b =>
                 {
-                    b.Property<Guid>("maDH")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("maDH")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("maTui")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("maTui")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("donGia")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(15,2)");
 
                     b.Property<int>("soLuong")
                         .HasColumnType("int");
 
                     b.Property<decimal>("thanhTien")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(15,2)");
 
                     b.HasKey("maDH", "maTui");
 
                     b.HasIndex("maTui");
 
-                    b.ToTable("ChiTietDonHangs", t =>
-                        {
-                            t.HasCheckConstraint("CK_ChiTietDonHang_SoLuong", "[soLuong] > 0");
-                        });
+                    b.ToTable("ChiTietDonHangs");
                 });
 
             modelBuilder.Entity("DoAnLTW.Models.ChiTietGioHang", b =>
                 {
-                    b.Property<Guid>("maGioHang")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("maGioHang")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("maTui")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("maTui")
+                        .HasColumnType("int");
 
                     b.Property<int>("soLuong")
                         .HasColumnType("int");
@@ -67,31 +64,30 @@ namespace DoAnLTW.Migrations
 
                     b.HasIndex("maTui");
 
-                    b.ToTable("ChiTietGioHangs", t =>
-                        {
-                            t.HasCheckConstraint("CK_ChiTietGioHang_SoLuong", "[soLuong] > 0");
-                        });
+                    b.ToTable("ChiTietGioHangs");
                 });
 
             modelBuilder.Entity("DoAnLTW.Models.DonHang", b =>
                 {
-                    b.Property<Guid>("maDH")
+                    b.Property<int>("maDH")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("maDH"));
 
                     b.Property<string>("diaChiNhan")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<Guid>("maKH")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("maKH")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("ngayDat")
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("tongTien")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(15,2)");
 
                     b.Property<string>("trangThai")
                         .IsRequired()
@@ -102,22 +98,19 @@ namespace DoAnLTW.Migrations
 
                     b.HasIndex("maKH");
 
-                    b.ToTable("DonHangs", t =>
-                        {
-                            t.HasCheckConstraint("CK_DonHang_TongTien", "[tongTien] >= 0");
-
-                            t.HasCheckConstraint("CK_DonHang_TrangThai", "[trangThai] IN (N'Chờ duyệt', N'Đang giao', N'Hoàn tất', N'Đã hủy')");
-                        });
+                    b.ToTable("DonHangs");
                 });
 
             modelBuilder.Entity("DoAnLTW.Models.GioHang", b =>
                 {
-                    b.Property<Guid>("maGioHang")
+                    b.Property<int>("maGioHang")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("maKH")
-                        .HasColumnType("uniqueidentifier");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("maGioHang"));
+
+                    b.Property<int>("maKH")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("ngayTao")
                         .HasColumnType("datetime2");
@@ -132,15 +125,17 @@ namespace DoAnLTW.Migrations
 
             modelBuilder.Entity("DoAnLTW.Models.HinhAnhTui", b =>
                 {
-                    b.Property<Guid>("maHinhAnh")
+                    b.Property<int>("maHinhAnh")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("maHinhAnh"));
 
                     b.Property<bool>("laAnhChinh")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("maTui")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("maTui")
+                        .HasColumnType("int");
 
                     b.Property<string>("tenHinhAnh")
                         .IsRequired()
@@ -159,36 +154,35 @@ namespace DoAnLTW.Migrations
 
             modelBuilder.Entity("DoAnLTW.Models.KhachHang", b =>
                 {
-                    b.Property<Guid>("maKH")
+                    b.Property<int>("maKH")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("maKH"));
 
                     b.Property<string>("diaChi")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("email")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("hoTen")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid>("matk")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("maTK")
+                        .HasColumnType("int");
 
                     b.Property<string>("sdt")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
                     b.HasKey("maKH");
 
-                    b.HasIndex("matk")
+                    b.HasIndex("maTK")
                         .IsUnique();
 
                     b.ToTable("KhachHangs");
@@ -196,9 +190,11 @@ namespace DoAnLTW.Migrations
 
             modelBuilder.Entity("DoAnLTW.Models.KhuyenMai", b =>
                 {
-                    b.Property<Guid>("maKM")
+                    b.Property<int>("maKM")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("maKM"));
 
                     b.Property<DateTime>("ngayBatDau")
                         .HasColumnType("datetime2");
@@ -206,8 +202,8 @@ namespace DoAnLTW.Migrations
                     b.Property<DateTime>("ngayKetThuc")
                         .HasColumnType("datetime2");
 
-                    b.Property<double>("phanTramGiam")
-                        .HasColumnType("float");
+                    b.Property<decimal>("phanTramGiam")
+                        .HasColumnType("decimal(5,2)");
 
                     b.Property<string>("tenKM")
                         .IsRequired()
@@ -224,9 +220,11 @@ namespace DoAnLTW.Migrations
 
             modelBuilder.Entity("DoAnLTW.Models.LoaiTui", b =>
                 {
-                    b.Property<Guid>("maLoai")
+                    b.Property<int>("maLoai")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("maLoai"));
 
                     b.Property<string>("tenLoai")
                         .IsRequired()
@@ -240,9 +238,11 @@ namespace DoAnLTW.Migrations
 
             modelBuilder.Entity("DoAnLTW.Models.TaiKhoan", b =>
                 {
-                    b.Property<Guid>("maTK")
+                    b.Property<int>("maTK")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("maTK"));
 
                     b.Property<string>("matKhau")
                         .IsRequired()
@@ -256,7 +256,8 @@ namespace DoAnLTW.Migrations
 
                     b.Property<string>("vaiTro")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("maTK");
 
@@ -265,9 +266,11 @@ namespace DoAnLTW.Migrations
 
             modelBuilder.Entity("DoAnLTW.Models.ThuongHieu", b =>
                 {
-                    b.Property<Guid>("maThuongHieu")
+                    b.Property<int>("maThuongHieu")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("maThuongHieu"));
 
                     b.Property<string>("tenThuongHieu")
                         .IsRequired()
@@ -281,37 +284,38 @@ namespace DoAnLTW.Migrations
 
             modelBuilder.Entity("DoAnLTW.Models.TuiXach", b =>
                 {
-                    b.Property<Guid>("maTui")
+                    b.Property<int>("maTui")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("maTui"));
 
                     b.Property<string>("badge")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<decimal>("donGia")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(15,2)");
 
-                    b.Property<Guid?>("maKM")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("maKM")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("maLoai")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("maLoai")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("maThuongHieu")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("maThuongHieu")
+                        .HasColumnType("int");
 
                     b.Property<string>("moTa")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("soLuong")
                         .HasColumnType("int");
 
                     b.Property<string>("tenTui")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.HasKey("maTui");
 
@@ -321,12 +325,7 @@ namespace DoAnLTW.Migrations
 
                     b.HasIndex("maThuongHieu");
 
-                    b.ToTable("TuiXachs", t =>
-                        {
-                            t.HasCheckConstraint("CK_TuiXach_Badge", "[badge] IS NULL OR [badge] IN (N'Đang giảm giá (Sale)', N'Bán chạy (Best Seller)', N'Hàng mới về (New Arrival)', N'Sale', N'Best Seller', N'New Arrival')");
-
-                            t.HasCheckConstraint("CK_TuiXach_SoLuong", "[soLuong] >= 0");
-                        });
+                    b.ToTable("TuiXachs");
                 });
 
             modelBuilder.Entity("DoAnLTW.Models.ChiTietDonHang", b =>
@@ -340,7 +339,7 @@ namespace DoAnLTW.Migrations
                     b.HasOne("DoAnLTW.Models.TuiXach", "TuiXach")
                         .WithMany("ChiTietDonHangs")
                         .HasForeignKey("maTui")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("DonHang");
@@ -372,7 +371,7 @@ namespace DoAnLTW.Migrations
                     b.HasOne("DoAnLTW.Models.KhachHang", "KhachHang")
                         .WithMany("DonHangs")
                         .HasForeignKey("maKH")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("KhachHang");
@@ -404,7 +403,7 @@ namespace DoAnLTW.Migrations
                 {
                     b.HasOne("DoAnLTW.Models.TaiKhoan", "TaiKhoan")
                         .WithOne("KhachHang")
-                        .HasForeignKey("DoAnLTW.Models.KhachHang", "matk")
+                        .HasForeignKey("DoAnLTW.Models.KhachHang", "maTK")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -415,19 +414,18 @@ namespace DoAnLTW.Migrations
                 {
                     b.HasOne("DoAnLTW.Models.KhuyenMai", "KhuyenMai")
                         .WithMany("TuiXachs")
-                        .HasForeignKey("maKM")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("maKM");
 
                     b.HasOne("DoAnLTW.Models.LoaiTui", "LoaiTui")
                         .WithMany("TuiXachs")
                         .HasForeignKey("maLoai")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DoAnLTW.Models.ThuongHieu", "ThuongHieu")
                         .WithMany("TuiXachs")
                         .HasForeignKey("maThuongHieu")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("KhuyenMai");

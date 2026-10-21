@@ -55,7 +55,7 @@ function saveFavList(favs) {
 
 //checkloginforfav: kiểm tra đăng nhập trước khi thao tác với yêu thích
 function checkLoginForFav(actionText) {
-    // Nếu đã đăng nhập qua ASP.NET Core server hoặc localStorage
+    // nếu đã đăng nhập qua asp.net core server hoặc localstorage
     if (window.serverIsAuthenticated === true || window.serverUsername) {
         return true;
     }
@@ -102,7 +102,7 @@ function closeFavPanel() {
     document.body.style.overflow = '';
 }
 
-//togglefavorite: thêm hoặc xóa khỏi danh sách yêu thích (Yêu cầu đăng nhập)
+//togglefavorite: thêm hoặc xóa khỏi danh sách yêu thích (yêu cầu đăng nhập)
 function toggleFavorite(productId) {
     if (!checkLoginForFav('thêm túi xách vào danh sách yêu thích')) {
         return;
@@ -179,7 +179,7 @@ function renderFavPanel() {
     container.innerHTML = htmlContent;
 }
 
-//showfavtoast: hiện thông báo thao tác yêu thích bằng SweetAlert2
+//showfavtoast: hiện thông báo thao tác yêu thích bằng sweetalert2
 function showFavToast(msg, color) {
     Swal.fire({
         toast: true,

@@ -1,13 +1,11 @@
-/* ================================================================
-   BASAU BAGS - CATALOG STYLES
-   ================================================================ */
+/* basau bags - catalog styles */
 
 body {
     font-family: 'Josefin Sans', sans-serif;
     background-color: #fafafa;
 }
 
-/* Breadcrumb navigation */
+/* breadcrumb navigation */
 .breadcrumb-bar {
     font-size: 13px;
     color: #71717a;
@@ -24,7 +22,7 @@ body {
     color: #18181b;
 }
 
-/* Catalog Title & Results */
+/* catalog title & results */
 .catalog-title {
     font-family: "Oswald", sans-serif;
     font-size: 2.2rem;
@@ -39,7 +37,7 @@ body {
     font-weight: 500;
 }
 
-/* Brand Tabs */
+/* brand tabs */
 .brand-tabs {
     display: flex;
     flex-wrap: wrap;
@@ -68,7 +66,7 @@ body {
     border-color: #18181b;
 }
 
-/* Filter Sidebar */
+/* filter sidebar */
 .filter-sidebar {
     background-color: #ffffff;
     padding: 22px;
@@ -132,7 +130,7 @@ body {
     color: #b91c1c;
 }
 
-/* Sort Select */
+/* sort select */
 .sort-select {
     padding: 8px 18px;
     font-size: 13px;
@@ -151,7 +149,7 @@ body {
     border-color: #18181b;
 }
 
-/* Product Cards */
+/* product cards */
 .product-card {
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     background: #ffffff;
@@ -188,7 +186,7 @@ body {
     transform: scale(1.05);
 }
 
-/* Favorite Button inside Card (Text tag, zero icons) */
+/* favorite button inside card (text tag, zero icons) */
 .fav-card-btn {
     position: absolute;
     top: 12px;
@@ -218,7 +216,7 @@ body {
     border-color: #18181b;
 }
 
-/* Pagination */
+/* pagination */
 .page-btn {
     width: 38px;
     height: 38px;

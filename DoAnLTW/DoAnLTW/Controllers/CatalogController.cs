@@ -4,7 +4,6 @@ namespace DoAnLTW.Controllers;
 
 public class CatalogController : Controller
 {
-    // GET: /Catalog hoặc /Catalog/Index
     public IActionResult Index(string? category, string? brand, string? q)
     {
         ViewData["Category"] = category;
@@ -13,7 +12,6 @@ public class CatalogController : Controller
         return View();
     }
 
-    // GET: /Catalog/Detail?id=1
     public IActionResult Detail(int? id)
     {
         ViewData["ProductId"] = id ?? 1;

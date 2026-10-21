@@ -3,29 +3,26 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DoAnLTW.Models
 {
-    [Table("hinhanhtui")]
     public class HinhAnhTui
     {
         [Key]
-        [Column("mahinhanh")]
         public int maHinhAnh { get; set; }
 
-        [Column("matui")]
+        [NotMapped]
+        public string MaHienThi => $"HA{maHinhAnh:D2}";
+
+        [Required]
         public int maTui { get; set; }
         public TuiXach? TuiXach { get; set; }
 
-        [Column("tenhinhanh")]
         [Required]
         [StringLength(255)]
         public string tenHinhAnh { get; set; } = string.Empty;
 
-        [Column("laanhchinh")]
         [Required]
         public bool laAnhChinh { get; set; } = false;
 
-        [Column("thutu")]
         [Required]
         public int thuTu { get; set; } = 0;
     }
 }
-

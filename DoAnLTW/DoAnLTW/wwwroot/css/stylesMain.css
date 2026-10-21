@@ -1,7 +1,4 @@
-/* ================================================================
-   BASAU BAGS - MAIN DESIGN SYSTEM
-   Editorial Luxury & Modern Fashion Retail
-   ================================================================ */
+/* basau bags - main design system - editorial luxury & modern fashion retail */
 
 :root {
     --bg-page: #fafafa;
@@ -91,9 +88,7 @@ h1, h2, h3, h4, h5, h6,
     line-height: 1.5;
 }
 
-/* ================================================================
-   HERO SLIDER
-   ================================================================ */
+/* hero slider */
 
 #heroSlider {
     width: 100%;
@@ -188,9 +183,7 @@ h1, h2, h3, h4, h5, h6,
     width: 48px;
 }
 
-/* ================================================================
-   PRODUCT CARDS
-   ================================================================ */
+/* product cards */
 
 .product-card {
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
@@ -237,9 +230,7 @@ h1, h2, h3, h4, h5, h6,
     color: #ffffff;
 }
 
-/* ================================================================
-   FLASH SALE BANNER
-   ================================================================ */
+/* flash sale banner */
 
 .flash-sale-banner {
     background-color: #09090b !important;
@@ -273,9 +264,7 @@ h1, h2, h3, h4, h5, h6,
     display: block;
 }
 
-/* ================================================================
-   BRAND SHOWCASE CARDS
-   ================================================================ */
+/* brand showcase cards */
 
 .brand-card {
     background-color: #ffffff;
@@ -303,7 +292,7 @@ h1, h2, h3, h4, h5, h6,
     color: var(--color-text);
 }
 
-/* Editorial Brand Showcase (Giống ảnh mẫu - Kích thước lớn nổi bật) */
+/* editorial brand showcase (giống ảnh mẫu - kích thước lớn nổi bật) */
 .brand-highlight-card {
     cursor: pointer;
     transition: transform 0.3s ease;
@@ -353,7 +342,7 @@ h1, h2, h3, h4, h5, h6,
     color: #b91c1c;
 }
 
-/* Footer hiện đại cao cấp */
+/* footer hiện đại cao cấp */
 .site-footer {
     background-color: #18181b !important;
     width: 100%;

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using DoAnLTW.Models;
 
 namespace DoAnLTW.Data
@@ -25,23 +25,19 @@ namespace DoAnLTW.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Bỏ qua badge vì bảng tuixach trong quan_ly_tui_xach.sql không có cột này (badge được tính động trong logic C#)
-            modelBuilder.Entity<TuiXach>()
-                .Ignore(tx => tx.badge);
-
-            // 1. Tài khoản — Khách hàng: 1-1
+            // tài khoản - khách hàng: 1-1
             modelBuilder.Entity<KhachHang>()
                 .HasOne(kh => kh.TaiKhoan)
                 .WithOne(tk => tk.KhachHang)
-                .HasForeignKey<KhachHang>(kh => kh.matk);
+                .HasForeignKey<KhachHang>(kh => kh.maTK);
 
-            // 2. Khách hàng — Giỏ hàng: 1-1
+            // khách hàng - giỏ hàng: 1-1
             modelBuilder.Entity<GioHang>()
                 .HasOne(gh => gh.KhachHang)
                 .WithOne(kh => kh.GioHang)
                 .HasForeignKey<GioHang>(gh => gh.maKH);
 
-            // 3. Giỏ hàng — Chi tiết giỏ hàng: 1-N (Composite Key)
+            // giỏ hàng - chi tiết giỏ hàng: 1-n (composite key)
             modelBuilder.Entity<ChiTietGioHang>()
                 .HasKey(ct => new { ct.maGioHang, ct.maTui });
 
@@ -55,19 +51,19 @@ namespace DoAnLTW.Data
                 .WithMany(tx => tx.ChiTietGioHangs)
                 .HasForeignKey(ct => ct.maTui);
 
-            // 4. Túi xách — Hình ảnh: 1-N
+            // túi xách - hình ảnh: 1-n
             modelBuilder.Entity<HinhAnhTui>()
                 .HasOne(ha => ha.TuiXach)
                 .WithMany(tx => tx.HinhAnhTuis)
                 .HasForeignKey(ha => ha.maTui);
 
-            // 5. Khách hàng — Đơn hàng: 1-N
+            // khách hàng - đơn hàng: 1-n
             modelBuilder.Entity<DonHang>()
                 .HasOne(dh => dh.KhachHang)
                 .WithMany(kh => kh.DonHangs)
                 .HasForeignKey(dh => dh.maKH);
 
-            // 6. Đơn hàng — Chi tiết đơn hàng: 1-N (Composite Key)
+            // đơn hàng - chi tiết đơn hàng: 1-n (khóa chính kết hợp)
             modelBuilder.Entity<ChiTietDonHang>()
                 .HasKey(ct => new { ct.maDH, ct.maTui });
 
@@ -81,19 +77,19 @@ namespace DoAnLTW.Data
                 .WithMany(tx => tx.ChiTietDonHangs)
                 .HasForeignKey(ct => ct.maTui);
 
-            // 7. Thương hiệu — Túi xách: 1-N
+            // thương hiệu - túi xách: 1-n
             modelBuilder.Entity<TuiXach>()
                 .HasOne(tx => tx.ThuongHieu)
                 .WithMany(th => th.TuiXachs)
                 .HasForeignKey(tx => tx.maThuongHieu);
 
-            // 8. Loại túi — Túi xách: 1-N
+            // loại túi - túi xách: 1-n
             modelBuilder.Entity<TuiXach>()
                 .HasOne(tx => tx.LoaiTui)
                 .WithMany(lt => lt.TuiXachs)
                 .HasForeignKey(tx => tx.maLoai);
 
-            // 9. Khuyến mãi — Túi xách: 1-N
+            // khuyến mãi - túi xách: 1-n
             modelBuilder.Entity<TuiXach>()
                 .HasOne(tx => tx.KhuyenMai)
                 .WithMany(km => km.TuiXachs)

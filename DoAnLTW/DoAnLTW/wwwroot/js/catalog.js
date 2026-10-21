@@ -1,8 +1,6 @@
-// ================================================================
-// QUẢN LÝ DANH MỤC TÚI XÁCH & BALO (catalog.js)
-// ================================================================
+// quản lý danh mục túi xách & balo (catalog.js)
 
-// Biến trạng thái toàn cục
+// biến trạng thái toàn cục
 let currentBrand = "all";
 let currentSearch = "";
 let displayedProducts = [];
@@ -10,7 +8,7 @@ let currentPage = 1;
 let itemsPerPage = 6;
 let isSearchMode = false;
 
-// Hàm bỏ dấu tiếng Việt để tìm kiếm thông minh hơn
+// hàm bỏ dấu tiếng việt để tìm kiếm thông minh hơn
 function removeVietnameseTones(str) {
     if (!str) return '';
     str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
@@ -63,7 +61,7 @@ function applyFilters() {
         }
     }
 
-    // Cập nhật tiêu đề trang & thanh breadcrumb
+    // cập nhật tiêu đề trang & thanh breadcrumb
     let pageTitle = document.getElementById('pageTitle');
     let breadcrumbCurrent = document.getElementById('breadcrumbCurrent');
 
@@ -90,17 +88,17 @@ function applyFilters() {
         let product = allProducts[i];
         let isValid = true;
 
-        // 1. Lọc theo thương hiệu
+        // lọc theo thương hiệu
         if (currentBrand !== "all" && product.brand !== currentBrand) {
             isValid = false;
         }
 
-        // 2. Lọc theo loại túi
+        // lọc theo loại túi
         if (filterCategories.length > 0 && !filterCategories.includes(product.category)) {
             isValid = false;
         }
 
-        // 3. Lọc theo khuyến mãi & badge
+        // lọc theo khuyến mãi & badge
         if (filterBadges.length > 0) {
             let hasBadgeMatch = false;
             for (let b = 0; b < filterBadges.length; b++) {
@@ -113,7 +111,7 @@ function applyFilters() {
             if (!hasBadgeMatch) isValid = false;
         }
 
-        // 4. Lọc theo khoảng giá
+        // lọc theo khoảng giá
         if (filterPrices.length > 0) {
             let matchPrice = false;
             for (let j = 0; j < filterPrices.length; j++) {
@@ -125,7 +123,7 @@ function applyFilters() {
             if (!matchPrice) isValid = false;
         }
 
-        // 5. Lọc theo từ khóa tìm kiếm (hỗ trợ cả có dấu và không dấu)
+        // lọc theo từ khóa tìm kiếm (hỗ trợ cả có dấu và không dấu)
         if (currentSearch !== "") {
             let sNorm = removeVietnameseTones(currentSearch);
             let nameNorm = removeVietnameseTones(product.name || "");
@@ -265,7 +263,7 @@ function renderCatalog() {
         `;
     });
 
-    // Inject trực tiếp vào hàng #productGrid (không lồng thêm .row thừa)
+    // inject trực tiếp vào hàng #productgrid (không lồng thêm .row thừa)
     grid.innerHTML = html;
     renderPagination();
 }
@@ -274,12 +272,12 @@ function renderCatalog() {
 function toggleCatalogFav(productId) {
     if (typeof toggleFavorite === 'function') {
         toggleFavorite(productId);
-        // Cập nhật lại UI sau khi thao tác yêu thích
+        // cập nhật lại ui sau khi thao tác yêu thích
         renderCatalog();
     }
 }
 
-//quickaddtocart: thêm nhanh sản phẩm vào giỏ hàng (Yêu cầu đăng nhập)
+//quickaddtocart: thêm nhanh sản phẩm vào giỏ hàng (yêu cầu đăng nhập)
 function quickAddToCart(productId) {
     let isServerAuth = (typeof window.serverIsAuthenticated !== 'undefined' && window.serverIsAuthenticated === true) || 
                        (typeof window.serverUsername !== 'undefined' && window.serverUsername && window.serverUsername.length > 0);
@@ -383,7 +381,7 @@ function quickAddToCart(productId) {
     }
 }
 
-//renderpagination: hiển thị phân trang với nút Trước và Sau
+//renderpagination: hiển thị phân trang với nút trước và sau
 function renderPagination() {
     let container = document.getElementById('phantrang');
     if (!container) return;

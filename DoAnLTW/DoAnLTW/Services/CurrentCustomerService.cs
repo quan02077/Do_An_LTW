@@ -4,10 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DoAnLTW.Services;
 
-/// <summary>
-/// Chuyển claim NameIdentifier (maTK) từ cookie đăng nhập thành maKH.
-/// Không nhận maKH từ request nên khách hàng không thể mạo danh người khác.
-/// </summary>
 public interface ICurrentCustomerService
 {
     Task<int> GetRequiredCustomerIdAsync(CancellationToken cancellationToken = default);
@@ -24,7 +20,7 @@ public class CurrentCustomerService(IHttpContextAccessor httpContextAccessor, Db
         }
 
         var maKh = await db.KhachHangs
-            .Where(x => x.matk == maTk)
+            .Where(x => x.maTK == maTk)
             .Select(x => (int?)x.maKH)
             .SingleOrDefaultAsync(cancellationToken);
 

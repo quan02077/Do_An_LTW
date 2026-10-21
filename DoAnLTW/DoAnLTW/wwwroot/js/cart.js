@@ -57,7 +57,7 @@ function checkLoginForCart(actionText) {
     return true;
 }
 
-//opencartpanel: mở giao diện giỏ hàng (Yêu cầu đăng nhập)
+//opencartpanel: mở giao diện giỏ hàng (yêu cầu đăng nhập)
 function openCartPanel() {
     if (!checkLoginForCart('xem giỏ hàng')) {
         return;

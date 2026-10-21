@@ -7,19 +7,19 @@
 }
 
 <main class="site-main container-fluid px-4 px-md-5 mt-4 pb-5">
-    <!-- Breadcrumbs -->
+    <!-- breadcrumbs -->
     <nav class="breadcrumb-bar mb-3" aria-label="breadcrumb">
         <a asp-controller="Home" asp-action="Index">Trang chủ</a> &nbsp;/&nbsp;
         <span id="breadcrumbCurrent">Tất cả túi xách</span>
     </nav>
 
-    <!-- Tiêu đề trang & Đếm kết quả -->
+    <!-- tiêu đề trang & đếm kết quả -->
     <div class="d-flex align-items-baseline gap-3 mb-3">
         <h1 class="catalog-title mb-0" id="pageTitle">Tất cả túi xách</h1>
         <span class="result-count" id="resultCount">(0 sản phẩm)</span>
     </div>
 
-    <!-- Tab Phân Loại Thương Hiệu -->
+    <!-- tab phân loại thương hiệu -->
     <div class="brand-tabs" id="brandTabs">
         <div class="brand-tab active" data-brand="all" onclick="selectBrand(this)">Tất cả</div>
         <div class="brand-tab" data-brand="CHARLES & KEITH" onclick="selectBrand(this)">CHARLES & KEITH</div>
@@ -29,12 +29,12 @@
         <div class="brand-tab" data-brand="Jamlos" onclick="selectBrand(this)">Jamlos</div>
     </div>
 
-    <!-- Nút bật/tắt bộ lọc trên thiết bị di động -->
+    <!-- nút bật/tắt bộ lọc trên thiết bị di động -->
     <button class="btn btn-outline-dark d-lg-none w-100 mb-3 fw-bold rounded-pill shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filterSidebarCollapse">
         BỘ LỌC & PHÂN LOẠI
     </button>
 
-    <!-- Bố cục 2 cột: Sidebar Bộ lọc & Lưới Sản phẩm -->
+    <!-- bố cục 2 cột: sidebar bộ lọc & lưới sản phẩm -->
     <div class="row g-4 mt-1">
         <aside class="col-lg-3">
             <div class="collapse d-lg-block" id="filterSidebarCollapse">
@@ -44,7 +44,7 @@
                         <button class="clear-btn" onclick="clearAllFilters()">Xóa tất cả</button>
                     </div>
 
-                    <!-- Bộ lọc Loại túi -->
+                    <!-- bộ lọc loại túi -->
                     <div class="filter-group">
                         <div class="filter-title">Loại túi</div>
                         <div class="filter-options">
@@ -63,7 +63,7 @@
                         </div>
                     </div>
 
-                    <!-- Bộ lọc Khuyến mãi & Trạng thái -->
+                    <!-- bộ lọc khuyến mãi & trạng thái -->
                     <div class="filter-group">
                         <div class="filter-title">Khuyến mãi & Trạng thái</div>
                         <div class="filter-options">
@@ -78,7 +78,7 @@
                         </div>
                     </div>
 
-                    <!-- Bộ lọc Khoảng giá -->
+                    <!-- bộ lọc khoảng giá -->
                     <div class="filter-group border-bottom-0 pb-0">
                         <div class="filter-title">Khoảng giá</div>
                         <div class="filter-options">
@@ -91,7 +91,7 @@
             </div>
         </aside>
 
-        <!-- Lưới sản phẩm & sắp xếp -->
+        <!-- lưới sản phẩm & sắp xếp -->
         <section class="col-lg-9">
             <div class="sort-bar d-flex justify-content-end mb-4">
                 <select class="sort-select shadow-sm" id="sortSelect" onchange="applySort()">
@@ -102,16 +102,16 @@
                 </select>
             </div>
 
-            <!-- Lưới hiển thị túi xách -->
+            <!-- lưới hiển thị túi xách -->
             <div class="row g-4" id="productGrid">
-                <!-- Nạp động từ catalog.js -->
+                <!-- nạp động từ catalog.js -->
             </div>
 
-            <!-- Phân trang -->
+            <!-- phân trang -->
             <div id="phantrang" class="d-flex justify-content-center mt-5 gap-2">
             </div>
 
-            <!-- Trạng thái trống (Không tìm thấy kết quả) -->
+            <!-- trạng thái trống (không tìm thấy kết quả) -->
             <div class="no-results d-none text-center py-5 bg-white rounded-4 border shadow-sm my-3" id="noResults">
                 <p class="text-uppercase fw-bold text-secondary small mb-2">Không có kết quả</p>
                 <h2 class="fw-bold mb-2 fs-5">Không tìm thấy mẫu túi xách phù hợp</h2>

@@ -37,7 +37,7 @@ function switchMainImg(src, thumbEl) {
     }
 }
 
-//addtocart: thêm sản phẩm vào giỏ hàng (Yêu cầu đăng nhập)
+//addtocart: thêm sản phẩm vào giỏ hàng (yêu cầu đăng nhập)
 function addToCart() {
     let isServerAuth = (typeof window.serverIsAuthenticated !== 'undefined' && window.serverIsAuthenticated === true) || 
                        (typeof window.serverUsername !== 'undefined' && window.serverUsername && window.serverUsername.length > 0);
@@ -142,7 +142,7 @@ function updateFavBtnUI() {
     }
 }
 
-//togglecurrentfavorite: thêm hoặc bỏ yêu thích sản phẩm hiện tại (Yêu cầu đăng nhập)
+//togglecurrentfavorite: thêm hoặc bỏ yêu thích sản phẩm hiện tại (yêu cầu đăng nhập)
 function toggleCurrentFavorite() {
     let urlParams = new URLSearchParams(window.location.search);
     let productId = parseInt(urlParams.get('id'));
@@ -157,7 +157,7 @@ function toggleCurrentFavorite() {
     }
 }
 
-//lay duong dan trang chi tiet tuy theo moi truong (MVC / static HTML)
+//lay duong dan trang chi tiet tuy theo moi truong (mvc / static html)
 function getProductDetailUrl(id) {
     let pathname = window.location.pathname;
     if (pathname.toLowerCase().includes('/catalog/detail')) {
@@ -182,7 +182,7 @@ function selectRelatedProduct(id, e) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Lang nghe su kien Back / Forward cua trinh duyet
+// lang nghe su kien back / forward cua trinh duyet
 window.addEventListener('popstate', function(event) {
     let idFromState = (event && event.state && event.state.id) ? event.state.id : null;
     initProductDetail(idFromState);
@@ -243,7 +243,7 @@ function initProductDetail(targetId) {
         product = allProds.find(p => p.id === numId || p.matui === numId);
     }
 
-    // Nếu không tìm thấy theo id, lấy sản phẩm đầu tiên làm mặc định để không bị trắng giao diện
+    // nếu không tìm thấy theo id, lấy sản phẩm đầu tiên làm mặc định để không bị trắng giao diện
     if (!product && allProds.length > 0) {
         product = allProds[0];
     }
@@ -251,12 +251,12 @@ function initProductDetail(targetId) {
     if (product) {
         currentProduct = product;
 
-        // Tiêu đề & Breadcrumb
+        // tiêu đề & breadcrumb
         document.title = product.name + " - Basau Bags";
         let bc = document.getElementById('breadcrumbDetailName');
         if (bc) bc.innerText = product.name;
 
-        // Tên, thương hiệu, loại túi
+        // tên, thương hiệu, loại túi
         let nameEl = document.getElementById('productName');
         let brandEl = document.getElementById('productBrand');
         let catEl = document.getElementById('productCategory');
@@ -264,7 +264,7 @@ function initProductDetail(targetId) {
         if (brandEl) brandEl.innerText = product.brand;
         if (catEl) catEl.innerText = product.category;
 
-        // Giá & Khuyến mãi
+        // giá & khuyến mãi
         let priceEl = document.getElementById('productPrice');
         let oldPriceEl = document.getElementById('productOldPrice');
         let discountEl = document.getElementById('productDiscountPercent');
@@ -292,7 +292,7 @@ function initProductDetail(targetId) {
             if (promoTag) promoTag.classList.add('d-none');
         }
 
-        // Tồn kho & Số lượng
+        // tồn kho & số lượng
         let stockEl = document.getElementById('productStock');
         let btnAddToCart = document.getElementById('btnAddToCart');
         let qtyInput = document.getElementById('buyQuantity');
@@ -322,13 +322,13 @@ function initProductDetail(targetId) {
             }
         }
 
-        // Mô tả chi tiết (bảng tuixach: mota)
+        // mô tả chi tiết (bảng tuixach: mota)
         let descEl = document.getElementById('productDescription');
         if (descEl) {
             descEl.innerText = product.mota || "Chưa có mô tả chi tiết cho sản phẩm này.";
         }
 
-        // Thông số kỹ thuật
+        // thông số kỹ thuật
         let specId = document.getElementById('specId');
         let specBrand = document.getElementById('specBrand');
         let specCat = document.getElementById('specCategory');
@@ -341,11 +341,11 @@ function initProductDetail(targetId) {
         if (specPromo) specPromo.innerText = product.promotionName || (product.discountPercent > 0 ? `Giảm ${product.discountPercent}%` : "Không áp dụng");
         if (specStock) specStock.innerText = `${product.soluong} cái`;
 
-        // Ảnh chính
+        // ảnh chính
         let mainImg = document.getElementById('mainProductImg');
         if (mainImg) mainImg.src = product.img;
 
-        // Thumbnails Gallery (bảng hinhanhtui)
+        // thumbnails gallery (bảng hinhanhtui)
         let thumbsContainer = document.getElementById('thumbnailsContainer');
         if (thumbsContainer) {
             let thumbs = (product.thumbnails && product.thumbnails.length > 0) ? product.thumbnails : [product.img];
@@ -361,7 +361,7 @@ function initProductDetail(targetId) {
             thumbsContainer.innerHTML = thumbHtml;
         }
 
-        // Badge
+        // badge
         let badgeEl = document.getElementById('detailBadge');
         if (badgeEl) {
             if (product.badge) {
