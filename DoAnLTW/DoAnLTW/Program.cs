@@ -92,6 +92,16 @@ app.MapControllerRoute(
     defaults: new { controller = "Account", action = "Register" });
 
 app.MapControllerRoute(
+    name: "profile_html",
+    pattern: "profile.html",
+    defaults: new { controller = "Account", action = "Profile" });
+
+app.MapControllerRoute(
+    name: "forgot_password_html",
+    pattern: "forgot-password.html",
+    defaults: new { controller = "Account", action = "ForgotPassword" });
+
+app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 

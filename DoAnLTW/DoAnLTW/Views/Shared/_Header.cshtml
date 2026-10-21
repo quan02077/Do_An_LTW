@@ -25,7 +25,10 @@
             <div class="tienich">
                 @if (User.Identity?.IsAuthenticated == true)
                 {
-                    <span class="text-secondary me-2">Xin chào, <strong>@User.Identity.Name</strong></span>
+                    <a asp-controller="Account" asp-action="Profile" class="text-dark fw-semibold text-decoration-none me-2" title="Xem hồ sơ cá nhân">
+                        <i class="bi bi-person-circle text-secondary me-1"></i><span>@User.Identity.Name</span>
+                    </a>
+                    <span class="text-muted me-2">|</span>
                     <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline" onsubmit="try { localStorage.removeItem('currentUser'); } catch(e) {}">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-link text-danger text-decoration-none p-0 small fw-bold">Đăng xuất</button>
