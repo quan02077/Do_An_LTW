@@ -14,13 +14,6 @@ namespace DoAnLTW.Models
         [Required]
         public int maTK { get; set; }
 
-        [NotMapped]
-        public int matk
-        {
-            get => maTK;
-            set => maTK = value;
-        }
-
         public TaiKhoan? TaiKhoan { get; set; }
 
         [Required]

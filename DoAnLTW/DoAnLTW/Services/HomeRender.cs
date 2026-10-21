@@ -45,13 +45,35 @@ public class HomeRender : IHomeRender
                 .ThenBy(img => img.thuTu)
                 .FirstOrDefault()?.tenHinhAnh;
 
-            var phanTramGiam = priceInfo.DonGiaGoc > 0 && priceInfo.SoTienGiam > 0
-                ? (double)Math.Round((priceInfo.SoTienGiam / priceInfo.DonGiaGoc) * 100, 0)
-                : 0;
+            double phanTramGiam = 0;
+            if (priceInfo.DonGiaGoc > 0 && priceInfo.SoTienGiam > 0)
+            {
+                phanTramGiam = (double)Math.Round((priceInfo.SoTienGiam / priceInfo.DonGiaGoc) * 100, 0);
+            }
 
-            string? computedBadge = t.KhuyenMai != null 
-                ? (phanTramGiam > 0 ? $"-{(int)phanTramGiam}%" : "Sale")
-                : (t.soLuong >= 12 ? "Best Seller" : "New Arrival");
+            string? computedBadge = null;
+            if (t.KhuyenMai != null)
+            {
+                if (phanTramGiam > 0)
+                {
+                    computedBadge = $"-{(int)phanTramGiam}%";
+                }
+                else
+                {
+                    computedBadge = "Sale";
+                }
+            }
+            else
+            {
+                if (t.soLuong >= 12)
+                {
+                    computedBadge = "Best Seller";
+                }
+                else
+                {
+                    computedBadge = "New Arrival";
+                }
+            }
 
             return new ProductCardItemViewModel(
                 MaTui: t.maTui,
