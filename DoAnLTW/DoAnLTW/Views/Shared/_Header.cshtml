@@ -17,8 +17,14 @@
             <div class="tienich">
                 @if (User.Identity?.IsAuthenticated == true)
                 {
+                    @if (User.IsInRole(DoAnLTW.Models.Roles.Admin) || User.IsInRole("Admin") || string.Equals(User.Identity?.Name, "admin", StringComparison.OrdinalIgnoreCase))
+                    {
+                        <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="badge bg-danger text-white text-decoration-none me-2 py-1 px-2 fw-bold d-inline-flex align-items-center gap-1" title="Chuyen den trang quan tri">
+                            <i class="bi bi-shield-lock-fill"></i> Admin
+                        </a>
+                    }
                     <a asp-controller="Account" asp-action="Profile" class="text-dark fw-semibold text-decoration-none me-2" title="Xem hồ sơ cá nhân">
-                        <i class="bi bi-person-circle text-secondary me-1"></i><span>@User.Identity.Name</span>
+                        <i class="bi bi-person-circle text-secondary me-1"></i><span>@(User.Identity?.Name)</span>
                     </a>
                     <span class="text-muted me-2">|</span>
                     <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline" onsubmit="try { localStorage.removeItem('currentUser'); } catch(e) {}">

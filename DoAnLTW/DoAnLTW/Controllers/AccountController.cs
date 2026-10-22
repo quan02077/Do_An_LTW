@@ -48,26 +48,33 @@ public class AccountController(DbContext_TuiXach db) : Controller
             return View(request);
         }
 
+        var isAdmin = string.Equals(account!.vaiTro, Roles.Admin, StringComparison.OrdinalIgnoreCase) ||
+                      string.Equals(account.vaiTro, "Admin", StringComparison.OrdinalIgnoreCase) ||
+                      string.Equals(account.vaiTro, "Người bán", StringComparison.OrdinalIgnoreCase) ||
+                      string.Equals(account.tenDangNhap, "admin", StringComparison.OrdinalIgnoreCase);
+
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, account!.maTK.ToString()),
             new(ClaimTypes.Name, account.tenDangNhap),
             new(ClaimTypes.Role, account.vaiTro)
         };
+        if (isAdmin)
+        {
+            if (!claims.Any(c => c.Type == ClaimTypes.Role && c.Value == Roles.Admin))
+            {
+                claims.Add(new(ClaimTypes.Role, Roles.Admin));
+            }
+            if (!claims.Any(c => c.Type == ClaimTypes.Role && c.Value == "Admin"))
+            {
+                claims.Add(new(ClaimTypes.Role, "Admin"));
+            }
+        }
         var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-        // Nếu tài khoản là Admin (hoặc vai trò Người bán / username admin) thì chuyển hướng ngay sang /Admin
-        var isAdmin = string.Equals(account.vaiTro, Roles.Admin, StringComparison.OrdinalIgnoreCase) ||
-                      string.Equals(account.vaiTro, "Admin", StringComparison.OrdinalIgnoreCase) ||
-                      string.Equals(account.vaiTro, "Người bán", StringComparison.OrdinalIgnoreCase) ||
-                      string.Equals(account.tenDangNhap, "admin", StringComparison.OrdinalIgnoreCase);
-
-        if (isAdmin)
-        {
-            return RedirectToAction("Index", "Home", new { area = "Admin" });
-        }
-
+        // đăng nhập thành công: tất cả người dùng (kể cả admin) đều về trang home.
+        // riêng tài khoản admin sẽ có nút chuyển sang trang quản trị trên header và trang chủ.
         return !string.IsNullOrWhiteSpace(request.ReturnUrl) && Url.IsLocalUrl(request.ReturnUrl)
             ? LocalRedirect(request.ReturnUrl)
             : RedirectToAction("Index", "Home");
