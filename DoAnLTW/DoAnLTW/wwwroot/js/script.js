@@ -101,10 +101,10 @@ function login() {
             showConfirmButton: false
         }).then(() => {
             localStorage.setItem('currentUser', JSON.stringify(user));
-            if (user.role === 'Người bán') {
-                window.location.href = "admin.html";
+            if (user.role === 'Người bán' || user.role === 'Admin' || user.username === 'admin') {
+                window.location.href = "/Admin";
             } else {
-                window.location.href = "homePage.html";
+                window.location.href = "/";
             }
         });
     } else {

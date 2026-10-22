@@ -57,6 +57,17 @@ public class AccountController(DbContext_TuiXach db) : Controller
         var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
+        // Nếu tài khoản là Admin (hoặc vai trò Người bán / username admin) thì chuyển hướng ngay sang /Admin
+        var isAdmin = string.Equals(account.vaiTro, Roles.Admin, StringComparison.OrdinalIgnoreCase) ||
+                      string.Equals(account.vaiTro, "Admin", StringComparison.OrdinalIgnoreCase) ||
+                      string.Equals(account.vaiTro, "Người bán", StringComparison.OrdinalIgnoreCase) ||
+                      string.Equals(account.tenDangNhap, "admin", StringComparison.OrdinalIgnoreCase);
+
+        if (isAdmin)
+        {
+            return RedirectToAction("Index", "Home", new { area = "Admin" });
+        }
+
         return !string.IsNullOrWhiteSpace(request.ReturnUrl) && Url.IsLocalUrl(request.ReturnUrl)
             ? LocalRedirect(request.ReturnUrl)
             : RedirectToAction("Index", "Home");
@@ -154,7 +165,7 @@ public class AccountController(DbContext_TuiXach db) : Controller
             }
 
             return role == Roles.Admin
-                ? RedirectToAction("Index", "Admin")
+                ? RedirectToAction("Index", "Home", new { area = "Admin" })
                 : RedirectToAction("Index", "Home");
         }
         catch (Exception ex)
