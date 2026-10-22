@@ -143,10 +143,23 @@
                 if (typeof applyFilters === 'function') applyFilters();
             }
 
+            let brand = urlParams.get('brand');
+            const searchRaw = decodeURIComponent(window.location.search || '');
+            if (!brand && (searchRaw.toUpperCase().includes('CHARLES') || searchRaw.toUpperCase().includes('CHARLIE'))) {
+                brand = 'CHARLES & KEITH';
+            } else if (brand) {
+                const bTrim = brand.trim().toUpperCase();
+                if (bTrim === 'CHARLES' || bTrim.includes('CHARLIE') || bTrim.includes('CHARLES & KEITH') || bTrim.includes('CHARLES AND KEITH')) {
+                    brand = 'CHARLES & KEITH';
+                }
+            }
+
             if (brand) {
                 const tabs = document.querySelectorAll('.brand-tab');
                 tabs.forEach(tab => {
-                    if (tab.getAttribute('data-brand')?.toLowerCase() === brand.toLowerCase()) {
+                    const tabBrand = tab.getAttribute('data-brand') || '';
+                    if (tabBrand.toLowerCase() === brand.toLowerCase() || 
+                        (brand === 'CHARLES & KEITH' && tabBrand.toUpperCase().includes('KEITH'))) {
                         if (typeof selectBrand === 'function') selectBrand(tab);
                     }
                 });

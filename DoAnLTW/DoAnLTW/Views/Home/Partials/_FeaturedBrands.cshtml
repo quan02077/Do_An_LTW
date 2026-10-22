@@ -27,7 +27,7 @@
             {
                 var logoImg = ResolveImage(brand.LogoUrl);
                 <div class="col">
-                    <a href="/Catalog?brand=@brand.TenThuongHieu" class="text-decoration-none text-dark d-block h-100">
+                    <a href="/Catalog?brand=@Uri.EscapeDataString(brand.TenThuongHieu)" class="text-decoration-none text-dark d-block h-100">
                         <div class="brand-highlight-card text-center h-100">
                             <div class="brand-highlight-img-wrap">
                                 <img src="@logoImg"

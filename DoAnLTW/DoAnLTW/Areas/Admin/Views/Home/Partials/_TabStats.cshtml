@@ -1,0 +1,47 @@
+<!-- tab 5: thống kê -->
+<div class="adm-panel" id="adm-panel-stats">
+    <div class="bg-white border rounded-4 p-4 p-md-5 shadow-sm mb-4">
+        <h2 class="fs-5 fw-bold border-bottom pb-2 mb-4">TỔNG QUAN HỆ THỐNG KINH DOANH TÚI XÁCH</h2>
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="admin-stat-card stat-dark-1">
+                    <div class="admin-stat-title">Tổng Doanh Thu</div>
+                    <div class="admin-stat-value" id="statsTotalRevenue">0 ₫</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="admin-stat-card stat-dark-2">
+                    <div class="admin-stat-title">Tổng Số Đơn Hàng</div>
+                    <div class="admin-stat-value" id="statsTotalOrders">0</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="admin-stat-card stat-dark-3">
+                    <div class="admin-stat-title">Tổng Sản Phẩm Trong Kho</div>
+                    <div class="admin-stat-value" id="statsTotalProducts">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="admin-chart-box">
+                    <h3 class="mb-3 fw-bold text-uppercase fs-6" style="font-family: 'Oswald', sans-serif;">
+                        Tỷ lệ Túi xách theo Thương hiệu</h3>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <canvas id="chartBrands"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="admin-chart-box">
+                    <h3 class="mb-3 fw-bold text-uppercase fs-6" style="font-family: 'Oswald', sans-serif;">
+                        Phân bố theo Loại túi xách</h3>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <canvas id="chartCategories"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,87 @@
+<!-- tab 2: điều chỉnh thông tin -->
+<div class="adm-panel" id="adm-panel-edit">
+    <div class="bg-white border rounded-4 p-4 p-md-5 shadow-sm">
+        <h2 class="fs-5 fw-bold border-bottom pb-2 mb-4">CHỌN TÚI XÁCH ĐỂ ĐIỀU CHỈNH</h2>
+        <div class="mb-4">
+            <input id="editSearch" type="text"
+                class="form-control form-control-lg bg-light border-0"
+                placeholder="Tìm kiếm theo tên túi xách, thương hiệu..." oninput="filterAdminList('edit')">
+        </div>
+        <div class="adm-scroll-list overflow-auto rounded-4 p-3 bg-light mb-4"
+            id="editList" style="max-height: 400px;"></div>
+
+        <div id="editFormWrap" style="display:none;" class="pt-4 mt-4 border-top">
+            <h3 class="fs-5 fw-bold mb-4 text-dark border-bottom pb-2">ĐIỀU CHỈNH THÔNG TIN TÚI XÁCH</h3>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-secondary small">Tên túi xách (tentui) *</label>
+                    <input id="edit_name" class="form-control form-control-lg bg-light border-0" type="text">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-secondary small">Thương hiệu *</label>
+                    <select id="edit_brand" class="form-select form-select-lg bg-light border-0">
+                        <option value="1">CHARLES & KEITH</option>
+                        <option value="2">Natoli</option>
+                        <option value="3">Pedro</option>
+                        <option value="4">ELLY</option>
+                        <option value="5">Jamlos</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-secondary small">Loại túi *</label>
+                    <select id="edit_category" class="form-select form-select-lg bg-light border-0">
+                        <option value="1">Balo</option>
+                        <option value="2">Túi đeo chéo</option>
+                        <option value="3">Túi tote</option>
+                        <option value="4">Túi dự tiệc</option>
+                        <option value="5">Túi đeo vai</option>
+                        <option value="6">Clutch</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-secondary small">Chương trình khuyến mãi</label>
+                    <select id="edit_km" class="form-select form-select-lg bg-light border-0">
+                        <option value="0">Không khuyến mãi (0%)</option>
+                        <option value="1">Khuyến mãi tháng 9 (-10%)</option>
+                        <option value="2">Sale cuối tuần (-15%)</option>
+                        <option value="3">Ưu đãi khách hàng mới (-20%)</option>
+                        <option value="4">Sale mùa thu (-25%)</option>
+                        <option value="5">Siêu sale cuối năm (-30%)</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-secondary small">Đơn giá bán (dongia) (₫) *</label>
+                    <input id="edit_price" class="form-control form-control-lg bg-light border-0" type="number">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-secondary small">Số lượng tồn kho (soluong) *</label>
+                    <input id="edit_stock" class="form-control form-control-lg bg-light border-0" type="number">
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-bold text-secondary small">Đường dẫn hình ảnh *</label>
+                    <input id="edit_img" class="form-control form-control-lg bg-light border-0" type="text">
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-bold text-secondary small">Mô tả sản phẩm (mota)</label>
+                    <textarea id="edit_mota" class="form-control bg-light border-0" rows="3"></textarea>
+                </div>
+            </div>
+
+            <h3 class="fs-6 fw-bold border-bottom pb-2 mt-5 mb-3">NHÃN NỔI BẬT</h3>
+            <input type="hidden" id="edit_badge" value="">
+            <div class="d-flex flex-wrap gap-2" id="editBadgeRow">
+                <button type="button" class="btn btn-outline-dark adm-badge-opt selected" data-v=""
+                    onclick="selectBadge('edit',this)">Mặc định</button>
+                <button type="button" class="btn btn-outline-dark adm-badge-opt" data-v="New Arrival"
+                    onclick="selectBadge('edit',this)">New Arrival</button>
+                <button type="button" class="btn btn-outline-dark adm-badge-opt" data-v="Best Seller"
+                    onclick="selectBadge('edit',this)">Best Seller</button>
+                <button type="button" class="btn btn-outline-dark adm-badge-opt" data-v="Sale Off"
+                    onclick="selectBadge('edit',this)">Sale Off</button>
+            </div>
+
+            <button class="btn btn-dark w-100 py-3 mt-5 fw-bold fs-5 rounded-pill"
+                onclick="submitEditProduct()">LƯU THAY ĐỔI TÚI XÁCH</button>
+        </div>
+    </div>
+</div>

@@ -1,5 +1,5 @@
-﻿@{
-    ViewData["Title"] = "Chi tiáº¿t sáº£n pháº©m";
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm";
     var productId = ViewData["ProductId"] ?? 1;
 }
 
@@ -10,9 +10,9 @@
 <main class="site-main container-fluid px-4 px-md-5 mt-4 pb-5">
     <!-- breadcrumbs -->
     <nav class="breadcrumb-bar mb-4" aria-label="breadcrumb">
-        <a asp-controller="Home" asp-action="Index" class="text-decoration-none text-secondary">Trang chá»§</a> &nbsp;/&nbsp;
-        <a asp-controller="Catalog" asp-action="Index" class="text-decoration-none text-secondary">TÃºi xÃ¡ch</a> &nbsp;/&nbsp;
-        <span id="breadcrumbDetailName" class="text-dark fw-bold">Chi tiáº¿t sáº£n pháº©m</span>
+        <a asp-controller="Home" asp-action="Index" class="text-decoration-none text-secondary">Trang chủ</a> &nbsp;/&nbsp;
+        <a asp-controller="Catalog" asp-action="Index" class="text-decoration-none text-secondary">Túi xách</a> &nbsp;/&nbsp;
+        <span id="breadcrumbDetailName" class="text-dark fw-bold">Chi tiết sản phẩm</span>
     </nav>
 
     <!-- khối chi tiết sản phẩm: ảnh (col-lg-6) và thông tin (col-lg-6) -->
@@ -21,7 +21,7 @@
         <div class="col-lg-6 text-center">
             <div class="main-img-container bg-light rounded-4 p-4 shadow-sm position-relative d-flex align-items-center justify-content-center" style="min-height: 460px;">
                 <span id="detailBadge" class="badge bg-danger position-absolute top-0 start-0 m-3 px-3 py-2 fs-6 d-none"></span>
-                <img src="/HinhAnh/tui1_1.png" id="mainProductImg" class="img-fluid" style="max-height: 400px; object-fit: contain; transition: transform 0.3s ease;" alt="Chi tiáº¿t tÃºi xÃ¡ch">
+                <img src="/HinhAnh/tui1_1.png" id="mainProductImg" class="img-fluid" style="max-height: 400px; object-fit: contain; transition: transform 0.3s ease;" alt="Chi tiết túi xách">
             </div>
 
             <!-- ảnh nhỏ thumbnail tương ứng hinhanhtui -->
@@ -33,37 +33,37 @@
         <div class="col-lg-6 ps-lg-4 mt-4 mt-lg-0">
             <div class="product-info">
                 <div class="d-flex align-items-center gap-2 mb-2">
-                    <span class="badge bg-dark px-3 py-2 text-uppercase" id="productBrand">ThÆ°Æ¡ng hiá»‡u</span>
-                    <span class="badge bg-light text-dark border px-3 py-2 text-uppercase" id="productCategory">Loáº¡i tÃºi</span>
+                    <span class="badge bg-dark px-3 py-2 text-uppercase" id="productBrand">Thương hiệu</span>
+                    <span class="badge bg-light text-dark border px-3 py-2 text-uppercase" id="productCategory">Loại túi</span>
                 </div>
 
-                <h1 class="fw-bold oswald-font mb-3" id="productName" style="font-size: 2.2rem;">TÃªn TÃºi XÃ¡ch</h1>
+                <h1 class="fw-bold oswald-font mb-3" id="productName" style="font-size: 2.2rem;">Tên Túi Xách</h1>
 
                 <!-- giá và khuyến mãi -->
                 <div class="p-3 bg-light rounded-3 my-3 border">
                     <div class="d-flex align-items-baseline gap-3">
-                        <div class="fw-bold text-danger mb-0 fs-2" id="productPrice">0 â‚«</div>
-                        <span class="text-muted text-decoration-line-through fs-5 d-none" id="productOldPrice">0 â‚«</span>
+                        <div class="fw-bold text-danger mb-0 fs-2" id="productPrice">0 ₫</div>
+                        <span class="text-muted text-decoration-line-through fs-5 d-none" id="productOldPrice">0 ₫</span>
                         <span class="badge bg-danger fs-6 d-none" id="productDiscountPercent">-0%</span>
                     </div>
                     <p class="text-success small fw-bold mb-0 mt-2 d-none" id="productPromoTag">
-                        Ãp dá»¥ng: <span id="productPromoName"></span>
+                        Áp dụng: <span id="productPromoName"></span>
                     </p>
                 </div>
 
                 <!-- trạng thái tồn kho -->
                 <div class="mb-4">
                     <div class="d-flex align-items-center gap-2">
-                        <span class="fw-bold small text-secondary text-uppercase">TÃ¬nh tráº¡ng kho:</span>
-                        <span class="badge bg-white text-dark border px-3 py-2 fw-bold" id="productStock">CÃ²n 0 sáº£n pháº©m</span>
+                        <span class="fw-bold small text-secondary text-uppercase">Tình trạng kho:</span>
+                        <span class="badge bg-white text-dark border px-3 py-2 fw-bold" id="productStock">Còn 0 sản phẩm</span>
                     </div>
                 </div>
 
-                <!-- bá»™ chá»n sá»‘ læ°á»£ng mua -->
+                <!-- bộ chọn số lượng mua -->
                 <div class="mb-4">
-                    <label class="fw-bold d-block mb-2 small text-secondary text-uppercase">Sá»‘ lÆ°á»£ng mua:</label>
+                    <label class="fw-bold d-block mb-2 small text-secondary text-uppercase">Số lượng mua:</label>
                     <div class="d-inline-flex align-items-center border rounded-pill p-1 bg-light">
-                        <button class="btn btn-outline-dark rounded-circle border-0" style="width: 36px; height: 36px;" onclick="changeBuyQty(-1)">âˆ’</button>
+                        <button class="btn btn-outline-dark rounded-circle border-0" style="width: 36px; height: 36px;" onclick="changeBuyQty(-1)">−</button>
                         <input type="number" id="buyQuantity" class="form-control text-center border-0 bg-transparent fw-bold fs-5" value="1" min="1" max="100" style="width: 60px;" readonly>
                         <button class="btn btn-outline-dark rounded-circle border-0" style="width: 36px; height: 36px;" onclick="changeBuyQty(1)">+</button>
                     </div>
@@ -72,37 +72,37 @@
                 <!-- nút mua hàng và yêu thích -->
                 <div class="d-grid gap-3">
                     <button class="btn btn-dark btn-lg rounded-pill py-3 fw-bold shadow-sm" id="btnAddToCart" onclick="addToCart()">
-                        THÃŠM VÃ€O GIá»Ž HÃ€NG
+                        THÊM VÀO GIỎ HÀNG
                     </button>
                     <button class="btn btn-outline-dark rounded-pill py-3 fw-bold" id="btnToggleFav" onclick="toggleCurrentFavorite()">
-                        LÆ¯U VÃ€O DANH SÃCH YÃŠU THÃCH
+                        LƯU VÀO DANH SÁCH YÊU THÍCH
                     </button>
                 </div>
 
                 <!-- bảng thuộc tính chi tiết -->
                 <div class="mt-4 pt-3 border-top">
-                    <div class="fw-bold text-uppercase text-secondary mb-3 small">ThÃ´ng sá»‘ sáº£n pháº©m</div>
+                    <div class="fw-bold text-uppercase text-secondary mb-3 small">Thông số sản phẩm</div>
                     <table class="table table-sm table-borderless small mb-0">
                         <tbody>
                             <tr>
-                                <td class="text-muted" style="width: 140px;">MÃ£ sáº£n pháº©m:</td>
+                                <td class="text-muted" style="width: 140px;">Mã sản phẩm:</td>
                                 <td class="fw-bold" id="specId">#0</td>
                             </tr>
                             <tr>
-                                <td class="text-muted">ThÆ°Æ¡ng hiá»‡u:</td>
+                                <td class="text-muted">Thương hiệu:</td>
                                 <td class="fw-bold" id="specBrand">-</td>
                             </tr>
                             <tr>
-                                <td class="text-muted">Loáº¡i tÃºi xÃ¡ch:</td>
+                                <td class="text-muted">Loại túi xách:</td>
                                 <td class="fw-bold" id="specCategory">-</td>
                             </tr>
                             <tr>
-                                <td class="text-muted">ChÆ°Æ¡ng trÃ¬nh KM:</td>
-                                <td class="fw-bold text-danger" id="specPromo">KhÃ´ng</td>
+                                <td class="text-muted">Chương trình KM:</td>
+                                <td class="fw-bold text-danger" id="specPromo">Không</td>
                             </tr>
                             <tr>
-                                <td class="text-muted">Tá»“n kho hiá»‡n táº¡i:</td>
-                                <td class="fw-bold" id="specStock">0 cÃ¡i</td>
+                                <td class="text-muted">Tồn kho hiện tại:</td>
+                                <td class="fw-bold" id="specStock">0 cái</td>
                             </tr>
                         </tbody>
                     </table>
@@ -115,9 +115,9 @@
     <!-- mô tả chi tiết sản phẩm -->
     <div class="row mt-5 mx-0">
         <div class="col-12 p-4 bg-light rounded-4 border">
-            <h2 class="h4 fw-bold oswald-font border-bottom pb-3 mb-3">MÃ” Táº¢ Sáº¢N PHáº¨M</h2>
+            <h2 class="h4 fw-bold oswald-font border-bottom pb-3 mb-3">MÔ TẢ SẢN PHẨM</h2>
             <p class="fs-5 leading-relaxed text-secondary mb-0" id="productDescription">
-                MÃ´ táº£ Ä‘ang Ä‘Æ°á»£c cáº­p nháº­t...
+                Mô tả đang được cập nhật...
             </p>
         </div>
     </div>
@@ -125,12 +125,12 @@
     <!-- sản phẩm liên quan -->
     <div class="row mt-5 pt-4 border-top mb-5 mx-0">
         <div class="col-12 d-flex justify-content-between align-items-center mb-4">
-            <h2 class="h4 fw-bold m-0 oswald-font">CÃ“ THá»‚ Báº N CÅ¨NG THÃCH</h2>
-            <a asp-controller="Catalog" asp-action="Index" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">Xem thÃªm</a>
+            <h2 class="h4 fw-bold m-0 oswald-font">CÓ THỂ BẠN CŨNG THÍCH</h2>
+            <a asp-controller="Catalog" asp-action="Index" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">Xem thêm</a>
         </div>
 
         <div class="col-12 d-flex flex-nowrap overflow-auto hide-scrollbar gap-3" id="relatedProducts">
-            <!-- nạp động từ scriptdetail.js -->
+            <!-- nạp động từ scriptDetail.js -->
         </div>
     </div>
 </main>
@@ -143,7 +143,7 @@
     <script src="~/js/scriptDetail.js" asp-append-version="true"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Äáº£m báº£o URL cÃ³ param id
+            // Đảm bảo URL có param id
             const urlParams = new URLSearchParams(window.location.search);
             if (!urlParams.get('id')) {
                 const currentId = '@productId';

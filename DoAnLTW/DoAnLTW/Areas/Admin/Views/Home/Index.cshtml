@@ -1,0 +1,134 @@
+@{
+    ViewData["Title"] = "Bảng Quản Trị Hệ Thống";
+    var userRole = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value ?? "Admin";
+}
+
+<div class="main-content-wrap">
+    <!-- Top Stat Summary Cards từ template Admin -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Tổng Sản Phẩm</span>
+                        <h3 class="fw-bold my-1 text-primary" id="adminTotalProducts">18</h3>
+                        <span class="text-success small fw-semibold"><i class="bi bi-arrow-up-short"></i> Đang hoạt động</span>
+                    </div>
+                    <div class="bg-primary-subtle text-primary rounded-4 p-3 d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+                        <i class="icon-shopping-bag fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Đơn Hàng</span>
+                        <h3 class="fw-bold my-1 text-warning" id="adminTotalOrders">12</h3>
+                        <span class="text-warning small fw-semibold"><i class="bi bi-clock-history"></i> Cần xử lý</span>
+                    </div>
+                    <div class="bg-warning-subtle text-warning rounded-4 p-3 d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+                        <i class="icon-file-plus fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Doanh Thu Dự Kiến</span>
+                        <h3 class="fw-bold my-1 text-success" id="adminTotalRevenue">24.500.000 ₫</h3>
+                        <span class="text-success small fw-semibold"><i class="bi bi-graph-up-arrow"></i> +12.5% tuần này</span>
+                    </div>
+                    <div class="bg-success-subtle text-success rounded-4 p-3 d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+                        <i class="icon-dollar-sign fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Khách Hàng</span>
+                        <h3 class="fw-bold my-1 text-info" id="adminTotalUsers">28</h3>
+                        <span class="text-info small fw-semibold"><i class="bi bi-people"></i> Thành viên</span>
+                    </div>
+                    <div class="bg-info-subtle text-info rounded-4 p-3 d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+                        <i class="icon-user fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden label cho admin.js đồng bộ user -->
+    <span class="d-none" id="adminUserLabel"
+          data-server-user="@(User.Identity?.Name ?? "Admin")"
+          data-server-auth="@(User.Identity?.IsAuthenticated == true ? "true" : "false")"
+          data-server-role="@userRole"></span>
+
+    <!-- Tabs Chức Năng Quản Trị -->
+    <div class="bg-white border rounded-4 px-3 pt-3 mb-4 shadow-sm" id="products">
+        <ul class="nav nav-tabs border-0 flex-nowrap overflow-auto hide-scrollbar" id="adm-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold active adm-tab border-0 border-bottom border-3 border-dark rounded-0 px-4 py-3"
+                    id="adm-tab-add" onclick="switchAdminTab('add')">Thêm túi xách mới</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold adm-tab border-0 rounded-0 px-4 py-3"
+                    id="adm-tab-edit" onclick="switchAdminTab('edit')">Điều chỉnh thông tin</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold adm-tab border-0 rounded-0 px-4 py-3"
+                    id="adm-tab-delete" onclick="switchAdminTab('delete')">Xóa sản phẩm</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold adm-tab border-0 rounded-0 px-4 py-3"
+                    id="adm-tab-orders" onclick="switchAdminTab('orders')">Đơn đặt hàng</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold adm-tab border-0 rounded-0 px-4 py-3"
+                    id="adm-tab-stats" onclick="switchAdminTab('stats')">Báo cáo & Thống kê</button>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Nội dung các tab quản trị -->
+    <main class="site-main">
+        <partial name="Partials/_TabAddProduct" />
+        <partial name="Partials/_TabEditProduct" />
+        <partial name="Partials/_TabDeleteProduct" />
+        <partial name="Partials/_TabOrders" />
+        <partial name="Partials/_TabStats" />
+    </main>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof initAdminStats === 'function') {
+                initAdminStats();
+            }
+            if (typeof filterAdminList === 'function') {
+                filterAdminList('edit');
+                filterAdminList('delete');
+            }
+
+            // Đồng bộ số liệu thống kê lên các thẻ card phía trên
+            try {
+                let allProds = (typeof getAllProducts === 'function') ? getAllProducts() : (typeof productsDatabase !== 'undefined' ? productsDatabase : []);
+                let totalProdEl = document.getElementById('adminTotalProducts');
+                if (totalProdEl && allProds) totalProdEl.innerText = allProds.length;
+
+                let orders = [];
+                try { orders = JSON.parse(localStorage.getItem('adminOrders')) || []; } catch(e){}
+                let orderEl = document.getElementById('adminTotalOrders');
+                if (orderEl && orders) orderEl.innerText = orders.length > 0 ? orders.length : 12;
+            } catch(e) {}
+        });
+    </script>
+}
+
