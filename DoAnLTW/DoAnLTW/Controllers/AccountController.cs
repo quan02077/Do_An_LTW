@@ -50,8 +50,7 @@ public class AccountController(DbContext_TuiXach db) : Controller
 
         var isAdmin = string.Equals(account!.vaiTro, Roles.Admin, StringComparison.OrdinalIgnoreCase) ||
                       string.Equals(account.vaiTro, "Admin", StringComparison.OrdinalIgnoreCase) ||
-                      string.Equals(account.vaiTro, "Người bán", StringComparison.OrdinalIgnoreCase) ||
-                      string.Equals(account.tenDangNhap, "admin", StringComparison.OrdinalIgnoreCase);
+                      string.Equals(account.vaiTro, "Người bán", StringComparison.OrdinalIgnoreCase);
 
         var claims = new List<Claim>
         {

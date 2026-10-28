@@ -163,7 +163,7 @@ function getProductDetailUrl(id) {
     if (pathname.toLowerCase().includes('/catalog/detail')) {
         return `/Catalog/Detail?id=${id}`;
     }
-    return `productDetail.html?id=${id}`;
+    return `/Catalog/Detail?id=${id}`;
 }
 
 //selectrelatedproduct: chuyen doi sang san pham lien quan truc tiep tren trang

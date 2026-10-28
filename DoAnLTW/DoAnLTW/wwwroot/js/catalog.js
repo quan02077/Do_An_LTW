@@ -36,7 +36,7 @@ function selectBrand(element) {
     currentBrand = element.getAttribute('data-brand') || "all";
 
     if (!isSearchMode) {
-        let url = currentBrand === 'all' ? 'catalog.html' : '?brand=' + encodeURIComponent(currentBrand);
+        let url = currentBrand === 'all' ? '/Catalog' : '?brand=' + encodeURIComponent(currentBrand);
         window.history.replaceState(null, null, url);
     }
 
@@ -217,7 +217,7 @@ function renderCatalog() {
                 <div class="product-card border p-3 shadow-sm h-100 d-flex flex-column position-relative">
                     
                     <!-- Khung ảnh túi xách -->
-                    <a href="productDetail.html?id=${p.id}" class="text-decoration-none text-dark d-block">
+                    <a href="/Catalog/Detail?id=${p.id}" class="text-decoration-none text-dark d-block">
                         <div class="product-img-wrap mb-3">
                             <img src="${p.img}" alt="${p.name}" class="img-fluid">
                         </div>
@@ -238,7 +238,7 @@ function renderCatalog() {
                         <div class="d-flex align-items-center gap-1">${statusTagHtml}${stockText}</div>
                     </div>
 
-                    <a href="productDetail.html?id=${p.id}" class="text-decoration-none text-dark">
+                    <a href="/Catalog/Detail?id=${p.id}" class="text-decoration-none text-dark">
                         <h5 class="fw-bold mb-1" style="font-size: 15px; min-height: 44px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; line-height: 1.45;" title="${p.name}">${p.name}</h5>
                     </a>
 
@@ -250,7 +250,7 @@ function renderCatalog() {
                             <span class="text-danger fw-bold fs-5">${priceSale}</span>
                         </div>
                         <div class="d-flex gap-2">
-                            <a href="productDetail.html?id=${p.id}" class="btn btn-outline-dark rounded-pill fw-bold py-2 flex-grow-1 text-center" style="font-size: 13px;">
+                            <a href="/Catalog/Detail?id=${p.id}" class="btn btn-outline-dark rounded-pill fw-bold py-2 flex-grow-1 text-center" style="font-size: 13px;">
                                 Chi tiết
                             </a>
                             <button type="button" class="btn btn-dark rounded-pill fw-bold py-2 px-3 btn-quick-add" onclick="quickAddToCart(${p.id})" title="Thêm nhanh vào giỏ hàng" style="font-size: 13px;">
@@ -430,7 +430,7 @@ function clearAllFilters() {
     currentBrand = "all";
     currentSearch = "";
     isSearchMode = false;
-    window.history.replaceState(null, null, "catalog.html");
+    window.history.replaceState(null, null, "/Catalog");
 
     let searchInput = document.querySelector('.custom-search');
     if (searchInput) searchInput.value = "";

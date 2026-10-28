@@ -1,0 +1,176 @@
+@model List<DoAnLTW.Models.TuiXach>
+@using DoAnLTW.Models
+@{
+    ViewData["Title"] = "Quản lý túi xách";
+    var loaiTuis = ViewBag.LoaiTuis as List<LoaiTui> ?? new List<LoaiTui>();
+    var thuongHieus = ViewBag.ThuongHieus as List<ThuongHieu> ?? new List<ThuongHieu>();
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int totalItems = ViewBag.TotalItems ?? 0;
+}
+
+<div class="main-content-wrap">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div>
+            <h3 class="fw-bold mb-1">Quản lý Túi Xách</h3>
+            <p class="text-muted small mb-0">Tổng cộng: <strong>@totalItems</strong> sản phẩm trong kho</p>
+        </div>
+        <div>
+            <a asp-action="Create" class="btn btn-dark rounded-0 fw-semibold px-4 py-2">
+                + Thêm túi xách mới
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-0 shadow-sm" role="alert">
+            <strong>Thành công!</strong> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-0 shadow-sm" role="alert">
+            <strong>Lỗi!</strong> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Bo loc va tim kiem -->
+    <div class="wg-box mb-4">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary">Tìm kiếm theo tên:</label>
+                <input type="text" name="q" value="@ViewBag.SearchQuery" class="form-control rounded-0" placeholder="Nhập tên túi xách..." />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-secondary">Loại túi:</label>
+                <select name="categoryId" class="form-select rounded-0">
+                    <option value="">-- Tất cả loại túi --</option>
+                    @foreach (var lt in loaiTuis)
+                    {
+                        <option value="@lt.maLoai" selected="@(ViewBag.CategoryId == lt.maLoai ? "selected" : null)">@lt.tenLoai</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-secondary">Thương hiệu:</label>
+                <select name="brandId" class="form-select rounded-0">
+                    <option value="">-- Tất cả thương hiệu --</option>
+                    @foreach (var th in thuongHieus)
+                    {
+                        <option value="@th.maThuongHieu" selected="@(ViewBag.BrandId == th.maThuongHieu ? "selected" : null)">@th.tenThuongHieu</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-dark rounded-0 w-100 fw-semibold">Lọc</button>
+                <a asp-action="Index" class="btn btn-outline-secondary rounded-0 px-3" title="Làm mới">↻</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bang san pham -->
+    <div class="wg-box">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle border mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 70px;">Ảnh</th>
+                        <th style="width: 80px;">Mã</th>
+                        <th>Tên túi xách</th>
+                        <th>Loại túi</th>
+                        <th>Thương hiệu</th>
+                        <th class="text-end">Đơn giá</th>
+                        <th class="text-center" style="width: 100px;">Tồn kho</th>
+                        <th class="text-end" style="width: 140px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                Không tìm thấy sản phẩm nào.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var p in Model)
+                    {
+                        var anhChinh = p.HinhAnhTuis.FirstOrDefault(a => a.laAnhChinh)?.tenHinhAnh 
+                                      ?? p.HinhAnhTuis.FirstOrDefault()?.tenHinhAnh 
+                                      ?? "tui1_1.png";
+                        var imgSrc = anhChinh.StartsWith("http") ? anhChinh : $"/HinhAnh/{anhChinh}";
+
+                        <tr>
+                            <td>
+                                <img src="@imgSrc" alt="@p.tenTui" class="border" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.src='/HinhAnh/tui1_1.png';" />
+                            </td>
+                            <td class="fw-bold text-secondary">@p.MaHienThi</td>
+                            <td>
+                                <div class="fw-bold text-dark">@p.tenTui</div>
+                                @if (!string.IsNullOrEmpty(p.badge))
+                                {
+                                    <span class="badge bg-danger rounded-0" style="font-size: 10px;">@p.badge</span>
+                                }
+                            </td>
+                            <td class="text-muted small">@(p.LoaiTui?.tenLoai ?? "---")</td>
+                            <td class="text-muted small">@(p.ThuongHieu?.tenThuongHieu ?? "---")</td>
+                            <td class="text-end fw-bold text-danger">@p.donGia.ToString("N0") đ</td>
+                            <td class="text-center">
+                                @if (p.soLuong <= 0)
+                                {
+                                    <span class="badge bg-danger rounded-0">Hết hàng</span>
+                                }
+                                else if (p.soLuong < 5)
+                                {
+                                    <span class="badge bg-warning text-dark rounded-0">Sắp hết (@p.soLuong)</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-dark border rounded-0">@p.soLuong</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Edit" asp-route-id="@p.maTui" class="btn btn-outline-dark btn-sm rounded-0 me-1">
+                                    Sửa
+                                </a>
+                                <form asp-action="Delete" method="post" class="d-inline"
+                                      onsubmit="return confirm('Bạn có chắc muốn xóa túi xách: @p.tenTui?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="maTui" value="@p.maTui" />
+                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-0">
+                                        Xóa
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Phan trang -->
+        @if (totalPages > 1)
+        {
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                <span class="small text-muted">Trang @currentPage / @totalPages</span>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            <li class="page-item @(i == currentPage ? "active" : "")">
+                                <a class="page-link rounded-0" asp-action="Index"
+                                   asp-route-page="@i"
+                                   asp-route-q="@ViewBag.SearchQuery"
+                                   asp-route-categoryId="@ViewBag.CategoryId"
+                                   asp-route-brandId="@ViewBag.BrandId">@i</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+</div>

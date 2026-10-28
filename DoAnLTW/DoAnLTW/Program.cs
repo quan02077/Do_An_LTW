@@ -56,65 +56,12 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// 1. route cho area admin: /admin => Areas/Admin/Controllers/HomeController.cs (action Index)
-app.MapAreaControllerRoute(
-    name: "admin",
-    areaName: "Admin",
-    pattern: "Admin/{controller=Home}/{action=Index}/{id?}");
-
-// route tong quat cho cac area khac neu co
+// 1. route cho area admin: /admin => Areas/Admin/Controllers/HomeController.cs
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
-// cac route rut gon hoac danh cho trang tinh html
-app.MapControllerRoute(
-    name: "catalog_html",
-    pattern: "catalog.html",
-    defaults: new { controller = "Catalog", action = "Index" });
-
-app.MapControllerRoute(
-    name: "productDetail_html",
-    pattern: "productDetail.html",
-    defaults: new { controller = "Catalog", action = "Detail" });
-
-app.MapControllerRoute(
-    name: "flashSale_html",
-    pattern: "flashSale.html",
-    defaults: new { controller = "FlashSale", action = "Index" });
-
-app.MapAreaControllerRoute(
-    name: "admin_html",
-    areaName: "Admin",
-    pattern: "admin.html",
-    defaults: new { controller = "Home", action = "Index" });
-
-app.MapControllerRoute(
-    name: "home_html",
-    pattern: "homePage.html",
-    defaults: new { controller = "Home", action = "Index" });
-
-app.MapControllerRoute(
-    name: "login_html",
-    pattern: "login.html",
-    defaults: new { controller = "Account", action = "Login" });
-
-app.MapControllerRoute(
-    name: "register_html",
-    pattern: "register.html",
-    defaults: new { controller = "Account", action = "Register" });
-
-app.MapControllerRoute(
-    name: "profile_html",
-    pattern: "profile.html",
-    defaults: new { controller = "Account", action = "Profile" });
-
-app.MapControllerRoute(
-    name: "forgot_password_html",
-    pattern: "forgot-password.html",
-    defaults: new { controller = "Account", action = "ForgotPassword" });
-
-// 2. route mac dinh cho user: / => Controllers/HomeController.cs (action Index)
+// 2. route mac dinh cho user: / => Controllers/HomeController.cs
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

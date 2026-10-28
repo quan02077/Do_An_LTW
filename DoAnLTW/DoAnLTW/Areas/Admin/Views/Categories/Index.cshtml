@@ -1,0 +1,232 @@
+@using DoAnLTW.Models
+@{
+    ViewData["Title"] = "Quản lý danh mục";
+    var loaiTuis = ViewBag.LoaiTuis as List<LoaiTui> ?? new List<LoaiTui>();
+    var thuongHieus = ViewBag.ThuongHieus as List<ThuongHieu> ?? new List<ThuongHieu>();
+}
+
+<div class="main-content-wrap">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Quản lý Danh Mục</h3>
+            <p class="text-muted small mb-0">Quản lý Loại túi và Thương hiệu sản phẩm túi xách</p>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-0 shadow-sm" role="alert">
+            <strong>Thành công!</strong> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-0 shadow-sm" role="alert">
+            <strong>Lỗi!</strong> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- Cot 1: Quan ly Loai tui -->
+        <div class="col-lg-6">
+            <div class="wg-box">
+                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                    <h5 class="fw-bold mb-0">Loại Túi Xách (@loaiTuis.Count)</h5>
+                    <button class="btn btn-dark btn-sm rounded-0 px-3 fw-semibold" data-bs-toggle="collapse" data-bs-target="#formAddLoaiTui">
+                        + Thêm loại túi
+                    </button>
+                </div>
+
+                <!-- Form them moi loai tui -->
+                <div class="collapse mb-3" id="formAddLoaiTui">
+                    <form asp-action="CreateLoaiTui" method="post" class="p-3 border rounded-0 bg-light">
+                        @Html.AntiForgeryToken()
+                        <label class="form-label small fw-bold text-secondary">Tên loại túi mới:</label>
+                        <div class="input-group">
+                            <input type="text" name="tenLoai" class="form-control rounded-0" placeholder="Ví dụ: Balo, Túi đeo vai..." required />
+                            <button type="submit" class="btn btn-dark rounded-0 px-4 fw-semibold">Lưu</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle border">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px;">Mã</th>
+                                <th>Tên loại túi</th>
+                                <th class="text-center" style="width: 120px;">Số sản phẩm</th>
+                                <th class="text-end" style="width: 140px;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!loaiTuis.Any())
+                            {
+                                <tr><td colspan="4" class="text-center text-muted py-3">Chưa có loại túi nào.</td></tr>
+                            }
+                            @foreach (var item in loaiTuis)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-secondary">@item.MaHienThi</td>
+                                    <td class="fw-semibold">@item.tenLoai</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary rounded-0 px-2">@item.TuiXachs.Count</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <button class="btn btn-outline-dark btn-sm rounded-0 me-1"
+                                                onclick="openEditLoaiModal(@item.maLoai, '@item.tenLoai')">
+                                            Sửa
+                                        </button>
+                                        <form asp-action="DeleteLoaiTui" method="post" class="d-inline"
+                                              onsubmit="return confirm('Bạn có chắc muốn xóa loại túi: @item.tenLoai?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="maLoai" value="@item.maLoai" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-0">
+                                                Xóa
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cot 2: Quan ly Thuong hieu -->
+        <div class="col-lg-6">
+            <div class="wg-box">
+                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                    <h5 class="fw-bold mb-0">Thương Hiệu (@thuongHieus.Count)</h5>
+                    <button class="btn btn-dark btn-sm rounded-0 px-3 fw-semibold" data-bs-toggle="collapse" data-bs-target="#formAddThuongHieu">
+                        + Thêm thương hiệu
+                    </button>
+                </div>
+
+                <!-- Form them moi thuong hieu -->
+                <div class="collapse mb-3" id="formAddThuongHieu">
+                    <form asp-action="CreateThuongHieu" method="post" class="p-3 border rounded-0 bg-light">
+                        @Html.AntiForgeryToken()
+                        <label class="form-label small fw-bold text-secondary">Tên thương hiệu mới:</label>
+                        <div class="input-group">
+                            <input type="text" name="tenThuongHieu" class="form-control rounded-0" placeholder="Ví dụ: Pedro, ELLY, Natoli..." required />
+                            <button type="submit" class="btn btn-dark rounded-0 px-4 fw-semibold">Lưu</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle border">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px;">Mã</th>
+                                <th>Tên thương hiệu</th>
+                                <th class="text-center" style="width: 120px;">Số sản phẩm</th>
+                                <th class="text-end" style="width: 140px;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!thuongHieus.Any())
+                            {
+                                <tr><td colspan="4" class="text-center text-muted py-3">Chưa có thương hiệu nào.</td></tr>
+                            }
+                            @foreach (var item in thuongHieus)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-secondary">@item.MaHienThi</td>
+                                    <td class="fw-semibold">@item.tenThuongHieu</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary rounded-0 px-2">@item.TuiXachs.Count</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <button class="btn btn-outline-dark btn-sm rounded-0 me-1"
+                                                onclick="openEditThuongHieuModal(@item.maThuongHieu, '@item.tenThuongHieu')">
+                                            Sửa
+                                        </button>
+                                        <form asp-action="DeleteThuongHieu" method="post" class="d-inline"
+                                              onsubmit="return confirm('Bạn có chắc muốn xóa thương hiệu: @item.tenThuongHieu?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="maThuongHieu" value="@item.maThuongHieu" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-0">
+                                                Xóa
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal sua Loai tui -->
+<div class="modal fade" id="modalEditLoaiTui" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form asp-action="EditLoaiTui" method="post" class="modal-content rounded-0">
+            @Html.AntiForgeryToken()
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold">Sửa loại túi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editMaLoai" name="maLoai" />
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary small">Tên loại túi:</label>
+                    <input type="text" id="editTenLoai" name="tenLoai" class="form-control rounded-0" required />
+                </div>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-outline-secondary rounded-0" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-dark rounded-0 px-4">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal sua Thuong hieu -->
+<div class="modal fade" id="modalEditThuongHieu" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form asp-action="EditThuongHieu" method="post" class="modal-content rounded-0">
+            @Html.AntiForgeryToken()
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold">Sửa thương hiệu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editMaThuongHieu" name="maThuongHieu" />
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary small">Tên thương hiệu:</label>
+                    <input type="text" id="editTenThuongHieu" name="tenThuongHieu" class="form-control rounded-0" required />
+                </div>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-outline-secondary rounded-0" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-dark rounded-0 px-4">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openEditLoaiModal(id, name) {
+            document.getElementById('editMaLoai').value = id;
+            document.getElementById('editTenLoai').value = name;
+            var modal = new bootstrap.Modal(document.getElementById('modalEditLoaiTui'));
+            modal.show();
+        }
+
+        function openEditThuongHieuModal(id, name) {
+            document.getElementById('editMaThuongHieu').value = id;
+            document.getElementById('editTenThuongHieu').value = name;
+            var modal = new bootstrap.Modal(document.getElementById('modalEditThuongHieu'));
+            modal.show();
+        }
+    </script>
+}
