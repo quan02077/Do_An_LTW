@@ -1,0 +1,53 @@
+@model DoAnLTW.ViewModels.TypeEditViewModel
+@{
+    ViewData["Title"] = "Chỉnh sửa Loại túi";
+}
+
+<div class="main-content-wrap">
+    <div class="mb-27">
+        <h3>Chỉnh sửa Loại túi</h3>
+    </div>
+
+    <div class="wg-box">
+        <form class="form-new-product form-style-1" asp-action="EditLoaiTui" asp-route-maLoai="@Model.MaLoai" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="MaLoai" />
+            <input type="hidden" asp-for="SoLuongSanPham" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-20"></div>
+
+            <fieldset class="name mb-24">
+                <div class="body-title">Mã loại túi</div>
+                <div class="flex-grow">
+                    <input class="w-100 bg-light" type="text" value="@Model.MaHienThi" readonly disabled />
+                </div>
+            </fieldset>
+
+            <fieldset class="name mb-24">
+                <div class="body-title">Tên loại túi <span class="tf-color-1">*</span></div>
+                <div class="flex-grow">
+                    <input class="w-100" type="text" placeholder="Nhập tên loại túi" asp-for="TenLoai" />
+                    <span asp-validation-for="TenLoai" class="text-danger small mt-1 d-block"></span>
+                </div>
+            </fieldset>
+
+            <fieldset class="name mb-24">
+                <div class="body-title">Số sản phẩm liên kết</div>
+                <div class="flex-grow">
+                    <input class="w-100 bg-light" type="text" value="@Model.SoLuongSanPham sản phẩm" readonly disabled />
+                </div>
+            </fieldset>
+
+            <div class="bot">
+                <div>
+                    <a asp-action="Index" class="tf-button style-2">Quay lại</a>
+                </div>
+                <button class="tf-button w208" type="submit">Cập nhật thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

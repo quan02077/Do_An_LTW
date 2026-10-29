@@ -39,7 +39,7 @@
                         <div class="center-item">
                             <div class="center-heading">Main Home</div>
                             <ul class="menu-list">
-                                <li class="menu-item active">
+                                <li class="menu-item @(Context.Request.Path == "/Admin" || Context.Request.Path == "/Admin/Home" || Context.Request.Path == "/Admin/Home/Index" ? "active" : "")">
                                     <a href="/Admin" class="">
                                         <div class="icon"><i class="icon-grid"></i></div>
                                         <div class="text">Dashboard</div>
@@ -68,44 +68,20 @@
                                     </ul>
                                 </li>
 
-                                <!-- Mục Brand (Thương hiệu) -->
-                                <li class="menu-item has-children">
-                                    <a href="javascript:void(0);" class="menu-item-button">
-                                        <div class="icon"><i class="icon-layers"></i></div>
-                                        <div class="text">Brand</div>
-                                    </a>
-                                    <ul class="sub-menu">
-                                        <li class="sub-menu-item">
-                                            <a href="/Admin/Category/AddThuongHieu" class="">
-                                                <div class="text">New Brand</div>
-                                            </a>
-                                        </li>
-                                        <li class="sub-menu-item">
-                                            <a href="/Admin/Category" class="">
-                                                <div class="text">Brands</div>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-
-                                <!-- Mục Category (Loại túi) -->
-                                <li class="menu-item has-children">
-                                    <a href="javascript:void(0);" class="menu-item-button">
+                                <!-- Mục Category (Loại túi - bấm trực tiếp ra trang danh sách) -->
+                                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Admin/Category") ? "active" : "")">
+                                    <a href="/Admin/Category" class="">
                                         <div class="icon"><i class="icon-layers"></i></div>
                                         <div class="text">Category</div>
                                     </a>
-                                    <ul class="sub-menu">
-                                        <li class="sub-menu-item">
-                                            <a href="/Admin/Category/AddLoaiTui" class="">
-                                                <div class="text">New Category</div>
-                                            </a>
-                                        </li>
-                                        <li class="sub-menu-item">
-                                            <a href="/Admin/Category" class="">
-                                                <div class="text">Categories</div>
-                                            </a>
-                                        </li>
-                                    </ul>
+                                </li>
+
+                                <!-- Mục Brand (Thương hiệu - bấm trực tiếp nhảy xuống bảng thương hiệu) -->
+                                <li class="menu-item">
+                                    <a href="/Admin/Category#brand-section" class="">
+                                        <div class="icon"><i class="icon-tag"></i></div>
+                                        <div class="text">Brand</div>
+                                    </a>
                                 </li>
 
                                 <li class="menu-item has-children">

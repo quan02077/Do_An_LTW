@@ -1,0 +1,37 @@
+@model DoAnLTW.ViewModels.TypeCreateViewModel
+@{
+    ViewData["Title"] = "Thêm mới Loại túi";
+}
+
+<div class="main-content-wrap">
+    <div class="mb-27">
+        <h3>Thêm mới Loại túi</h3>
+    </div>
+
+    <div class="wg-box">
+        <form class="form-new-product form-style-1" asp-action="AddLoaiTui" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-20"></div>
+
+            <fieldset class="name mb-24">
+                <div class="body-title">Tên loại túi <span class="tf-color-1">*</span></div>
+                <div class="flex-grow">
+                    <input class="w-100" type="text" placeholder="Nhập tên loại túi (Ví dụ: Túi đeo chéo, Balo, Túi xách tay...)" asp-for="TenLoai" />
+                    <span asp-validation-for="TenLoai" class="text-danger small mt-1 d-block"></span>
+                </div>
+            </fieldset>
+
+            <div class="bot">
+                <div>
+                    <a asp-action="Index" class="tf-button style-2">Quay lại</a>
+                </div>
+                <button class="tf-button w208" type="submit">Lưu loại túi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

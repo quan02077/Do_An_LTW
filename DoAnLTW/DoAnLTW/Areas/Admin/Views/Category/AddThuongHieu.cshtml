@@ -1,0 +1,37 @@
+@model DoAnLTW.ViewModels.BrandCreateViewModel
+@{
+    ViewData["Title"] = "Thêm mới Thương hiệu";
+}
+
+<div class="main-content-wrap">
+    <div class="mb-27">
+        <h3>Thêm mới Thương hiệu</h3>
+    </div>
+
+    <div class="wg-box">
+        <form class="form-new-product form-style-1" asp-action="AddThuongHieu" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-20"></div>
+
+            <fieldset class="name mb-24">
+                <div class="body-title">Tên thương hiệu <span class="tf-color-1">*</span></div>
+                <div class="flex-grow">
+                    <input class="w-100" type="text" placeholder="Nhập tên thương hiệu (Ví dụ: Gucci, Chanel, Charles & Keith...)" asp-for="TenThuongHieu" />
+                    <span asp-validation-for="TenThuongHieu" class="text-danger small mt-1 d-block"></span>
+                </div>
+            </fieldset>
+
+            <div class="bot">
+                <div>
+                    <a asp-action="Index" class="tf-button style-2">Quay lại</a>
+                </div>
+                <button class="tf-button w208" type="submit">Lưu thương hiệu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
