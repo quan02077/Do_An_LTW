@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using DoAnLTW.Data;
 using DoAnLTW.Services;
+using DoAnLTW.Areas.Admin.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IHomeRender, HomeRender>();
 builder.Services.AddSingleton<IProductPricingService, ProductPricingService>();
 builder.Services.AddScoped<ICurrentCustomerService, CurrentCustomerService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
