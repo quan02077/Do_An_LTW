@@ -32,9 +32,9 @@ public class HomeRender : IHomeRender
             .Include(t => t.LoaiTui)
             .Include(t => t.KhuyenMai)
             .Include(t => t.HinhAnhTuis)
-            .OrderByDescending(t => t.maKM.HasValue)
-            .ThenByDescending(t => t.soLuong)
-            .Take(4)
+            .OrderByDescending(t => t.maTui)
+            // uu tien san pham moi them
+            .Take(8)
             .ToListAsync(ct);
 
         var productCards = products.Select(t =>
@@ -85,7 +85,7 @@ public class HomeRender : IHomeRender
                 PhanTramGiam: phanTramGiam,
                 HinhAnh: mainImg,
                 SoLuongTonKho: t.soLuong,
-                Badge: computedBadge
+                Badge: !string.IsNullOrEmpty(t.badge) ? t.badge : computedBadge
             );
         }).ToList();
 

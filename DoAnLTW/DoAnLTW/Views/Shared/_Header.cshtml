@@ -17,12 +17,6 @@
             <div class="tienich">
                 @if (User.Identity?.IsAuthenticated == true)
                 {
-                    @if (User.IsInRole(DoAnLTW.Models.Roles.Admin) || User.IsInRole("Admin"))
-                    {
-                        <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="text-decoration-none me-2 px-2 py-1 fw-semibold rounded-0" style="font-size: 12px; background-color: #f3f4f6; color: #374151; border: 1px solid #d1d5db;" title="Trang quản trị">
-                            Quản trị
-                        </a>
-                    }
                     <a asp-controller="Account" asp-action="Profile" class="text-dark fw-semibold text-decoration-none me-2" title="Xem hồ sơ cá nhân">
                         <i class="bi bi-person-circle text-secondary me-1"></i><span>@(User.Identity?.Name)</span>
                     </a>

@@ -1,0 +1,105 @@
+@model DoAnLTW.ViewModels.ProductFormViewModel
+@{
+    ViewData["Title"] = "Thêm mới Túi xách";
+}
+
+<div class="main-content-wrap">
+    <div class="mb-27">
+        <h3>Thêm mới Túi xách</h3>
+    </div>
+
+    <div class="wg-box">
+        <form class="form-new-product form-style-1" asp-action="Add" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-20"></div>
+
+            <fieldset class="name mb-24">
+                <div class="body-title mb-10">Tên túi xách <span class="tf-color-1">*</span></div>
+                <div class="flex-grow">
+                    <input class="w-100" type="text" placeholder="Nhập tên túi xách" asp-for="TenTui" />
+                    <span asp-validation-for="TenTui" class="text-danger small mt-1 d-block"></span>
+                </div>
+            </fieldset>
+
+            <div class="cols gap22 mb-24">
+                <fieldset class="category flex-grow">
+                    <div class="body-title mb-10">Loại túi <span class="tf-color-1">*</span></div>
+                    <div class="select">
+                        <select asp-for="MaLoai" asp-items="Model.LoaiTuiOptions" class="w-100 p-3 border rounded-3 bg-white">
+                            <option value="">-- Chọn loại túi --</option>
+                        </select>
+                    </div>
+                    <span asp-validation-for="MaLoai" class="text-danger small mt-1 d-block"></span>
+                </fieldset>
+
+                <fieldset class="brand flex-grow">
+                    <div class="body-title mb-10">Thương hiệu <span class="tf-color-1">*</span></div>
+                    <div class="select">
+                        <select asp-for="MaThuongHieu" asp-items="Model.ThuongHieuOptions" class="w-100 p-3 border rounded-3 bg-white">
+                            <option value="">-- Chọn thương hiệu --</option>
+                        </select>
+                    </div>
+                    <span asp-validation-for="MaThuongHieu" class="text-danger small mt-1 d-block"></span>
+                </fieldset>
+            </div>
+
+            <div class="cols gap22 mb-24">
+                <fieldset class="flex-grow">
+                    <div class="body-title mb-10">Đơn giá (VNĐ) <span class="tf-color-1">*</span></div>
+                    <div class="flex-grow">
+                        <input class="w-100" type="number" step="1000" placeholder="Ví dụ: 350000" asp-for="DonGia" />
+                        <span asp-validation-for="DonGia" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                </fieldset>
+
+                <fieldset class="flex-grow">
+                    <div class="body-title mb-10">Số lượng trong kho <span class="tf-color-1">*</span></div>
+                    <div class="flex-grow">
+                        <input class="w-100" type="number" placeholder="Ví dụ: 50" asp-for="SoLuong" />
+                        <span asp-validation-for="SoLuong" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                </fieldset>
+            </div>
+
+            <fieldset class="mb-24">
+                <div class="body-title mb-10">Nhãn nổi bật (Badge)</div>
+                <div class="select">
+                    <select asp-for="Badge" class="w-100 p-3 border rounded-3 bg-white">
+                        <option value="">-- Không có nhãn --</option>
+                        <option value="Best Seller">Best Seller (Bán chạy)</option>
+                        <option value="Sale Off">Sale Off (Giảm giá)</option>
+                        <option value="New Arrival">New Arrival (Hàng mới)</option>
+                        <option value="Hot">Hot (Nổi bật)</option>
+                    </select>
+                </div>
+                <span asp-validation-for="Badge" class="text-danger small mt-1 d-block"></span>
+            </fieldset>
+
+            <fieldset class="mb-24">
+                <div class="body-title mb-10">Mô tả sản phẩm</div>
+                <div class="flex-grow">
+                    <textarea class="w-100 p-3 border rounded-3" rows="4" placeholder="Nhập mô tả chi tiết về kích thước, chất liệu túi..." asp-for="MoTa"></textarea>
+                </div>
+            </fieldset>
+
+            <fieldset class="mb-24">
+                <div class="body-title mb-10">Hình ảnh đại diện</div>
+                <div class="upload-image flex-grow">
+                    <input type="file" asp-for="FileHinhAnh" accept="image/*" class="form-control" />
+                </div>
+            </fieldset>
+
+            <div class="bot">
+                <div>
+                    <a asp-action="Index" class="tf-button style-2">Quay lại</a>
+                </div>
+                <button class="tf-button w208" type="submit">Lưu sản phẩm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
