@@ -29,7 +29,7 @@
                     <div class="box-logo">
                         <a href="/Admin" id="site-logo-inner">
                             <img class="" id="logo_header" alt="Logo" src="~/images/logo/logo.png"
-                                data-light="/images/logo/logo.png" data-dark="/images/logo/logo.png">
+                                data-light="~/images/logo/logo.png" data-dark="~/images/logo/logo.png">
                         </a>
                         <div class="button-show-hide">
                             <i class="icon-menu-left"></i>
@@ -69,7 +69,7 @@
                                 </li>
 
                                 <!-- Mục Category (Loại túi - bấm trực tiếp ra trang danh sách) -->
-                                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Admin/Category") ? "active" : "")">
+                                <li class="menu-item">
                                     <a href="/Admin/Category" class="">
                                         <div class="icon"><i class="icon-layers"></i></div>
                                         <div class="text">Category</div>
