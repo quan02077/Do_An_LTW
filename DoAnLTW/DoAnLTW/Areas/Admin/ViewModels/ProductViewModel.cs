@@ -22,7 +22,7 @@ public class ProductViewModel
 {
     public int MaTui { get; set; }
 
-    [Display(Name = "Mã hiển thị")]
+    [Display(Name = "Mã túi")]
     public string MaHienThi => $"TX{MaTui:D2}";
 
     [Display(Name = "Tên túi xách")]
@@ -54,7 +54,7 @@ public class ProductFormViewModel
 {
     public int MaTui { get; set; }
 
-    [Display(Name = "Mã hiển thị")]
+    [Display(Name = "Mã túi")]
     public string MaHienThi => $"TX{MaTui:D2}";
 
     [Required(ErrorMessage = "Vui lòng nhập tên túi xách.")]

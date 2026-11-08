@@ -14,7 +14,7 @@ public class TypeViewModel
 {
     public int MaLoai { get; set; }
 
-    [Display(Name = "Mã hiển thị")]
+    [Display(Name = "Mã loại")]
     public string MaHienThi => $"LT{MaLoai:D2}";
 
     [Required(ErrorMessage = "Vui lòng nhập tên loại túi.")]
@@ -31,7 +31,7 @@ public class BrandViewModel
 {
     public int MaThuongHieu { get; set; }
 
-    [Display(Name = "Mã hiển thị")]
+    [Display(Name = "Mã thương hiệu")]
     public string MaHienThi => $"TH{MaThuongHieu:D2}";
 
     [Required(ErrorMessage = "Vui lòng nhập tên thương hiệu.")]
