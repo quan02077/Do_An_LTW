@@ -73,23 +73,11 @@
                                     </a>
                                 </li>
 
-                                <li class="menu-item has-children">
-                                    <a href="javascript:void(0);" class="menu-item-button">
+                                <!-- Mục Order (Đơn hàng - bấm trực tiếp ra danh sách) -->
+                                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Admin/AdminOrder") ? "active" : "")">
+                                    <a asp-area="Admin" asp-controller="AdminOrder" asp-action="Index" class="">
                                         <div class="icon"><i class="icon-file-plus"></i></div>
                                         <div class="text">Order</div>
-                                    </a>
-                                    <ul class="sub-menu">
-                                        <li class="sub-menu-item">
-                                            <a href="javascript:void(0);" class="">
-                                                <div class="text">Orders</div>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="menu-item">
-                                    <a href="javascript:void(0);" class="">
-                                        <div class="icon"><i class="icon-layers"></i></div>
-                                        <div class="text">Reports & Stats</div>
                                     </a>
                                 </li>
                                 <li class="menu-item">

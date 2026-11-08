@@ -1,13 +1,29 @@
+@inject DoAnLTW.Services.ICartService cartService
+@inject DoAnLTW.Services.ICurrentCustomerService currentCustomer
+@{
+    int headerCartCount = 0;
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        var custId = await currentCustomer.GetCustomerIdAsync();
+        if (custId.HasValue)
+        {
+            var cart = await cartService.GetAsync(custId.Value);
+            headerCartCount = cart.TongSoLuong;
+        }
+    }
+}
 <header id="main-header" class="site-header">
     <div class="rowHeader bg-light py-1 px-3 border-bottom">
         <div class="container-fluid px-4 d-flex justify-content-end align-items-center gap-4">
             <div class="tienich">
-                <a href="#" class="text-secondary text-decoration-none" onclick="if (typeof handleCartLinkClick === 'function') { handleCartLinkClick(event); } else { window.location.href='/Cart'; }">
-                    <span id="cartCountText">Giỏ hàng</span>
+                <a asp-controller="Cart" asp-action="Index" class="text-secondary text-decoration-none">
+                    <i class="bi bi-bag me-1"></i><span id="cartCountText">Giỏ hàng @(headerCartCount > 0 ? $"({headerCartCount})" : "")</span>
                 </a>
             </div>
             <div class="tienich">
-                <a asp-controller="Orders" asp-action="History" class="text-secondary text-decoration-none">Đơn hàng</a>
+                <a asp-controller="Orders" asp-action="History" class="text-secondary text-decoration-none">
+                    <i class="bi bi-clock-history me-1"></i><span>Đơn hàng</span>
+                </a>
             </div>
             <div class="tienich">
                 <a href="#" class="text-secondary text-decoration-none" onclick="handleFavLinkClick(event)">
