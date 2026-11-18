@@ -1,6 +1,14 @@
+@model DoAnLTW.ViewModels.ProductDetailViewModel
 @{
-    ViewData["Title"] = "Chi tiết sản phẩm";
-    var productId = ViewData["ProductId"] ?? 1;
+    ViewData["Title"] = Model.Product.tenTui;
+    string ResolveImage(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return Url.Content("~/HinhAnh/tui1_1.png");
+        if (path.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || path.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) return path;
+        if (path.StartsWith("~")) return Url.Content(path);
+        if (path.StartsWith("/")) return Url.Content("~" + path);
+        return Url.Content("~/HinhAnh/" + path);
+    }
 }
 
 @section Styles {
@@ -12,7 +20,7 @@
     <nav class="breadcrumb-bar mb-4" aria-label="breadcrumb">
         <a asp-controller="Home" asp-action="Index" class="text-decoration-none text-secondary">Trang chủ</a> &nbsp;/&nbsp;
         <a asp-controller="Catalog" asp-action="Index" class="text-decoration-none text-secondary">Túi xách</a> &nbsp;/&nbsp;
-        <span id="breadcrumbDetailName" class="text-dark fw-bold">Chi tiết sản phẩm</span>
+        <span class="text-dark fw-bold">@Model.Product.tenTui</span>
     </nav>
 
     <!-- khối chi tiết sản phẩm: ảnh (col-lg-6) và thông tin (col-lg-6) -->
@@ -20,89 +28,122 @@
         <!-- hình ảnh sản phẩm và thumbnail gallery -->
         <div class="col-lg-6 text-center">
             <div class="main-img-container bg-light rounded-4 p-4 shadow-sm position-relative d-flex align-items-center justify-content-center" style="min-height: 460px;">
-                <span id="detailBadge" class="badge bg-danger position-absolute top-0 start-0 m-3 px-3 py-2 fs-6 d-none"></span>
-                <img src="/HinhAnh/tui1_1.png" id="mainProductImg" class="img-fluid" style="max-height: 400px; object-fit: contain; transition: transform 0.3s ease;" alt="Chi tiết túi xách">
+                @if (Model.PhanTramGiam > 0)
+                {
+                    <span class="badge bg-danger position-absolute top-0 start-0 m-3 px-3 py-2 fs-6">-@Model.PhanTramGiam.ToString("0")%</span>
+                }
+                <img src="@ResolveImage(Model.HinhAnhs.FirstOrDefault())" id="mainProductImg" class="img-fluid" style="max-height: 400px; object-fit: contain; transition: transform 0.3s ease;" alt="@Model.Product.tenTui">
             </div>
 
-            <!-- ảnh nhỏ thumbnail tương ứng hinhanhtui -->
-            <div class="d-flex justify-content-center gap-3 mt-3" id="thumbnailsContainer">
-            </div>
+            <!-- ảnh nhỏ thumbnail -->
+            @if (Model.HinhAnhs.Count > 1)
+            {
+                <div class="d-flex justify-content-center gap-3 mt-3">
+                    @foreach (var img in Model.HinhAnhs)
+                    {
+                        var fullImgUrl = ResolveImage(img);
+                        <img src="@fullImgUrl" class="rounded-3 border p-1" style="width: 70px; height: 70px; object-fit: contain; cursor: pointer;" 
+                             onclick="document.getElementById('mainProductImg').src = this.src" alt="Thumbnail">
+                    }
+                </div>
+            }
         </div>
 
         <!-- thông tin chi tiết sản phẩm túi xách -->
         <div class="col-lg-6 ps-lg-4 mt-4 mt-lg-0">
             <div class="product-info">
                 <div class="d-flex align-items-center gap-2 mb-2">
-                    <span class="badge bg-dark px-3 py-2 text-uppercase" id="productBrand">Thương hiệu</span>
-                    <span class="badge bg-light text-dark border px-3 py-2 text-uppercase" id="productCategory">Loại túi</span>
+                    <span class="badge bg-dark px-3 py-2 text-uppercase">@Model.Product.ThuongHieu?.tenThuongHieu</span>
+                    <span class="badge bg-light text-dark border px-3 py-2 text-uppercase">@Model.Product.LoaiTui?.tenLoai</span>
                 </div>
 
-                <h1 class="fw-bold oswald-font mb-3" id="productName" style="font-size: 2.2rem;">Tên Túi Xách</h1>
+                <h1 class="fw-bold oswald-font mb-3" style="font-size: 2.2rem;">@Model.Product.tenTui</h1>
 
                 <!-- giá và khuyến mãi -->
                 <div class="p-3 bg-light rounded-3 my-3 border">
                     <div class="d-flex align-items-baseline gap-3">
-                        <div class="fw-bold text-danger mb-0 fs-2" id="productPrice">0 ₫</div>
-                        <span class="text-muted text-decoration-line-through fs-5 d-none" id="productOldPrice">0 ₫</span>
-                        <span class="badge bg-danger fs-6 d-none" id="productDiscountPercent">-0%</span>
+                        <div class="fw-bold text-danger mb-0 fs-2">@Model.DonGiaHienTai.ToString("N0") ₫</div>
+                        @if (Model.PhanTramGiam > 0)
+                        {
+                            <span class="text-muted text-decoration-line-through fs-5">@Model.DonGiaGoc.ToString("N0") ₫</span>
+                            <span class="badge bg-danger fs-6">-@Model.PhanTramGiam.ToString("0")%</span>
+                        }
                     </div>
-                    <p class="text-success small fw-bold mb-0 mt-2 d-none" id="productPromoTag">
-                        Áp dụng: <span id="productPromoName"></span>
-                    </p>
+                    @if (!string.IsNullOrEmpty(Model.TenKhuyenMai))
+                    {
+                        <p class="text-success small fw-bold mb-0 mt-2">
+                            Áp dụng: <span>@Model.TenKhuyenMai</span>
+                        </p>
+                    }
                 </div>
 
                 <!-- trạng thái tồn kho -->
                 <div class="mb-4">
                     <div class="d-flex align-items-center gap-2">
                         <span class="fw-bold small text-secondary text-uppercase">Tình trạng kho:</span>
-                        <span class="badge bg-white text-dark border px-3 py-2 fw-bold" id="productStock">Còn 0 sản phẩm</span>
+                        <span class="badge @(Model.Product.soLuong > 0 ? "bg-white text-success border-success" : "bg-secondary text-white") border px-3 py-2 fw-bold">
+                            @(Model.Product.soLuong > 0 ? $"Còn {Model.Product.soLuong} sản phẩm" : "Hết hàng")
+                        </span>
                     </div>
                 </div>
 
-                <!-- bộ chọn số lượng mua -->
-                <div class="mb-4">
-                    <label class="fw-bold d-block mb-2 small text-secondary text-uppercase">Số lượng mua:</label>
-                    <div class="d-inline-flex align-items-center border rounded-pill p-1 bg-light">
-                        <button class="btn btn-outline-dark rounded-circle border-0" style="width: 36px; height: 36px;" onclick="changeBuyQty(-1)">−</button>
-                        <input type="number" id="buyQuantity" class="form-control text-center border-0 bg-transparent fw-bold fs-5" value="1" min="1" max="100" style="width: 60px;" readonly>
-                        <button class="btn btn-outline-dark rounded-circle border-0" style="width: 36px; height: 36px;" onclick="changeBuyQty(1)">+</button>
+                <!-- form mua hàng đưa thẳng vào CSDL giỏ hàng của SV3 -->
+                <form asp-controller="Cart" asp-action="Add" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="MaTui" value="@Model.Product.maTui" />
+                    <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+
+                    <!-- bộ chọn số lượng mua -->
+                    <div class="mb-4">
+                        <label class="fw-bold d-block mb-2 small text-secondary text-uppercase">Số lượng mua:</label>
+                        <div class="d-inline-flex align-items-center border rounded-pill p-1 bg-light">
+                            <button type="button" class="btn btn-outline-dark rounded-circle border-0" style="width: 36px; height: 36px;" onclick="changeQty(-1)">−</button>
+                            <input type="number" id="buyQuantity" name="SoLuong" class="form-control text-center border-0 bg-transparent fw-bold fs-5" value="1" min="1" max="@Model.Product.soLuong" style="width: 60px;" readonly>
+                            <button type="button" class="btn btn-outline-dark rounded-circle border-0" style="width: 36px; height: 36px;" onclick="changeQty(1)">+</button>
+                        </div>
                     </div>
-                </div>
 
-                <!-- nút mua hàng và yêu thích -->
-                <div class="d-grid gap-3">
-                    <button class="btn btn-dark btn-lg rounded-pill py-3 fw-bold shadow-sm" id="btnAddToCart" onclick="addToCart()">
-                        THÊM VÀO GIỎ HÀNG
-                    </button>
-                    <button class="btn btn-outline-dark rounded-pill py-3 fw-bold" id="btnToggleFav" onclick="toggleCurrentFavorite()">
-                        LƯU VÀO DANH SÁCH YÊU THÍCH
-                    </button>
-                </div>
+                    <!-- nút mua hàng -->
+                    <div class="d-grid gap-3">
+                        @if (Model.Product.soLuong > 0)
+                        {
+                            <button type="submit" class="btn btn-dark btn-lg rounded-pill py-3 fw-bold shadow-sm">
+                                THÊM VÀO GIỎ HÀNG
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-secondary btn-lg rounded-pill py-3 fw-bold shadow-sm" disabled>
+                                TẠM HẾT HÀNG
+                            </button>
+                        }
+                    </div>
+                </form>
 
-                <!-- bảng thuộc tính chi tiết -->
+                <!-- bảng thông số chi tiết -->
                 <div class="mt-4 pt-3 border-top">
                     <div class="fw-bold text-uppercase text-secondary mb-3 small">Thông số sản phẩm</div>
                     <table class="table table-sm table-borderless small mb-0">
                         <tbody>
                             <tr>
                                 <td class="text-muted" style="width: 140px;">Mã sản phẩm:</td>
-                                <td class="fw-bold" id="specId">#0</td>
+                                <td class="fw-bold">@Model.Product.MaHienThi</td>
                             </tr>
                             <tr>
                                 <td class="text-muted">Thương hiệu:</td>
-                                <td class="fw-bold" id="specBrand">-</td>
+                                <td class="fw-bold">@Model.Product.ThuongHieu?.tenThuongHieu</td>
                             </tr>
                             <tr>
                                 <td class="text-muted">Loại túi xách:</td>
-                                <td class="fw-bold" id="specCategory">-</td>
+                                <td class="fw-bold">@Model.Product.LoaiTui?.tenLoai</td>
                             </tr>
                             <tr>
                                 <td class="text-muted">Chương trình KM:</td>
-                                <td class="fw-bold text-danger" id="specPromo">Không</td>
+                                <td class="fw-bold text-danger">@(string.IsNullOrEmpty(Model.TenKhuyenMai) ? "Không có" : Model.TenKhuyenMai)</td>
                             </tr>
                             <tr>
                                 <td class="text-muted">Tồn kho hiện tại:</td>
-                                <td class="fw-bold" id="specStock">0 cái</td>
+                                <td class="fw-bold">@Model.Product.soLuong cái</td>
                             </tr>
                         </tbody>
                     </table>
@@ -116,46 +157,54 @@
     <div class="row mt-5 mx-0">
         <div class="col-12 p-4 bg-light rounded-4 border">
             <h2 class="h4 fw-bold oswald-font border-bottom pb-3 mb-3">MÔ TẢ SẢN PHẨM</h2>
-            <p class="fs-5 leading-relaxed text-secondary mb-0" id="productDescription">
-                Mô tả đang được cập nhật...
+            <p class="fs-5 leading-relaxed text-secondary mb-0">
+                @(string.IsNullOrWhiteSpace(Model.Product.moTa) ? "Mô tả sản phẩm đang được cập nhật..." : Model.Product.moTa)
             </p>
         </div>
     </div>
 
-    <!-- sản phẩm liên quan -->
-    <div class="row mt-5 pt-4 border-top mb-5 mx-0">
-        <div class="col-12 d-flex justify-content-between align-items-center mb-4">
-            <h2 class="h4 fw-bold m-0 oswald-font">CÓ THỂ BẠN CŨNG THÍCH</h2>
-            <a asp-controller="Catalog" asp-action="Index" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">Xem thêm</a>
-        </div>
+    <!-- sản phẩm liên quan cùng loại túi -->
+    @if (Model.RelatedProducts.Count > 0)
+    {
+        <div class="row mt-5 pt-4 border-top mb-5 mx-0">
+            <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+                <h2 class="h4 fw-bold m-0 oswald-font">CÓ THỂ BẠN CŨNG THÍCH</h2>
+                <a asp-controller="Catalog" asp-action="Index" asp-route-category="@Model.Product.LoaiTui?.tenLoai" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">Xem thêm</a>
+            </div>
 
-        <div class="col-12 d-flex flex-nowrap overflow-auto hide-scrollbar gap-3" id="relatedProducts">
-            <!-- nạp động từ scriptDetail.js -->
+            <div class="row g-4 w-100">
+                @foreach (var r in Model.RelatedProducts)
+                {
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="product-card border p-3 shadow-sm h-100 d-flex flex-column text-center">
+                            <a asp-controller="Catalog" asp-action="Detail" asp-route-id="@r.MaTui" class="text-decoration-none text-dark">
+                                <div style="height: 180px; display: flex; align-items: center; justify-content: center;" class="mb-3">
+                                    <img src="@ResolveImage(r.HinhAnh)" alt="@r.TenTui" class="img-fluid" style="max-height: 160px; object-fit: contain;">
+                                </div>
+                                <h6 class="fw-bold mb-1 text-truncate" title="@r.TenTui">@r.TenTui</h6>
+                            </a>
+                            <div class="mt-auto">
+                                <span class="text-danger fw-bold">@r.DonGiaHienTai.ToString("N0") ₫</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
-    </div>
+    }
 </main>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="~/js/data.js" asp-append-version="true"></script>
-    <script src="~/js/cart.js" asp-append-version="true"></script>
-    <script src="~/js/favourite.js" asp-append-version="true"></script>
-    <script src="~/js/scriptDetail.js" asp-append-version="true"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Đảm bảo URL có param id
-            const urlParams = new URLSearchParams(window.location.search);
-            if (!urlParams.get('id')) {
-                const currentId = '@productId';
-                const newUrl = window.location.pathname + '?id=' + currentId;
-                window.history.replaceState(null, '', newUrl);
+        function changeQty(delta) {
+            var input = document.getElementById('buyQuantity');
+            if (!input) return;
+            var current = parseInt(input.value) || 1;
+            var max = parseInt(input.getAttribute('max')) || 99;
+            var newVal = current + delta;
+            if (newVal >= 1 && newVal <= max) {
+                input.value = newVal;
             }
-            if (typeof initProductDetail === 'function') {
-                initProductDetail();
-            }
-            if (typeof updateFavBtnUI === 'function') {
-                updateFavBtnUI();
-            }
-        });
+        }
     </script>
 }

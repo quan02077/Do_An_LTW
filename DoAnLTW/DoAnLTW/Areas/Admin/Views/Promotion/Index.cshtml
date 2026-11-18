@@ -1,0 +1,107 @@
+@model List<DoAnLTW.Areas.Admin.ViewModels.PromotionViewModel>
+@{
+    ViewData["Title"] = "Quản lý Khuyến mãi";
+}
+
+<div class="main-content-wrap">
+    <div class="mb-27">
+        <h3>Quản lý Khuyến mãi</h3>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-20" role="alert">
+            <i class="icon-alert-octagon me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="wg-box">
+        <div class="flex items-center justify-between gap10 flex-wrap">
+            <div class="wg-filter flex-grow">
+                <h5>Danh sách Khuyến mãi</h5>
+            </div>
+            <a class="tf-button style-1 w208" asp-action="Add">
+                <i class="icon-plus"></i>Thêm khuyến mãi
+            </a>
+        </div>
+
+        <div class="wg-table table-all-user">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 90px;">Mã</th>
+                            <th style="min-width: 250px;">Tên khuyến mãi</th>
+                            <th class="text-center" style="width: 140px;">Giảm giá</th>
+                            <th class="text-center" style="width: 140px;">Ngày bắt đầu</th>
+                            <th class="text-center" style="width: 140px;">Ngày kết thúc</th>
+                            <th class="text-center" style="width: 140px;">Trạng thái</th>
+                            <th class="text-center" style="width: 110px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-center">
+                                        <span class="body-title-2 fw-bold">@item.MaHienThi</span>
+                                    </td>
+                                    <td>
+                                        <a asp-action="Edit" asp-route-id="@item.MaKM" class="body-title-2 fw-bold text-dark">
+                                            @item.TenKM
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-danger text-white fs-6 px-3 py-2">-@item.PhanTramGiam%</span>
+                                    </td>
+                                    <td class="text-center">
+                                        @item.NgayBatDau.ToString("dd/MM/yyyy")
+                                    </td>
+                                    <td class="text-center">
+                                        @item.NgayKetThuc.ToString("dd/MM/yyyy")
+                                    </td>
+                                    <td class="text-center">
+                                        @if (item.TrangThai == "Hoạt động")
+                                        {
+                                            <span class="badge bg-success text-white px-3 py-2">Hoạt động</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary text-white px-3 py-2">Ngừng hoạt động</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="list-icon-function justify-content-center">
+                                            <a asp-action="Edit" asp-route-id="@item.MaKM" title="Chỉnh sửa">
+                                                <div class="item edit">
+                                                    <i class="icon-edit-3"></i>
+                                                </div>
+                                            </a>
+                                            <form asp-action="Delete" asp-route-id="@item.MaKM" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa khuyến mãi này?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="border-0 bg-transparent p-0" title="Xóa">
+                                                    <div class="item text-danger delete">
+                                                        <i class="icon-trash-2"></i>
+                                                    </div>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">Chưa có chương trình khuyến mãi nào.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

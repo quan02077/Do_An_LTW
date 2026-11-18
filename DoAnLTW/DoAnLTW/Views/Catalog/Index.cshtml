@@ -1,5 +1,14 @@
+@model DoAnLTW.ViewModels.CatalogIndexViewModel
 @{
     ViewData["Title"] = "Bộ Sưu Tập Túi Xách & Balo";
+    string ResolveImage(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return Url.Content("~/HinhAnh/tui1_1.png");
+        if (path.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || path.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) return path;
+        if (path.StartsWith("~")) return Url.Content(path);
+        if (path.StartsWith("/")) return Url.Content("~" + path);
+        return Url.Content("~/HinhAnh/" + path);
+    }
 }
 
 @section Styles {
@@ -15,18 +24,25 @@
 
     <!-- tiêu đề trang & đếm kết quả -->
     <div class="d-flex align-items-baseline gap-3 mb-3">
-        <h1 class="catalog-title mb-0" id="pageTitle">Tất cả túi xách</h1>
-        <span class="result-count" id="resultCount">(0 sản phẩm)</span>
+        <h1 class="catalog-title mb-0" id="pageTitle">
+            @(string.IsNullOrEmpty(Model.SelectedCategory) ? (string.IsNullOrEmpty(Model.SelectedBrand) ? "Tất cả túi xách" : Model.SelectedBrand) : Model.SelectedCategory)
+        </h1>
+        <span class="result-count" id="resultCount">(@Model.Products.Count sản phẩm)</span>
     </div>
 
     <!-- tab phân loại thương hiệu -->
     <div class="brand-tabs" id="brandTabs">
-        <div class="brand-tab active" data-brand="all" onclick="selectBrand(this)">Tất cả</div>
-        <div class="brand-tab" data-brand="CHARLES & KEITH" onclick="selectBrand(this)">CHARLES & KEITH</div>
-        <div class="brand-tab" data-brand="Natoli" onclick="selectBrand(this)">Natoli</div>
-        <div class="brand-tab" data-brand="Pedro" onclick="selectBrand(this)">Pedro</div>
-        <div class="brand-tab" data-brand="ELLY" onclick="selectBrand(this)">ELLY</div>
-        <div class="brand-tab" data-brand="Jamlos" onclick="selectBrand(this)">Jamlos</div>
+        <a href="@Url.Action("Index", "Catalog", new { category = Model.SelectedCategory, q = Model.SearchQuery, priceRange = Model.SelectedPriceRange, sort = Model.SelectedSort })" 
+           class="brand-tab @(string.IsNullOrEmpty(Model.SelectedBrand) || Model.SelectedBrand == "all" ? "active" : "")">
+           Tất cả
+        </a>
+        @foreach (var brandName in Model.Brands)
+        {
+            <a href="@Url.Action("Index", "Catalog", new { brand = brandName, category = Model.SelectedCategory, q = Model.SearchQuery, priceRange = Model.SelectedPriceRange, sort = Model.SelectedSort })" 
+               class="brand-tab @(Model.SelectedBrand == brandName ? "active" : "")">
+               @brandName
+            </a>
+        }
     </div>
 
     <!-- nút bật/tắt bộ lọc trên thiết bị di động -->
@@ -38,43 +54,37 @@
     <div class="row g-4 mt-1">
         <aside class="col-lg-3">
             <div class="collapse d-lg-block" id="filterSidebarCollapse">
-                <div class="filter-sidebar shadow-sm">
+                <form method="get" asp-controller="Catalog" asp-action="Index" id="catalogFilterForm" class="filter-sidebar shadow-sm">
+                    @if (!string.IsNullOrEmpty(Model.SelectedBrand))
+                    {
+                        <input type="hidden" name="brand" value="@Model.SelectedBrand" />
+                    }
+                    @if (!string.IsNullOrEmpty(Model.SearchQuery))
+                    {
+                        <input type="hidden" name="q" value="@Model.SearchQuery" />
+                    }
+
                     <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
                         <span class="fw-bold" style="font-size:14px; letter-spacing:0.5px;">BỘ LỌC TÚI XÁCH</span>
-                        <button class="clear-btn" onclick="clearAllFilters()">Xóa tất cả</button>
+                        <a href="@Url.Action("Index", "Catalog")" class="clear-btn text-decoration-none">Xóa tất cả</a>
                     </div>
 
                     <!-- bộ lọc loại túi -->
                     <div class="filter-group">
                         <div class="filter-title">Loại túi</div>
                         <div class="filter-options">
-                            <label class="filter-check"><input type="checkbox" value="Balo" onchange="applyFilters()">
-                                <span>Balo</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Túi đeo chéo" onchange="applyFilters()">
-                                <span>Túi đeo chéo</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Túi tote" onchange="applyFilters()">
-                                <span>Túi tote</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Túi dự tiệc" onchange="applyFilters()">
-                                <span>Túi dự tiệc</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Túi đeo vai" onchange="applyFilters()">
-                                <span>Túi đeo vai</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Clutch" onchange="applyFilters()">
-                                <span>Clutch</span></label>
-                        </div>
-                    </div>
-
-                    <!-- bộ lọc khuyến mãi & trạng thái -->
-                    <div class="filter-group">
-                        <div class="filter-title">Khuyến mãi & Trạng thái</div>
-                        <div class="filter-options">
-                            <label class="filter-check"><input type="checkbox" value="Sale Off" onchange="applyFilters()"> <span>Đang giảm giá (Sale)</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Best Seller" onchange="applyFilters()"> <span>Bán chạy (Best Seller)</span></label>
-                            <label class="filter-check"><input type="checkbox" value="New Arrival" onchange="applyFilters()"> <span>Hàng mới về (New Arrival)</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Khuyến mãi tháng 9" onchange="applyFilters()"> <span>Khuyến mãi tháng 9 (-10%)</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Sale cuối tuần" onchange="applyFilters()"> <span>Sale cuối tuần (-15%)</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Ưu đãi khách hàng mới" onchange="applyFilters()"> <span>Ưu đãi mới (-20%)</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Sale mùa thu" onchange="applyFilters()"> <span>Sale mùa thu (-25%)</span></label>
-                            <label class="filter-check"><input type="checkbox" value="Siêu sale cuối năm" onchange="applyFilters()"> <span>Siêu sale cuối năm (-30%)</span></label>
+                            @foreach (var cat in Model.Categories)
+                            {
+                                <label class="filter-check">
+                                    <input type="radio" name="category" value="@cat" @(Model.SelectedCategory == cat ? "checked" : "") onchange="this.form.submit()">
+                                    <span>@cat</span>
+                                </label>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.SelectedCategory))
+                            {
+                                <a href="@Url.Action("Index", "Catalog", new { brand = Model.SelectedBrand, q = Model.SearchQuery, priceRange = Model.SelectedPriceRange, sort = Model.SelectedSort })" 
+                                   class="small text-danger text-decoration-none mt-1 d-inline-block">✕ Bỏ chọn loại túi</a>
+                            }
                         </div>
                     </div>
 
@@ -82,96 +92,136 @@
                     <div class="filter-group border-bottom-0 pb-0">
                         <div class="filter-title">Khoảng giá</div>
                         <div class="filter-options">
-                            <label class="filter-check"><input type="checkbox" value="under700k" onchange="applyFilters()"> <span>Dưới 700.000₫</span></label>
-                            <label class="filter-check"><input type="checkbox" value="700k-1.2m" onchange="applyFilters()"> <span>700.000₫ – 1.200.000₫</span></label>
-                            <label class="filter-check"><input type="checkbox" value="over1.2m" onchange="applyFilters()"> <span>Trên 1.200.000₫</span></label>
+                            <label class="filter-check">
+                                <input type="radio" name="priceRange" value="under700k" @(Model.SelectedPriceRange == "under700k" ? "checked" : "") onchange="this.form.submit()">
+                                <span>Dưới 700.000₫</span>
+                            </label>
+                            <label class="filter-check">
+                                <input type="radio" name="priceRange" value="700k-1.2m" @(Model.SelectedPriceRange == "700k-1.2m" ? "checked" : "") onchange="this.form.submit()">
+                                <span>700.000₫ – 1.200.000₫</span>
+                            </label>
+                            <label class="filter-check">
+                                <input type="radio" name="priceRange" value="over1.2m" @(Model.SelectedPriceRange == "over1.2m" ? "checked" : "") onchange="this.form.submit()">
+                                <span>Trên 1.200.000₫</span>
+                            </label>
+                            @if (!string.IsNullOrEmpty(Model.SelectedPriceRange))
+                            {
+                                <a href="@Url.Action("Index", "Catalog", new { brand = Model.SelectedBrand, category = Model.SelectedCategory, q = Model.SearchQuery, sort = Model.SelectedSort })" 
+                                   class="small text-danger text-decoration-none mt-1 d-inline-block">✕ Bỏ chọn khoảng giá</a>
+                            }
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
         </aside>
 
         <!-- lưới sản phẩm & sắp xếp -->
         <section class="col-lg-9">
-            <div class="sort-bar d-flex justify-content-end mb-4">
-                <select class="sort-select shadow-sm" id="sortSelect" onchange="applySort()">
-                    <option value="featured">Sắp xếp: Mặc định</option>
-                    <option value="price-asc">Giá: Thấp đến Cao</option>
-                    <option value="price-desc">Giá: Cao đến Thấp</option>
-                    <option value="stock-desc">Số lượng tồn: Nhiều nhất</option>
-                </select>
+            <div class="sort-bar d-flex justify-content-between align-items-center mb-4">
+                @if (!string.IsNullOrEmpty(Model.SearchQuery))
+                {
+                    <span class="text-secondary small">Kết quả tìm kiếm cho: <strong>"@Model.SearchQuery"</strong></span>
+                }
+                else
+                {
+                    <div></div>
+                }
+
+                <div class="d-flex align-items-center gap-2">
+                    <label for="sortSelect" class="small text-secondary mb-0 d-none d-sm-inline">Sắp xếp:</label>
+                    <select class="sort-select shadow-sm" id="sortSelect" onchange="location = this.value;">
+                        <option value="@Url.Action("Index", "Catalog", new { brand = Model.SelectedBrand, category = Model.SelectedCategory, q = Model.SearchQuery, priceRange = Model.SelectedPriceRange, sort = "" })" 
+                                selected="@(string.IsNullOrEmpty(Model.SelectedSort))">Mặc định</option>
+                        <option value="@Url.Action("Index", "Catalog", new { brand = Model.SelectedBrand, category = Model.SelectedCategory, q = Model.SearchQuery, priceRange = Model.SelectedPriceRange, sort = "price-asc" })" 
+                                selected="@(Model.SelectedSort == "price-asc")">Giá: Thấp đến Cao</option>
+                        <option value="@Url.Action("Index", "Catalog", new { brand = Model.SelectedBrand, category = Model.SelectedCategory, q = Model.SearchQuery, priceRange = Model.SelectedPriceRange, sort = "price-desc" })" 
+                                selected="@(Model.SelectedSort == "price-desc")">Giá: Cao đến Thấp</option>
+                        <option value="@Url.Action("Index", "Catalog", new { brand = Model.SelectedBrand, category = Model.SelectedCategory, q = Model.SearchQuery, priceRange = Model.SelectedPriceRange, sort = "stock-desc" })" 
+                                selected="@(Model.SelectedSort == "stock-desc")">Tồn kho nhiều nhất</option>
+                    </select>
+                </div>
             </div>
 
-            <!-- lưới hiển thị túi xách -->
-            <div class="row g-4" id="productGrid">
-                <!-- nạp động từ catalog.js -->
-            </div>
+            <!-- trạng thái trống nếu không tìm thấy -->
+            @if (Model.Products.Count == 0)
+            {
+                <div class="text-center py-5 bg-white rounded-4 border shadow-sm my-3">
+                    <p class="text-uppercase fw-bold text-secondary small mb-2">Không có kết quả</p>
+                    <h2 class="fw-bold mb-2 fs-5">Không tìm thấy mẫu túi xách phù hợp</h2>
+                    <p class="text-muted small mb-4">Hãy thử bỏ bớt bộ lọc hoặc tìm kiếm với từ khóa khác.</p>
+                    <a href="@Url.Action("Index", "Catalog")" class="btn btn-dark rounded-pill px-4 btn-sm fw-bold">Xóa tất cả bộ lọc</a>
+                </div>
+            }
+            else
+            {
+                <!-- lưới hiển thị túi xách -->
+                <div class="row g-4" id="productGrid">
+                    @foreach (var p in Model.Products)
+                    {
+                        <div class="col-12 col-sm-6 col-lg-4 mb-2">
+                            <div class="product-card border p-3 shadow-sm h-100 d-flex flex-column position-relative">
+                                
+                                <!-- Khung ảnh túi xách -->
+                                <a asp-controller="Catalog" asp-action="Detail" asp-route-id="@p.MaTui" class="text-decoration-none text-dark d-block">
+                                    <div class="product-img-wrap mb-3 text-center" style="height: 220px; display: flex; align-items: center; justify-content: center;">
+                                        <img src="@ResolveImage(p.HinhAnh)" alt="@p.TenTui" class="img-fluid" style="max-height: 200px; object-fit: contain;">
+                                    </div>
+                                </a>
 
-            <!-- phân trang -->
-            <div id="phantrang" class="d-flex justify-content-center mt-5 gap-2">
-            </div>
+                                <!-- Huy hiệu giảm giá -->
+                                @if (p.PhanTramGiam > 0)
+                                {
+                                    <span class="badge bg-danger position-absolute top-0 start-0 m-3 px-2 py-1">-@p.PhanTramGiam.ToString("0")%</span>
+                                }
 
-            <!-- trạng thái trống (không tìm thấy kết quả) -->
-            <div class="no-results d-none text-center py-5 bg-white rounded-4 border shadow-sm my-3" id="noResults">
-                <p class="text-uppercase fw-bold text-secondary small mb-2">Không có kết quả</p>
-                <h2 class="fw-bold mb-2 fs-5">Không tìm thấy mẫu túi xách phù hợp</h2>
-                <p class="text-muted small mb-4">Hãy thử bỏ bớt bộ lọc hoặc tìm kiếm với từ khóa khác.</p>
-                <button class="btn btn-dark rounded-pill px-4 btn-sm fw-bold" onclick="clearAllFilters()">Xóa tất cả bộ lọc</button>
-            </div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-secondary small fw-bold text-uppercase">@p.TenThuongHieu · @p.TenLoai</span>
+                                    <span class="badge bg-light text-dark border">Còn @p.SoLuongTonKho</span>
+                                </div>
+
+                                <a asp-controller="Catalog" asp-action="Detail" asp-route-id="@p.MaTui" class="text-decoration-none text-dark">
+                                    <h5 class="fw-bold mb-1" style="font-size: 15px; min-height: 44px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; line-height: 1.45;" title="@p.TenTui">
+                                        @p.TenTui
+                                    </h5>
+                                </a>
+
+                                <div class="mt-auto pt-2 border-top">
+                                    <div class="d-flex align-items-baseline mb-3">
+                                        @if (p.PhanTramGiam > 0)
+                                        {
+                                            <span class="text-muted text-decoration-line-through small me-2">@p.DonGiaGoc.ToString("N0") ₫</span>
+                                        }
+                                        <span class="text-danger fw-bold fs-5">@p.DonGiaHienTai.ToString("N0") ₫</span>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <a asp-controller="Catalog" asp-action="Detail" asp-route-id="@p.MaTui" class="btn btn-outline-dark rounded-pill fw-bold py-2 flex-grow-1 text-center" style="font-size: 13px;">
+                                            Chi tiết
+                                        </a>
+                                        @if (p.SoLuongTonKho > 0)
+                                        {
+                                            <form asp-controller="Cart" asp-action="Add" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="MaTui" value="@p.MaTui" />
+                                                <input type="hidden" name="SoLuong" value="1" />
+                                                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                                                <button type="submit" class="btn btn-dark rounded-pill fw-bold py-2 px-3" title="Thêm vào giỏ hàng" style="font-size: 13px;">
+                                                    Thêm
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-secondary rounded-pill fw-bold py-2 px-3" disabled style="font-size: 13px;">
+                                                Hết
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
         </section>
     </div>
 </main>
-
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="~/js/data.js" asp-append-version="true"></script>
-    <script src="~/js/catalog.js" asp-append-version="true"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const cat = urlParams.get('category');
-            const brand = urlParams.get('brand');
-            const q = urlParams.get('q');
-
-            if (cat) {
-                const checkboxes = document.querySelectorAll('.filter-check input[type="checkbox"]');
-                checkboxes.forEach(cb => {
-                    if (cb.value.toLowerCase() === cat.toLowerCase()) {
-                        cb.checked = true;
-                    }
-                });
-                if (typeof applyFilters === 'function') applyFilters();
-            }
-
-            let brand = urlParams.get('brand');
-            const searchRaw = decodeURIComponent(window.location.search || '');
-            if (!brand && (searchRaw.toUpperCase().includes('CHARLES') || searchRaw.toUpperCase().includes('CHARLIE'))) {
-                brand = 'CHARLES & KEITH';
-            } else if (brand) {
-                const bTrim = brand.trim().toUpperCase();
-                if (bTrim === 'CHARLES' || bTrim.includes('CHARLIE') || bTrim.includes('CHARLES & KEITH') || bTrim.includes('CHARLES AND KEITH')) {
-                    brand = 'CHARLES & KEITH';
-                }
-            }
-
-            if (brand) {
-                const tabs = document.querySelectorAll('.brand-tab');
-                tabs.forEach(tab => {
-                    const tabBrand = tab.getAttribute('data-brand') || '';
-                    if (tabBrand.toLowerCase() === brand.toLowerCase() || 
-                        (brand === 'CHARLES & KEITH' && tabBrand.toUpperCase().includes('KEITH'))) {
-                        if (typeof selectBrand === 'function') selectBrand(tab);
-                    }
-                });
-            }
-
-            if (q) {
-                const searchInputs = document.querySelectorAll('.custom-search');
-                searchInputs.forEach(input => input.value = q);
-                if (typeof handleCatalogSearch === 'function') {
-                    handleCatalogSearch({ key: 'Enter' }, { value: q });
-                }
-            }
-        });
-    </script>
-}

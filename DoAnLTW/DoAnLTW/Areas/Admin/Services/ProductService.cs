@@ -2,6 +2,7 @@ using DoAnLTW.Data;
 using DoAnLTW.ViewModels;
 using DoAnLTW.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DoAnLTW.Areas.Admin.Services
 {
@@ -12,6 +13,7 @@ namespace DoAnLTW.Areas.Admin.Services
         Task<bool> AddAsync(ProductFormViewModel model, CancellationToken cancellationToken = default);
         Task<bool> UpdateAsync(int maTui, ProductFormViewModel model, CancellationToken cancellationToken = default);
         Task<bool> DeleteAsync(int maTui, CancellationToken cancellationToken = default);
+        Task PopulateFormOptionsAsync(ProductFormViewModel model, CancellationToken cancellationToken = default);
     }
 
     public class ProductService(DbContext_TuiXach db, IWebHostEnvironment env) : IProductService
@@ -133,6 +135,18 @@ namespace DoAnLTW.Areas.Admin.Services
             await db.SaveChangesAsync(cancellationToken);
 
             return true;
+        }
+
+        // 6. nap danh sach loai tui va thuong hieu cho form them / sua
+        public async Task PopulateFormOptionsAsync(ProductFormViewModel model, CancellationToken cancellationToken = default)
+        {
+            model.LoaiTuiOptions = await db.LoaiTuis
+                .Select(lt => new SelectListItem { Value = lt.maLoai.ToString(), Text = lt.tenLoai })
+                .ToListAsync(cancellationToken);
+
+            model.ThuongHieuOptions = await db.ThuongHieus
+                .Select(th => new SelectListItem { Value = th.maThuongHieu.ToString(), Text = th.tenThuongHieu })
+                .ToListAsync(cancellationToken);
         }
     }
 }
