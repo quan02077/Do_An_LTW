@@ -16,6 +16,7 @@ builder.Services.AddSingleton<IProductPricingService, ProductPricingService>();
 builder.Services.AddScoped<ICurrentCustomerService, CurrentCustomerService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IAdminOrderService, AdminOrderService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

@@ -1,0 +1,184 @@
+@model DoAnLTW.Areas.Admin.ViewModels.AdminOrderFormViewModel
+@{
+    ViewData["Title"] = $"Chi tiết Đơn hàng #{Model.MaHienThi}";
+
+    string GetStatusBadgeClass(string status) => status switch
+    {
+        "Chờ duyệt" => "bg-warning-subtle text-warning-emphasis border border-warning",
+        "Đang giao" => "bg-primary-subtle text-primary-emphasis border border-primary",
+        "Hoàn tất" => "bg-success-subtle text-success-emphasis border border-success",
+        "Đã hủy" => "bg-danger-subtle text-danger-emphasis border border-danger",
+        _ => "bg-secondary-subtle text-secondary-emphasis border border-secondary"
+    };
+}
+
+<div class="main-content-wrap">
+    <div class="mb-27 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3>Chi tiết Đơn hàng @Model.MaHienThi</h3>
+        <a asp-action="Index" class="tf-button style-2">
+            <i class="icon-arrow-left"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-20" role="alert">
+            <i class="icon-check me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-20" role="alert">
+            <i class="icon-alert-octagon me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4 mb-24">
+        <!-- thông tin chung và khách hàng -->
+        <div class="col-lg-7">
+            <div class="wg-box h-100">
+                <div class="d-flex justify-content-between align-items-center mb-16 pb-12 border-bottom">
+                    <h5 class="mb-0">Thông tin Đơn hàng & Người nhận</h5>
+                    <span class="badge px-3 py-2 rounded-pill @GetStatusBadgeClass(Model.TrangThai)">
+                        @Model.TrangThai
+                    </span>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="text-muted small">Mã đơn hàng:</div>
+                        <div class="fw-bold fs-6 text-dark">@Model.MaHienThi</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small">Thời gian đặt:</div>
+                        <div class="fw-bold fs-6 text-dark">@Model.NgayDat.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small">Họ tên khách hàng:</div>
+                        <div class="fw-bold fs-6 text-dark">@Model.TenKH (@Model.MaKHDisplay)</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small">Số điện thoại:</div>
+                        <div class="fw-bold fs-6 text-dark">@(string.IsNullOrEmpty(Model.SDT) ? "Chưa cập nhật" : Model.SDT)</div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="text-muted small">Email:</div>
+                        <div class="fw-bold text-dark">@(string.IsNullOrEmpty(Model.Email) ? "Chưa cập nhật" : Model.Email)</div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="text-muted small">Địa chỉ nhận hàng:</div>
+                        <div class="fw-bold text-dark bg-light p-3 rounded-3 border">
+                            <i class="icon-map-pin me-1 text-danger"></i> @Model.DiaChiNhan
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- cập nhật trạng thái đơn hàng -->
+        <div class="col-lg-5">
+            <div class="wg-box h-100">
+                <div class="mb-16 pb-12 border-bottom">
+                    <h5 class="mb-0">Cập nhật Trạng thái</h5>
+                </div>
+
+                <form asp-action="UpdateStatus" asp-route-id="@Model.MaDH" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-20">
+                        <label class="body-title mb-10">Chọn trạng thái mới:</label>
+                        <select name="trangThai" class="form-select form-select-lg">
+                            @foreach (var opt in Model.TrangThaiOptions)
+                            {
+                                <!option value="@opt.Value" @(opt.Selected ? "selected" : "")>@opt.Text</!option>
+                            }
+                        </select>
+                        <div class="form-text small mt-2">
+                            * Lưu ý: Nếu chuyển trạng thái sang <strong>"Đã hủy"</strong>, hệ thống sẽ tự động hoàn lại số lượng tồn kho cho các sản phẩm trong đơn.
+                        </div>
+                    </div>
+
+                    <button type="submit" class="tf-button w-100 justify-content-center">
+                        <i class="icon-save me-1"></i> Lưu trạng thái đơn
+                    </button>
+                </form>
+
+                <div class="mt-24 pt-16 border-top">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Tổng thanh toán:</span>
+                        <span class="fs-4 fw-bold text-danger">@Model.TongTien.ToString("N0") đ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- danh sách sản phẩm trong đơn -->
+    <div class="wg-box">
+        <div class="mb-16 pb-12 border-bottom">
+            <h5 class="mb-0">Danh sách Sản phẩm đã mua (@Model.ChiTietDonHangs.Count sản phẩm)</h5>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 60px;">STT</th>
+                        <th style="min-width: 280px;">Túi xách</th>
+                        <th class="text-center" style="width: 140px;">Đơn giá</th>
+                        <th class="text-center" style="width: 110px;">Số lượng</th>
+                        <th class="text-center" style="width: 160px;">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.ChiTietDonHangs != null && Model.ChiTietDonHangs.Any())
+                    {
+                        var stt = 1;
+                        foreach (var item in Model.ChiTietDonHangs)
+                        {
+                            var imgName = string.IsNullOrEmpty(item.HinhAnh) ? "tui1_1.png" : item.HinhAnh;
+                            <tr>
+                                <td class="text-center fw-bold">@(stt++)</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3 py-1">
+                                        <div class="flex-shrink-0" style="width: 50px; height: 50px;">
+                                            <img src="~/HinhAnh/@imgName" alt="" 
+                                                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid #dee2e6;" />
+                                        </div>
+                                        <div>
+                                            <span class="body-title-2 fw-bold text-dark d-block">@item.TenTui</span>
+                                            <span class="text-muted small">Mã sản phẩm: TX@item.MaTui.ToString("D2")</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center fw-semibold text-secondary">
+                                    @item.DonGia.ToString("N0") đ
+                                </td>
+                                <td class="text-center fw-bold">
+                                    @item.SoLuong
+                                </td>
+                                <td class="text-center fw-bold text-danger">
+                                    @item.ThanhTien.ToString("N0") đ
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">Không có sản phẩm nào trong đơn hàng này.</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="table-light">
+                        <td colspan="4" class="text-end fw-bold py-3 fs-6">TỔNG CỘNG:</td>
+                        <td class="text-center fw-bold text-danger py-3 fs-5">@Model.TongTien.ToString("N0") đ</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>

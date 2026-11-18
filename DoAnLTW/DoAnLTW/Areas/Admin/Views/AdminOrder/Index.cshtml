@@ -1,0 +1,138 @@
+@model DoAnLTW.Areas.Admin.ViewModels.AdminOrderIndexViewModel
+@{
+    ViewData["Title"] = "Quản lý Đơn hàng";
+
+    string GetStatusBadgeClass(string status) => status switch
+    {
+        "Chờ duyệt" => "bg-warning-subtle text-warning-emphasis border border-warning",
+        "Đang giao" => "bg-primary-subtle text-primary-emphasis border border-primary",
+        "Hoàn tất" => "bg-success-subtle text-success-emphasis border border-success",
+        "Đã hủy" => "bg-danger-subtle text-danger-emphasis border border-danger",
+        _ => "bg-secondary-subtle text-secondary-emphasis border border-secondary"
+    };
+}
+
+<div class="main-content-wrap">
+    <div class="mb-27">
+        <h3>Quản lý Đơn hàng</h3>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-20" role="alert">
+            <i class="icon-check me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-20" role="alert">
+            <i class="icon-alert-octagon me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="wg-box">
+        <form method="get" asp-action="Index" class="mb-24">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <input type="text" name="keyword" value="@Model.Keyword" class="form-control" placeholder="Tìm theo mã đơn (DH01), tên khách, SĐT..." />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select name="trangThai" class="form-select" onchange="this.form.submit()">
+                        <option value="">-- Tất cả trạng thái --</option>
+                        @foreach (var opt in Model.TrangThaiOptions)
+                        {
+                            <!option value="@opt.Value" @(opt.Selected ? "selected" : "")>@opt.Text</!option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="tf-button style-1 flex-grow-1 justify-content-center">
+                        <i class="icon-search"></i> Lọc đơn
+                    </button>
+                    @if (!string.IsNullOrEmpty(Model.Keyword) || !string.IsNullOrEmpty(Model.SelectedTrangThai))
+                    {
+                        <a asp-action="Index" class="tf-button style-2">Bỏ lọc</a>
+                    }
+                </div>
+            </div>
+        </form>
+
+        <div class="wg-table table-all-user">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 90px;">Mã đơn</th>
+                            <th style="min-width: 220px;">Khách hàng</th>
+                            <th class="text-center" style="width: 140px;">Ngày đặt</th>
+                            <th class="text-center" style="width: 140px;">Tổng tiền</th>
+                            <th style="min-width: 220px;">Địa chỉ giao hàng</th>
+                            <th class="text-center" style="width: 130px;">Trạng thái</th>
+                            <th class="text-center" style="width: 100px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.DonHangs != null && Model.DonHangs.Any())
+                        {
+                            foreach (var item in Model.DonHangs)
+                            {
+                                <tr>
+                                    <td class="text-center">
+                                        <a asp-action="Detail" asp-route-id="@item.MaDH" class="body-title-2 fw-bold text-primary">
+                                            @item.MaHienThi
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold text-dark">@item.TenKH</div>
+                                        @if (!string.IsNullOrEmpty(item.SDT))
+                                        {
+                                            <div class="small text-muted"><i class="icon-phone me-1"></i>@item.SDT</div>
+                                        }
+                                        @if (!string.IsNullOrEmpty(item.Email))
+                                        {
+                                            <div class="small text-muted"><i class="icon-mail me-1"></i>@item.Email</div>
+                                        }
+                                    </td>
+                                    <td class="text-center text-muted small">
+                                        @item.NgayDat.ToString("dd/MM/yyyy HH:mm")
+                                    </td>
+                                    <td class="text-center fw-bold text-danger">
+                                        @item.TongTien.ToString("N0") đ
+                                    </td>
+                                    <td>
+                                        <span class="small text-secondary">@item.DiaChiNhan</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge px-3 py-2 rounded-pill @GetStatusBadgeClass(item.TrangThai)">
+                                            @item.TrangThai
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="list-icon-function justify-content-center">
+                                            <a asp-action="Detail" asp-route-id="@item.MaDH" title="Xem chi tiết & Đổi trạng thái">
+                                                <div class="item edit text-primary">
+                                                    <i class="icon-eye"></i>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">Chưa có đơn hàng nào phù hợp.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
