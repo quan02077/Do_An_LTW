@@ -1,0 +1,73 @@
+@model DoAnLTW.Areas.Admin.ViewModels.PromotionFormViewModel
+@{
+    ViewData["Title"] = "Thêm mới Khuyến mãi";
+}
+
+<div class="main-content-wrap">
+    <div class="mb-27">
+        <h3>Thêm mới Khuyến mãi</h3>
+    </div>
+
+    <div class="wg-box">
+        <form class="form-new-product form-style-1" asp-action="Add" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-20"></div>
+
+            <fieldset class="name mb-24">
+                <div class="body-title mb-10">Tên chương trình khuyến mãi <span class="tf-color-1">*</span></div>
+                <div class="flex-grow">
+                    <input class="w-100" type="text" placeholder="Ví dụ: Giảm giá hè 2026, Siêu Sale Black Friday..." asp-for="TenKM" />
+                    <span asp-validation-for="TenKM" class="text-danger small mt-1 d-block"></span>
+                </div>
+            </fieldset>
+
+            <fieldset class="mb-24">
+                <div class="body-title mb-10">Phần trăm giảm (%) <span class="tf-color-1">*</span></div>
+                <div class="flex-grow">
+                    <input class="w-100" type="number" min="0" max="100" placeholder="Ví dụ: 20" asp-for="PhanTramGiam" />
+                    <span asp-validation-for="PhanTramGiam" class="text-danger small mt-1 d-block"></span>
+                </div>
+            </fieldset>
+
+            <div class="cols gap22 mb-24">
+                <fieldset class="flex-grow">
+                    <div class="body-title mb-10">Ngày bắt đầu <span class="tf-color-1">*</span></div>
+                    <div class="flex-grow">
+                        <input class="w-100" type="date" asp-for="NgayBatDau" value="@Model.NgayBatDau.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="NgayBatDau" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                </fieldset>
+
+                <fieldset class="flex-grow">
+                    <div class="body-title mb-10">Ngày kết thúc <span class="tf-color-1">*</span></div>
+                    <div class="flex-grow">
+                        <input class="w-100" type="date" asp-for="NgayKetThuc" value="@Model.NgayKetThuc.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="NgayKetThuc" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                </fieldset>
+            </div>
+
+            <fieldset class="mb-24">
+                <div class="body-title mb-10">Trạng thái</div>
+                <div class="select">
+                    <select asp-for="TrangThai" class="w-100 p-3 border rounded-3 bg-white">
+                        <option value="true">Hoạt động</option>
+                        <option value="false">Ngừng hoạt động</option>
+                    </select>
+                </div>
+                <span asp-validation-for="TrangThai" class="text-danger small mt-1 d-block"></span>
+            </fieldset>
+
+            <div class="bot">
+                <div>
+                    <a asp-action="Index" class="tf-button style-2">Quay lại</a>
+                </div>
+                <button class="tf-button w208" type="submit">Lưu khuyến mãi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

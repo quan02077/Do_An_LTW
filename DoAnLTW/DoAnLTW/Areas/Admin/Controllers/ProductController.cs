@@ -1,14 +1,11 @@
 using DoAnLTW.Areas.Admin.Services;
-using DoAnLTW.Data;
 using DoAnLTW.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 
 namespace DoAnLTW.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class ProductController(IProductService productService, DbContext_TuiXach db) : Controller
+    public class ProductController(IProductService productService) : Controller
     {
         // 1. Danh sách sản phẩm
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
@@ -21,7 +18,7 @@ namespace DoAnLTW.Areas.Admin.Controllers
         public async Task<IActionResult> Add(CancellationToken cancellationToken)
         {
             var model = new ProductFormViewModel();
-            await PopulateDropdowns(model, cancellationToken);
+            await productService.PopulateFormOptionsAsync(model, cancellationToken);
             return View(model);
         }
 
@@ -30,7 +27,7 @@ namespace DoAnLTW.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await PopulateDropdowns(model, cancellationToken);
+                await productService.PopulateFormOptionsAsync(model, cancellationToken);
                 return View(model);
             }
 
@@ -44,7 +41,7 @@ namespace DoAnLTW.Areas.Admin.Controllers
             var model = await productService.GetByIdAsync(id, cancellationToken);
             if (model == null) return NotFound();
 
-            await PopulateDropdowns(model, cancellationToken);
+            await productService.PopulateFormOptionsAsync(model, cancellationToken);
             return View(model);
         }
 
@@ -53,7 +50,7 @@ namespace DoAnLTW.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await PopulateDropdowns(model, cancellationToken);
+                await productService.PopulateFormOptionsAsync(model, cancellationToken);
                 return View(model);
             }
 
@@ -72,18 +69,5 @@ namespace DoAnLTW.Areas.Admin.Controllers
             }
             return RedirectToAction("Index");
         }
-
-        // nạp dữ liệu cho 2 dropdown Loại túi và Thương hiệu
-        private async Task PopulateDropdowns(ProductFormViewModel model, CancellationToken cancellationToken)
-        {
-            model.LoaiTuiOptions = await db.LoaiTuis
-                .Select(lt => new SelectListItem { Value = lt.maLoai.ToString(), Text = lt.tenLoai })
-                .ToListAsync(cancellationToken);
-
-            model.ThuongHieuOptions = await db.ThuongHieus
-                .Select(th => new SelectListItem { Value = th.maThuongHieu.ToString(), Text = th.tenThuongHieu })
-                .ToListAsync(cancellationToken);
-        }
     }
 }
-

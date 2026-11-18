@@ -1,12 +1,14 @@
+using DoAnLTW.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DoAnLTW.Controllers;
 
-public class FlashSaleController : Controller
+public class FlashSaleController(IFlashSaleService flashSaleService) : Controller
 {
-    // get: /flashsale hoặc /flashsale/index
-    public IActionResult Index()
+    // get: /flashsale hoac /flashsale/index
+    public async Task<IActionResult> Index(int? kmId, CancellationToken ct)
     {
-        return View();
+        var viewModel = await flashSaleService.GetFlashSaleAsync(kmId, ct);
+        return View(viewModel);
     }
 }
