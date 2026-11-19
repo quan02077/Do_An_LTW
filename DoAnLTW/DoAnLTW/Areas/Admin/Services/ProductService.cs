@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using DoAnLTW.Areas.Admin.ViewModels;
 using DoAnLTW.Data;
 using DoAnLTW.ViewModels;
 using DoAnLTW.Models;
@@ -11,7 +10,7 @@ namespace DoAnLTW.Areas.Admin.Services
 {
     public interface IProductService
     {
-        Task<ProductIndexViewModel> GetPagedAsync(string? keyword, int page, CancellationToken cancellationToken = default);
+        Task<ProductIndexViewModel> GetAllAsync(string? keyword, CancellationToken cancellationToken = default);
         Task<ProductFormViewModel?> GetByIdAsync(int maTui, CancellationToken cancellationToken = default);
         Task<ServiceResult> AddAsync(ProductFormViewModel model, CancellationToken cancellationToken = default);
         Task<ServiceResult> UpdateAsync(int maTui, ProductFormViewModel model, CancellationToken cancellationToken = default);
@@ -29,8 +28,8 @@ namespace DoAnLTW.Areas.Admin.Services
         // chỉ những file này mới được xóa khỏi ổ đĩa, ảnh mẫu (tui1_1.png...) dùng chung trong repo được giữ lại.
         private static readonly Regex UploadedFileName = new("^[0-9a-f]{32}", RegexOptions.Compiled);
 
-        // 1. danh sách sản phẩm có tìm theo tên và phân trang (10 dòng/trang)
-        public async Task<ProductIndexViewModel> GetPagedAsync(string? keyword, int page, CancellationToken cancellationToken = default)
+        // 1. danh sách sản phẩm (có tìm theo tên)
+        public async Task<ProductIndexViewModel> GetAllAsync(string? keyword, CancellationToken cancellationToken = default)
         {
             var query = db.TuiXachs.AsNoTracking();
             if (!string.IsNullOrWhiteSpace(keyword))
@@ -39,15 +38,8 @@ namespace DoAnLTW.Areas.Admin.Services
                 query = query.Where(p => p.tenTui.Contains(kw));
             }
 
-            // COUNT và Skip/Take đều chạy trong SQL: chỉ tải đúng 10 dòng của trang hiện tại
-            var total = await query.CountAsync(cancellationToken);
-            page = PaginationViewModel.Normalize(page, total);
-            var pageSize = PaginationViewModel.DefaultPageSize;
-
             var items = await query
-                .OrderBy(p => p.maTui) // Skip/Take bắt buộc phải có thứ tự cố định
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .OrderBy(p => p.maTui)
                 .Select(p => new ProductViewModel
             {
                 MaTui = p.maTui,
@@ -63,13 +55,7 @@ namespace DoAnLTW.Areas.Admin.Services
             return new ProductIndexViewModel
             {
                 SanPhams = items,
-                Keyword = keyword,
-                Pagination = new PaginationViewModel
-                {
-                    Page = page,
-                    TotalItems = total,
-                    Filters = PaginationViewModel.BuildFilters(("keyword", keyword))
-                }
+                Keyword = keyword
             };
         }
 

@@ -15,9 +15,6 @@ public class ProductIndexViewModel
     public int? SelectedMaThuongHieu { get; set; }
     public List<SelectListItem> LoaiTuiOptions { get; set; } = new();
     public List<SelectListItem> ThuongHieuOptions { get; set; } = new();
-
-    // phân trang
-    public DoAnLTW.Areas.Admin.ViewModels.PaginationViewModel Pagination { get; set; } = new();
 }
 
 // 2. Dùng để hiển thị từng dòng trong bảng sản phẩm

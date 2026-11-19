@@ -7,10 +7,10 @@ namespace DoAnLTW.Areas.Admin.Controllers
     public class ProductController(IProductService productService) : AdminBaseController
     {
         // 1. Danh sách sản phẩm
-        // GET: /Admin/Product?keyword=...&page=2
-        public async Task<IActionResult> Index(string? keyword, int page = 1, CancellationToken cancellationToken = default)
+        // GET: /Admin/Product?keyword=...
+        public async Task<IActionResult> Index(string? keyword, CancellationToken cancellationToken)
         {
-            var model = await productService.GetPagedAsync(keyword, page, cancellationToken);
+            var model = await productService.GetAllAsync(keyword, cancellationToken);
             return View(model);
         }
 
