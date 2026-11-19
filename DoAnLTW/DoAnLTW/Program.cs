@@ -9,6 +9,13 @@ using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// tiện cho môi trường phát triển: đọc khóa API (và cấu hình cục bộ khác) từ file .env cạnh Program.cs.
+// .env nằm trong .gitignore nên không bị commit; xem .env.example để biết cách dùng.
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddDotEnvFile(Path.Combine(builder.Environment.ContentRootPath, ".env"));
+}
+
 // add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<DbContext_TuiXach>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
