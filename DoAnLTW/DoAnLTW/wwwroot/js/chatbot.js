@@ -7,6 +7,16 @@
     var MAX_HISTORY = 6;
     var REQUEST_TIMEOUT_MS = 30000;
 
+    // chatbot chỉ dành cho khách đã đăng nhập: trang (layout) báo trạng thái đăng nhập, token CSRF và đường dẫn đăng nhập qua thẻ meta
+    function readMeta(name) {
+        var el = document.querySelector('meta[name="' + name + '"]');
+        return el ? (el.getAttribute('content') || '') : '';
+    }
+    var IS_AUTHENTICATED = readMeta('chat-auth') === '1';
+    var CSRF_TOKEN = readMeta('csrf-token');
+    var LOGIN_URL = readMeta('chat-login-url');
+    var LOGIN_REQUIRED_MESSAGE = 'Bạn cần đăng nhập để trò chuyện với trợ lý tư vấn.';
+
     var WELCOME_MESSAGE =
         'Xin chào! Mình là trợ lý tư vấn của Basau Bags. Bạn đang tìm mẫu túi nào (đeo chéo, balo, đi làm hay tầm giá bao nhiêu)? Chọn nhanh gợi ý bên dưới hoặc nhắn cho mình nhé!';
     var FALLBACK_NOTICE = 'Trợ lý AI đang bận, đây là gợi ý nhanh từ cửa hàng';
@@ -608,9 +618,36 @@
             }
         }
 
+        // lời mời đăng nhập (kèm liên kết), dùng cho khách chưa đăng nhập hoặc phiên đã hết hạn (HTTP 401)
+        function appendLoginPrompt() {
+            var wrapper = document.createElement('div');
+            wrapper.className = 'cb-msg cb-msg-assistant';
+
+            var bubble = document.createElement('div');
+            bubble.className = 'cb-bubble';
+            bubble.appendChild(document.createTextNode(LOGIN_REQUIRED_MESSAGE + ' '));
+
+            var loginUrl = isSafeRelativeUrl(LOGIN_URL) ? LOGIN_URL : '/Account/Login';
+            var link = document.createElement('a');
+            link.href = loginUrl;
+            link.textContent = 'Đăng nhập ngay';
+            link.style.fontWeight = '600';
+            bubble.appendChild(link);
+
+            wrapper.appendChild(bubble);
+            messagesEl.appendChild(wrapper);
+            scrollToBottom();
+        }
+
         // Gửi tin nhắn đến POST /api/chat kèm timeout 30 giây
         async function sendMessage(rawText) {
             if (isLoading) return;
+
+            // chưa đăng nhập: không gọi API, giữ nguyên nội dung đã gõ để khách đăng nhập rồi gửi lại
+            if (!IS_AUTHENTICATED) {
+                appendLoginPrompt();
+                return;
+            }
 
             var text = typeof rawText === 'string'
                 ? rawText.trim().slice(0, MAX_MESSAGE_LENGTH)
@@ -638,7 +675,7 @@
             try {
                 var fetchOptions = {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': CSRF_TOKEN },
                     credentials: 'same-origin',
                     body: JSON.stringify({
                         message: text,
@@ -664,6 +701,11 @@
                 }
 
                 removeTypingIndicator();
+
+                if (response.status === 401) {
+                    appendLoginPrompt();
+                    return;
+                }
 
                 if (response.status === 429) {
                     appendErrorMessage(RATE_LIMIT_MESSAGE);

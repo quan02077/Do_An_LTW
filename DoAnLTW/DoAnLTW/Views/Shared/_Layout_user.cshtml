@@ -1,8 +1,16 @@
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    @* thông tin cho khung chat (chatbot.js): đã đăng nhập chưa, token CSRF (chỉ khi đã đăng nhập), đường dẫn đăng nhập *@
+    <meta name="chat-auth" content="@(User.Identity?.IsAuthenticated == true ? "1" : "0")" />
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <meta name="csrf-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
+    }
+    <meta name="chat-login-url" content="@Url.Action("Login", "Account", new { returnUrl = Context.Request.Path + Context.Request.QueryString })" />
     <title>@ViewData["Title"] - Basau Bags</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">

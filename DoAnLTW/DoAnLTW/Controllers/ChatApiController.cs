@@ -8,18 +8,20 @@ using Microsoft.Extensions.Options;
 namespace DoAnLTW.Controllers;
 
 /// <summary>
-/// POST /api/chat: tư vấn túi xách. Khách chưa đăng nhập cũng dùng được, nên bảo vệ bằng giới hạn tốc độ (policy "chat",
-/// khai báo trong Program.cs) và kiểm tra đầu vào chặt. Cố ý KHÔNG dùng [ApiController] để mọi lỗi đầu vào
-/// trả về cùng một dạng { "error": "..." } cho trình duyệt.
+/// POST /api/chat: tư vấn túi xách. CHỈ khách đã đăng nhập mới dùng được (chống bot/script đốt hạn mức AI), chưa đăng nhập
+/// nhận 401. Vì xác thực bằng cookie nên bắt buộc kèm token chống giả mạo (header RequestVerificationToken, cấu hình trong
+/// Program.cs). Thêm giới hạn tốc độ theo tài khoản (policy "chat") và kiểm tra đầu vào chặt. Cố ý KHÔNG dùng [ApiController]
+/// để mọi lỗi đầu vào trả về cùng một dạng { "error": "..." } cho trình duyệt.
 /// </summary>
 [Route("api/chat")]
-[AllowAnonymous]
+[Authorize]
 public class ChatApiController(
     IChatbotService chatbot,
     IOptions<ChatbotOptions> options,
     ILogger<ChatApiController> logger) : ControllerBase
 {
     [HttpPost]
+    [ValidateAntiForgeryToken]
     [EnableRateLimiting("chat")]
     public async Task<IActionResult> Post([FromBody] ChatRequest? request, CancellationToken ct)
     {

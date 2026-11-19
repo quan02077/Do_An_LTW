@@ -39,6 +39,8 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // chatbot tư vấn túi: truy xuất sản phẩm từ CSDL rồi nhờ Groq (openai/gpt-oss-20b) viết câu tư vấn.
 // khóa API đặt bằng user-secrets (Chatbot:Groq:ApiKey); thiếu khóa hoặc AI lỗi thì tự dùng gợi ý từ CSDL.
+// token chống giả mạo (CSRF) cho các lời gọi fetch/JSON: gửi trong header thay vì trường form.
+builder.Services.AddAntiforgery(options => options.HeaderName = "RequestVerificationToken");
 builder.Services.Configure<ChatbotOptions>(builder.Configuration.GetSection(ChatbotOptions.SectionName));
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<ChatLlmGate>();
