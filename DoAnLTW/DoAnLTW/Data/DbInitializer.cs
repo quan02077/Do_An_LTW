@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using DoAnLTW.Models;
+using DoAnLTW.Services;
 
 namespace DoAnLTW.Data;
 
@@ -10,10 +11,14 @@ public static class DbInitializer
     {
         using var scope = serviceProvider.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DbContext_TuiXach>();
+        var passwordService = scope.ServiceProvider.GetRequiredService<IPasswordService>();
 
         try
         {
             await db.Database.MigrateAsync();
+
+            // chạy cả khi CSDL đã có dữ liệu: chuyển mật khẩu plaintext cũ sang dạng hash.
+            await HashLegacyPasswordsAsync(db, passwordService);
 
             if (await db.TuiXachs.AnyAsync())
             {
@@ -24,12 +29,18 @@ public static class DbInitializer
             Console.WriteLine("[DbInitializer] Bắt đầu nạp dữ liệu mẫu (Seeder)...");
 
             // nạp tài khoản (1 quản trị viên, 5 khách hàng)
-            var admin = new TaiKhoan { tenDangNhap = "admin", matKhau = "123456", vaiTro = Roles.Admin };
-            var tk1 = new TaiKhoan { tenDangNhap = "minhquan", matKhau = "123456", vaiTro = Roles.Customer };
-            var tk2 = new TaiKhoan { tenDangNhap = "ngocanh", matKhau = "123456", vaiTro = Roles.Customer };
-            var tk3 = new TaiKhoan { tenDangNhap = "thanhhoa", matKhau = "123456", vaiTro = Roles.Customer };
-            var tk4 = new TaiKhoan { tenDangNhap = "quanghuy", matKhau = "123456", vaiTro = Roles.Customer };
-            var tk5 = new TaiKhoan { tenDangNhap = "thimai", matKhau = "123456", vaiTro = Roles.Customer };
+            var admin = new TaiKhoan { tenDangNhap = "admin", vaiTro = Roles.Admin };
+            var tk1 = new TaiKhoan { tenDangNhap = "minhquan", vaiTro = Roles.Customer };
+            var tk2 = new TaiKhoan { tenDangNhap = "ngocanh", vaiTro = Roles.Customer };
+            var tk3 = new TaiKhoan { tenDangNhap = "thanhhoa", vaiTro = Roles.Customer };
+            var tk4 = new TaiKhoan { tenDangNhap = "quanghuy", vaiTro = Roles.Customer };
+            var tk5 = new TaiKhoan { tenDangNhap = "thimai", vaiTro = Roles.Customer };
+
+            // mật khẩu demo vẫn là 123456 nhưng được lưu dưới dạng hash
+            foreach (var tk in new[] { admin, tk1, tk2, tk3, tk4, tk5 })
+            {
+                tk.matKhau = passwordService.Hash(tk, "123456");
+            }
 
             db.TaiKhoans.AddRange(admin, tk1, tk2, tk3, tk4, tk5);
             await db.SaveChangesAsync();
@@ -115,5 +126,22 @@ public static class DbInitializer
         {
             Console.WriteLine($"[DbInitializer] Lỗi khi nạp dữ liệu: {ex.Message}");
         }
+    }
+
+    // tương thích dữ liệu cũ: tài khoản nào còn lưu mật khẩu plaintext thì hash lại chính giá trị đó,
+    // người dùng vẫn đăng nhập bằng mật khẩu cũ nhưng CSDL không còn lưu bản rõ.
+    private static async Task HashLegacyPasswordsAsync(DbContext_TuiXach db, IPasswordService passwordService)
+    {
+        var accounts = await db.TaiKhoans.ToListAsync();
+        var legacy = accounts.Where(tk => !passwordService.IsHashed(tk.matKhau)).ToList();
+        if (legacy.Count == 0) return;
+
+        foreach (var tk in legacy)
+        {
+            tk.matKhau = passwordService.Hash(tk, tk.matKhau);
+        }
+
+        await db.SaveChangesAsync();
+        Console.WriteLine($"[DbInitializer] Đã chuyển {legacy.Count} mật khẩu plaintext sang dạng hash.");
     }
 }

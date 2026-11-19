@@ -12,6 +12,22 @@ public static class OrderStatus
     public const string DangGiao = "Đang giao";
     public const string HoanTat = "Hoàn tất";
     public const string DaHuy = "Đã hủy";
+
+    public static readonly IReadOnlyList<string> All = [ChoDuyet, DangGiao, HoanTat, DaHuy];
+
+    // luồng trạng thái hợp lệ: Hoàn tất và Đã hủy là trạng thái kết thúc, không đổi được nữa.
+    private static readonly Dictionary<string, string[]> Transitions = new()
+    {
+        [ChoDuyet] = [DangGiao, DaHuy],
+        [DangGiao] = [HoanTat, DaHuy],
+        [HoanTat] = [],
+        [DaHuy] = []
+    };
+
+    public static IReadOnlyList<string> GetNextStatuses(string current) =>
+        Transitions.TryGetValue(current, out var next) ? next : [];
+
+    public static bool CanTransition(string from, string to) => GetNextStatuses(from).Contains(to);
 }
 
 public interface IOrderService

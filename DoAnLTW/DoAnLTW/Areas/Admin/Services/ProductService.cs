@@ -1,6 +1,9 @@
+using System.Text.RegularExpressions;
+using DoAnLTW.Areas.Admin.ViewModels;
 using DoAnLTW.Data;
 using DoAnLTW.ViewModels;
 using DoAnLTW.Models;
+using DoAnLTW.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -8,20 +11,44 @@ namespace DoAnLTW.Areas.Admin.Services
 {
     public interface IProductService
     {
-        Task<List<ProductViewModel>> GetAllAsync(CancellationToken cancellationToken = default);
+        Task<ProductIndexViewModel> GetPagedAsync(string? keyword, int page, CancellationToken cancellationToken = default);
         Task<ProductFormViewModel?> GetByIdAsync(int maTui, CancellationToken cancellationToken = default);
-        Task<bool> AddAsync(ProductFormViewModel model, CancellationToken cancellationToken = default);
-        Task<bool> UpdateAsync(int maTui, ProductFormViewModel model, CancellationToken cancellationToken = default);
-        Task<bool> DeleteAsync(int maTui, CancellationToken cancellationToken = default);
+        Task<ServiceResult> AddAsync(ProductFormViewModel model, CancellationToken cancellationToken = default);
+        Task<ServiceResult> UpdateAsync(int maTui, ProductFormViewModel model, CancellationToken cancellationToken = default);
+        Task<ServiceResult> DeleteAsync(int maTui, CancellationToken cancellationToken = default);
         Task PopulateFormOptionsAsync(ProductFormViewModel model, CancellationToken cancellationToken = default);
     }
 
     public class ProductService(DbContext_TuiXach db, IWebHostEnvironment env) : IProductService
     {
-        // 1. lấy toàn bộ danh sách sản phẩm
-        public async Task<List<ProductViewModel>> GetAllAsync(CancellationToken cancellationToken = default)
+        private const string ImageFolder = "HinhAnh";
+        private const long MaxImageBytes = 2 * 1024 * 1024; // 2MB
+        private static readonly string[] AllowedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
+
+        // ảnh do trang quản trị tải lên luôn có tên bắt đầu bằng Guid 32 ký tự hex.
+        // chỉ những file này mới được xóa khỏi ổ đĩa, ảnh mẫu (tui1_1.png...) dùng chung trong repo được giữ lại.
+        private static readonly Regex UploadedFileName = new("^[0-9a-f]{32}", RegexOptions.Compiled);
+
+        // 1. danh sách sản phẩm có tìm theo tên và phân trang (10 dòng/trang)
+        public async Task<ProductIndexViewModel> GetPagedAsync(string? keyword, int page, CancellationToken cancellationToken = default)
         {
-            return await db.TuiXachs.Select(p => new ProductViewModel
+            var query = db.TuiXachs.AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var kw = keyword.Trim();
+                query = query.Where(p => p.tenTui.Contains(kw));
+            }
+
+            // COUNT và Skip/Take đều chạy trong SQL: chỉ tải đúng 10 dòng của trang hiện tại
+            var total = await query.CountAsync(cancellationToken);
+            page = PaginationViewModel.Normalize(page, total);
+            var pageSize = PaginationViewModel.DefaultPageSize;
+
+            var items = await query
+                .OrderBy(p => p.maTui) // Skip/Take bắt buộc phải có thứ tự cố định
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new ProductViewModel
             {
                 MaTui = p.maTui,
                 TenTui = p.tenTui,
@@ -32,6 +59,18 @@ namespace DoAnLTW.Areas.Admin.Services
                 Badge = p.badge,
                 HinhAnhChinh = p.HinhAnhTuis.Where(i => i.laAnhChinh).Select(i => i.tenHinhAnh).FirstOrDefault()
             }).ToListAsync(cancellationToken);
+
+            return new ProductIndexViewModel
+            {
+                SanPhams = items,
+                Keyword = keyword,
+                Pagination = new PaginationViewModel
+                {
+                    Page = page,
+                    TotalItems = total,
+                    Filters = PaginationViewModel.BuildFilters(("keyword", keyword))
+                }
+            };
         }
 
         // 2. lấy thông tin sản phẩm để sửa
@@ -55,8 +94,12 @@ namespace DoAnLTW.Areas.Admin.Services
         }
 
         // 3. thêm sản phẩm mới
-        public async Task<bool> AddAsync(ProductFormViewModel model, CancellationToken cancellationToken = default)
+        public async Task<ServiceResult> AddAsync(ProductFormViewModel model, CancellationToken cancellationToken = default)
         {
+            // kiểm tra ảnh TRƯỚC khi ghi CSDL để không tạo sản phẩm "mồ côi" khi ảnh không hợp lệ.
+            var imageError = ValidateImage(model.FileHinhAnh);
+            if (imageError != null) return ServiceResult.Fail(imageError, nameof(model.FileHinhAnh));
+
             var p = new TuiXach
             {
                 tenTui = model.TenTui.Trim(),
@@ -68,29 +111,36 @@ namespace DoAnLTW.Areas.Admin.Services
                 badge = model.Badge
             };
 
-            db.TuiXachs.Add(p);
-            await db.SaveChangesAsync(cancellationToken);
-
-            // lưu ảnh nếu có tải lên
-            if (model.FileHinhAnh != null && model.FileHinhAnh.Length > 0)
+            string? savedFile = null;
+            if (HasFile(model.FileHinhAnh))
             {
-                var fileName = $"{Guid.NewGuid():N}_{model.FileHinhAnh.FileName}";
-                var path = Path.Combine(env.WebRootPath, "HinhAnh", fileName);
-                using var stream = new FileStream(path, FileMode.Create);
-                await model.FileHinhAnh.CopyToAsync(stream);
-
-                db.HinhAnhTuis.Add(new HinhAnhTui { maTui = p.maTui, tenHinhAnh = fileName, laAnhChinh = true });
-                await db.SaveChangesAsync(cancellationToken);
+                savedFile = await SaveImageAsync(model.FileHinhAnh!, cancellationToken);
+                p.HinhAnhTuis.Add(new HinhAnhTui { tenHinhAnh = savedFile, laAnhChinh = true, thuTu = 1 });
             }
 
-            return true;
+            try
+            {
+                db.TuiXachs.Add(p);
+                await db.SaveChangesAsync(cancellationToken);
+            }
+            catch
+            {
+                // ghi CSDL thất bại thì dọn file vừa lưu để không để rác trên ổ đĩa.
+                DeleteUploadedImage(savedFile);
+                throw;
+            }
+
+            return ServiceResult.Ok();
         }
 
         // 4. cập nhật sản phẩm
-        public async Task<bool> UpdateAsync(int maTui, ProductFormViewModel model, CancellationToken cancellationToken = default)
+        public async Task<ServiceResult> UpdateAsync(int maTui, ProductFormViewModel model, CancellationToken cancellationToken = default)
         {
+            var imageError = ValidateImage(model.FileHinhAnh);
+            if (imageError != null) return ServiceResult.Fail(imageError, nameof(model.FileHinhAnh));
+
             var p = await db.TuiXachs.Include(x => x.HinhAnhTuis).FirstOrDefaultAsync(x => x.maTui == maTui, cancellationToken);
-            if (p == null) return false;
+            if (p == null) return ServiceResult.Fail("Không tìm thấy sản phẩm.");
 
             p.tenTui = model.TenTui.Trim();
             p.maLoai = model.MaLoai;
@@ -100,41 +150,67 @@ namespace DoAnLTW.Areas.Admin.Services
             p.moTa = model.MoTa;
             p.badge = model.Badge;
 
-            // cập nhật ảnh nếu có tải ảnh mới
-            if (model.FileHinhAnh != null && model.FileHinhAnh.Length > 0)
+            string? savedFile = null;
+            string? oldFile = null;
+            if (HasFile(model.FileHinhAnh))
             {
-                var fileName = $"{Guid.NewGuid():N}_{model.FileHinhAnh.FileName}";
-                var path = Path.Combine(env.WebRootPath, "HinhAnh", fileName);
-                using var stream = new FileStream(path, FileMode.Create);
-                await model.FileHinhAnh.CopyToAsync(stream);
+                savedFile = await SaveImageAsync(model.FileHinhAnh!, cancellationToken);
 
                 var img = p.HinhAnhTuis.FirstOrDefault(i => i.laAnhChinh);
                 if (img != null)
                 {
-                    img.tenHinhAnh = fileName;
+                    oldFile = img.tenHinhAnh;
+                    img.tenHinhAnh = savedFile;
                 }
                 else
                 {
-                    p.HinhAnhTuis.Add(new HinhAnhTui { maTui = p.maTui, tenHinhAnh = fileName, laAnhChinh = true });
+                    p.HinhAnhTuis.Add(new HinhAnhTui { maTui = p.maTui, tenHinhAnh = savedFile, laAnhChinh = true, thuTu = 1 });
                 }
             }
 
-            await db.SaveChangesAsync(cancellationToken);
-            return true;
+            try
+            {
+                await db.SaveChangesAsync(cancellationToken);
+            }
+            catch
+            {
+                DeleteUploadedImage(savedFile);
+                throw;
+            }
+
+            // chỉ xóa ảnh cũ SAU khi CSDL đã lưu thành công tên ảnh mới.
+            DeleteUploadedImage(oldFile);
+            return ServiceResult.Ok();
         }
 
         // 5. xóa sản phẩm
-        public async Task<bool> DeleteAsync(int maTui, CancellationToken cancellationToken = default)
+        public async Task<ServiceResult> DeleteAsync(int maTui, CancellationToken cancellationToken = default)
         {
             var p = await db.TuiXachs.Include(x => x.HinhAnhTuis).FirstOrDefaultAsync(x => x.maTui == maTui, cancellationToken);
-            if (p == null) return false;
+            if (p == null) return ServiceResult.Fail("Không tìm thấy sản phẩm.");
 
-            // xóa hình ảnh trước rồi xóa túi xách
+            // chi tiết đơn hàng là chứng từ bán hàng: không được xóa, nên sản phẩm cũng không được xóa
+            // (nếu xóa sẽ vi phạm khóa ngoại ChiTietDonHang -> TuiXach).
+            if (await db.ChiTietDonHangs.AnyAsync(x => x.maTui == maTui, cancellationToken))
+            {
+                return ServiceResult.Fail("Sản phẩm đã phát sinh đơn hàng, không thể xóa.");
+            }
+
+            var imageFiles = p.HinhAnhTuis.Select(i => i.tenHinhAnh).ToList();
+
+            // giỏ hàng chỉ là dữ liệu tạm: gỡ sản phẩm khỏi mọi giỏ rồi mới xóa sản phẩm.
+            var cartItems = await db.ChiTietGioHangs.Where(x => x.maTui == maTui).ToListAsync(cancellationToken);
+            db.ChiTietGioHangs.RemoveRange(cartItems);
             db.HinhAnhTuis.RemoveRange(p.HinhAnhTuis);
             db.TuiXachs.Remove(p);
             await db.SaveChangesAsync(cancellationToken);
 
-            return true;
+            foreach (var file in imageFiles)
+            {
+                DeleteUploadedImage(file);
+            }
+
+            return ServiceResult.Ok();
         }
 
         // 6. nap danh sach loai tui va thuong hieu cho form them / sua
@@ -147,6 +223,56 @@ namespace DoAnLTW.Areas.Admin.Services
             model.ThuongHieuOptions = await db.ThuongHieus
                 .Select(th => new SelectListItem { Value = th.maThuongHieu.ToString(), Text = th.tenThuongHieu })
                 .ToListAsync(cancellationToken);
+        }
+
+        private static bool HasFile(IFormFile? file) => file != null && file.Length > 0;
+
+        // trả về thông báo lỗi, hoặc null nếu ảnh hợp lệ (không chọn ảnh cũng là hợp lệ).
+        private static string? ValidateImage(IFormFile? file)
+        {
+            if (!HasFile(file)) return null;
+
+            var extension = Path.GetExtension(file!.FileName).ToLowerInvariant();
+            if (!AllowedExtensions.Contains(extension))
+            {
+                return "Chỉ chấp nhận ảnh định dạng .jpg, .jpeg, .png hoặc .webp.";
+            }
+
+            if (file.Length > MaxImageBytes)
+            {
+                return "Dung lượng ảnh tối đa là 2MB.";
+            }
+
+            return null;
+        }
+
+        // lưu ảnh với tên mới = Guid + đuôi file; không dùng FileName gốc của client
+        // (tên gốc có thể chứa ký tự lạ hoặc "../" để ghi file ra ngoài thư mục).
+        private async Task<string> SaveImageAsync(IFormFile file, CancellationToken cancellationToken)
+        {
+            var folder = Path.Combine(env.WebRootPath, ImageFolder);
+            Directory.CreateDirectory(folder);
+
+            var fileName = $"{Guid.NewGuid():N}{Path.GetExtension(file.FileName).ToLowerInvariant()}";
+            var path = Path.Combine(folder, fileName);
+
+            await using var stream = new FileStream(path, FileMode.CreateNew);
+            await file.CopyToAsync(stream, cancellationToken);
+            return fileName;
+        }
+
+        private void DeleteUploadedImage(string? fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName) || !UploadedFileName.IsMatch(fileName)) return;
+
+            var folder = Path.GetFullPath(Path.Combine(env.WebRootPath, ImageFolder)) + Path.DirectorySeparatorChar;
+            var fullPath = Path.GetFullPath(Path.Combine(folder, fileName));
+
+            // chặn xóa file nằm ngoài wwwroot/HinhAnh
+            if (fullPath.StartsWith(folder, StringComparison.OrdinalIgnoreCase) && File.Exists(fullPath))
+            {
+                File.Delete(fullPath);
+            }
         }
     }
 }

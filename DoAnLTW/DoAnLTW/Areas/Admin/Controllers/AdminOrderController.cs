@@ -1,17 +1,15 @@
 using DoAnLTW.Areas.Admin.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DoAnLTW.Areas.Admin.Controllers
 {
-    [Area("Admin")]
-    [Authorize(Roles = "Admin")]
-    public class AdminOrderController(IAdminOrderService orderService) : Controller
+    public class AdminOrderController(IAdminOrderService orderService) : AdminBaseController
     {
         // 1. Danh sách đơn hàng
-        public async Task<IActionResult> Index(string? keyword, string? trangThai, CancellationToken cancellationToken)
+        // GET: /Admin/AdminOrder?keyword=...&trangThai=...&page=2
+        public async Task<IActionResult> Index(string? keyword, string? trangThai, int page = 1, CancellationToken cancellationToken = default)
         {
-            var model = await orderService.GetAllAsync(keyword, trangThai, cancellationToken);
+            var model = await orderService.GetAllAsync(keyword, trangThai, page, cancellationToken);
             return View(model);
         }
 
@@ -28,10 +26,11 @@ namespace DoAnLTW.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateStatus(int id, string trangThai, CancellationToken cancellationToken)
         {
-            var success = await orderService.UpdateStatusAsync(id, trangThai, cancellationToken);
-            if (!success)
+            var result = await orderService.UpdateStatusAsync(id, trangThai ?? string.Empty, cancellationToken);
+            if (!result.Success)
             {
-                TempData["Error"] = "Không thể cập nhật trạng thái đơn hàng.";
+                // hiển thị lý do cụ thể (ví dụ: đơn đã hủy thì không giao lại được)
+                TempData["Error"] = result.Error;
                 return RedirectToAction(nameof(Detail), new { id });
             }
 

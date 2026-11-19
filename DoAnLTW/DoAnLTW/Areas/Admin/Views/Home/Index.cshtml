@@ -135,7 +135,7 @@
 
             var options = {
                 series: totalOrders > 0 ? seriesData : [],
-                labels: ['Chờ duyệt', 'Đang giao', 'Hoàn tất', 'Đã hủy'],
+                labels: @Json.Serialize(OrderStatus.All),
                 chart: {
                     type: 'donut',
                     height: 320

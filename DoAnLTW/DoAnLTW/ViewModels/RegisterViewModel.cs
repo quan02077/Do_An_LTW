@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using DoAnLTW.Models;
 
 namespace DoAnLTW.ViewModels;
 
@@ -42,11 +41,7 @@ public class RegisterViewModel
     [Compare("MatKhau", ErrorMessage = "Mật khẩu xác nhận không khớp với mật khẩu đã nhập.")]
     [Display(Name = "Xác nhận mật khẩu")]
     public string XacNhanMatKhau { get; set; } = string.Empty;
-
-    [Required(ErrorMessage = "Vui lòng chọn vai trò truy cập.")]
-    [Display(Name = "Vai trò tài khoản")]
-    public string VaiTro { get; set; } = Roles.Customer;
-
+
     public string? ReturnUrl { get; set; }
 }
 

@@ -1,5 +1,7 @@
 using DoAnLTW.Areas.Admin.ViewModels;
 using DoAnLTW.Data;
+using DoAnLTW.Services;
+using System.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,24 +9,15 @@ namespace DoAnLTW.Areas.Admin.Services
 {
     public interface IAdminOrderService
     {
-        Task<AdminOrderIndexViewModel> GetAllAsync(string? keyword = null, string? trangThai = null, CancellationToken cancellationToken = default);
+        Task<AdminOrderIndexViewModel> GetAllAsync(string? keyword = null, string? trangThai = null, int page = 1, CancellationToken cancellationToken = default);
         Task<AdminOrderFormViewModel?> GetByIdAsync(int maDh, CancellationToken cancellationToken = default);
-        Task<bool> UpdateStatusAsync(int maDh, string trangThaiMoi, CancellationToken cancellationToken = default);
+        Task<ServiceResult> UpdateStatusAsync(int maDh, string trangThaiMoi, CancellationToken cancellationToken = default);
     }
 
     public class AdminOrderService(DbContext_TuiXach db) : IAdminOrderService
     {
-        // 4 trang thai chuan cua don hang
-        private static readonly List<string> StatusList = new()
-        {
-            "Chờ duyệt",
-            "Đang giao",
-            "Hoàn tất",
-            "Đã hủy"
-        };
-
         // 1. lay danh sach tat ca don hang co loc va tim kiem
-        public async Task<AdminOrderIndexViewModel> GetAllAsync(string? keyword = null, string? trangThai = null, CancellationToken cancellationToken = default)
+        public async Task<AdminOrderIndexViewModel> GetAllAsync(string? keyword = null, string? trangThai = null, int page = 1, CancellationToken cancellationToken = default)
         {
             var query = db.DonHangs
                 .AsNoTracking()
@@ -35,9 +28,13 @@ namespace DoAnLTW.Areas.Admin.Services
             if (!string.IsNullOrWhiteSpace(keyword))
             {
                 var kw = keyword.Trim().ToLower();
+
+                // "DH07" hoặc "7" -> tìm đúng mã đơn 7. tách số ở phía C# vì EF Core không dịch được
+                // chuỗi định dạng $"dh{maDH:D2}" sang SQL.
+                int? maDhTim = int.TryParse(kw.StartsWith("dh") ? kw[2..] : kw, out var so) ? so : null;
+
                 query = query.Where(d =>
-                    d.maDH.ToString().Contains(kw) ||
-                    ($"dh{d.maDH:D2}").ToLower().Contains(kw) ||
+                    (maDhTim != null && d.maDH == maDhTim) ||
                     (d.KhachHang != null && d.KhachHang.hoTen.ToLower().Contains(kw)) ||
                     (d.KhachHang != null && d.KhachHang.sdt != null && d.KhachHang.sdt.Contains(kw)));
             }
@@ -48,9 +45,17 @@ namespace DoAnLTW.Areas.Admin.Services
                 query = query.Where(d => d.trangThai == trangThai);
             }
 
-            // sap xep don moi nhat len dau
+            // đếm tổng sau khi lọc rồi mới lấy đúng 10 dòng của trang hiện tại (Skip/Take chạy trong SQL)
+            var total = await query.CountAsync(cancellationToken);
+            page = PaginationViewModel.Normalize(page, total);
+            var pageSize = PaginationViewModel.DefaultPageSize;
+
+            // sap xep don moi nhat len dau (thêm maDH để thứ tự cố định khi trùng ngày đặt)
             var donHangs = await query
                 .OrderByDescending(d => d.ngayDat)
+                .ThenByDescending(d => d.maDH)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(d => new AdminOrderViewModel
                 {
                     MaDH = d.maDH,
@@ -70,12 +75,19 @@ namespace DoAnLTW.Areas.Admin.Services
                 DonHangs = donHangs,
                 Keyword = keyword,
                 SelectedTrangThai = trangThai,
-                TrangThaiOptions = StatusList.Select(s => new SelectListItem
+                TrangThaiOptions = OrderStatus.All.Select(s => new SelectListItem
                 {
                     Value = s,
                     Text = s,
                     Selected = (s == trangThai)
-                }).ToList()
+                }).ToList(),
+                Pagination = new PaginationViewModel
+                {
+                    Page = page,
+                    TotalItems = total,
+                    // giữ keyword + trạng thái khi chuyển trang
+                    Filters = PaginationViewModel.BuildFilters(("keyword", keyword), ("trangThai", trangThai))
+                }
             };
         }
 
@@ -112,28 +124,38 @@ namespace DoAnLTW.Areas.Admin.Services
                 TongTien = donHang.tongTien,
                 TrangThai = donHang.trangThai,
                 DiaChiNhan = donHang.diaChiNhan,
-                TrangThaiOptions = StatusList.Select(s => new SelectListItem
-                {
-                    Value = s,
-                    Text = s,
-                    Selected = (s == donHang.trangThai)
-                }).ToList(),
+                // chỉ đưa ra các trạng thái được phép chuyển tới từ trạng thái hiện tại
+                TrangThaiOptions = OrderStatus.GetNextStatuses(donHang.trangThai)
+                    .Select(s => new SelectListItem { Value = s, Text = s })
+                    .ToList(),
                 ChiTietDonHangs = items
             };
         }
 
         // 3. cap nhat trang thai don hang
-        public async Task<bool> UpdateStatusAsync(int maDh, string trangThaiMoi, CancellationToken cancellationToken = default)
+        public async Task<ServiceResult> UpdateStatusAsync(int maDh, string trangThaiMoi, CancellationToken cancellationToken = default)
         {
+            // cùng mức cô lập với OrderService của khách hàng: tránh admin và khách cùng hủy một đơn
+            // rồi hoàn kho hai lần.
+            await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+
             var donHang = await db.DonHangs
                 .Include(d => d.ChiTietDonHangs)
                     .ThenInclude(ct => ct.TuiXach)
                 .FirstOrDefaultAsync(d => d.maDH == maDh, cancellationToken);
 
-            if (donHang == null) return false;
+            if (donHang == null) return ServiceResult.Fail("Không tìm thấy đơn hàng.");
 
-            // neu chuyen sang 'Da huy' thi hoan tra lai so luong ton kho
-            if (trangThaiMoi == "Đã hủy" && donHang.trangThai != "Đã hủy")
+            if (!OrderStatus.CanTransition(donHang.trangThai, trangThaiMoi))
+            {
+                var next = OrderStatus.GetNextStatuses(donHang.trangThai);
+                return ServiceResult.Fail(next.Count == 0
+                    ? $"Đơn hàng đang ở trạng thái '{donHang.trangThai}' nên không thể thay đổi nữa."
+                    : $"Không thể chuyển từ '{donHang.trangThai}' sang '{trangThaiMoi}'. Chỉ được chuyển sang: {string.Join(", ", next)}.");
+            }
+
+            // chuyển sang 'Đã hủy' thì hoàn trả số lượng tồn kho
+            if (trangThaiMoi == OrderStatus.DaHuy)
             {
                 foreach (var item in donHang.ChiTietDonHangs)
                 {
@@ -146,7 +168,8 @@ namespace DoAnLTW.Areas.Admin.Services
 
             donHang.trangThai = trangThaiMoi;
             await db.SaveChangesAsync(cancellationToken);
-            return true;
+            await transaction.CommitAsync(cancellationToken);
+            return ServiceResult.Ok();
         }
     }
 }

@@ -1,17 +1,17 @@
 using System.Security.Claims;
-using DoAnLTW.Data;
 using DoAnLTW.Models;
+using DoAnLTW.Services;
 using DoAnLTW.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace DoAnLTW.Controllers;
 
-public class AccountController(DbContext_TuiXach db) : Controller
+// controller chỉ điều phối: kiểm tra ModelState, gọi service, đặt TempData và redirect.
+// toàn bộ truy cập CSDL và quy tắc nghiệp vụ tài khoản nằm trong AccountService.
+public class AccountController(IAccountService accountService, ILogger<AccountController> logger) : Controller
 {
     [HttpGet]
     public IActionResult Login(string? returnUrl) => View(new LoginViewModel { ReturnUrl = returnUrl });
@@ -22,61 +22,18 @@ public class AccountController(DbContext_TuiXach db) : Controller
     {
         if (!ModelState.IsValid) return View(request);
 
-        var account = await db.TaiKhoans.SingleOrDefaultAsync(x => x.tenDangNhap == request.TenDangNhap, ct);
-        var verified = false;
-        if (account is not null)
-        {
-            if (account.matKhau == request.MatKhau)
-            {
-                verified = true;
-            }
-            else
-            {
-                try
-                {
-                    verified = new PasswordHasher<TaiKhoan>().VerifyHashedPassword(account, account.matKhau, request.MatKhau) != PasswordVerificationResult.Failed;
-                }
-                catch
-                {
-                    verified = false;
-                }
-            }
-        }
-        if (!verified)
+        var account = await accountService.ValidateCredentialsAsync(request.TenDangNhap, request.MatKhau, ct);
+        if (account is null)
         {
             ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không đúng.");
             return View(request);
         }
 
-        var isAdmin = string.Equals(account!.vaiTro, Roles.Admin, StringComparison.OrdinalIgnoreCase) ||
-                      string.Equals(account.vaiTro, "Admin", StringComparison.OrdinalIgnoreCase) ||
-                      string.Equals(account.vaiTro, "Người bán", StringComparison.OrdinalIgnoreCase);
-
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, account!.maTK.ToString()),
-            new(ClaimTypes.Name, account.tenDangNhap),
-            new(ClaimTypes.Role, account.vaiTro)
-        };
-        if (isAdmin)
-        {
-            if (!claims.Any(c => c.Type == ClaimTypes.Role && c.Value == Roles.Admin))
-            {
-                claims.Add(new(ClaimTypes.Role, Roles.Admin));
-            }
-            if (!claims.Any(c => c.Type == ClaimTypes.Role && c.Value == "Admin"))
-            {
-                claims.Add(new(ClaimTypes.Role, "Admin"));
-            }
-        }
-        var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+        await SignInAsync(account);
 
         // đăng nhập thành công: tất cả người dùng (kể cả admin) đều về trang home.
         // riêng tài khoản admin sẽ có nút chuyển sang trang quản trị trên header và trang chủ.
-        return !string.IsNullOrWhiteSpace(request.ReturnUrl) && Url.IsLocalUrl(request.ReturnUrl)
-            ? LocalRedirect(request.ReturnUrl)
-            : RedirectToAction("Index", "Home");
+        return RedirectToLocal(request.ReturnUrl);
     }
 
     [HttpPost]
@@ -96,88 +53,26 @@ public class AccountController(DbContext_TuiXach db) : Controller
     {
         if (!ModelState.IsValid) return View(request);
 
-        var trimmedUsername = request.TenDangNhap.Trim();
-        var trimmedEmail = request.Email.Trim();
-
-        // kiểm tra trùng tên đăng nhập
-        var usernameExists = await db.TaiKhoans.AnyAsync(x => x.tenDangNhap.ToLower() == trimmedUsername.ToLower(), ct);
-        if (usernameExists)
-        {
-            ModelState.AddModelError(nameof(request.TenDangNhap), "Tên đăng nhập này đã được sử dụng. Vui lòng chọn tên khác.");
-            return View(request);
-        }
-
-        // kiểm tra trùng email
-        var emailExists = await db.KhachHangs.AnyAsync(x => x.email != null && x.email.ToLower() == trimmedEmail.ToLower(), ct);
-        if (emailExists)
-        {
-            ModelState.AddModelError(nameof(request.Email), "Địa chỉ email này đã được đăng ký. Vui lòng chọn email khác hoặc đăng nhập.");
-            return View(request);
-        }
-
-        await using var transaction = await db.Database.BeginTransactionAsync(ct);
         try
         {
-            var role = request.VaiTro == Roles.Admin ? Roles.Admin : Roles.Customer;
-
-            // tạo tài khoản đăng nhập (taikhoan) - identity tự tăng matk
-            var account = new TaiKhoan
+            var result = await accountService.RegisterAsync(request, ct);
+            if (!result.Success)
             {
-                tenDangNhap = trimmedUsername,
-                matKhau = request.MatKhau,
-                vaiTro = role
-            };
-            db.TaiKhoans.Add(account);
-            await db.SaveChangesAsync(ct);
-
-            // tạo hồ sơ khách hàng (khachhang) - identity tự tăng makh
-            var customer = new KhachHang
-            {
-                maTK = account.maTK,
-                hoTen = request.HoTen.Trim(),
-                email = trimmedEmail,
-                sdt = request.SoDienThoai.Trim(),
-                diaChi = !string.IsNullOrWhiteSpace(request.DiaChi) ? request.DiaChi.Trim() : "TP. Hồ Chí Minh"
-            };
-            db.KhachHangs.Add(customer);
-            await db.SaveChangesAsync(ct);
-
-            // khởi tạo giỏ hàng (giohang) cho khách hàng - identity tự tăng magiohang
-            var cart = new GioHang
-            {
-                maKH = customer.maKH,
-                ngayTao = DateTime.Now
-            };
-            db.GioHangs.Add(cart);
-            await db.SaveChangesAsync(ct);
-
-            await transaction.CommitAsync(ct);
-
-            // đăng nhập tự động ngay sau khi đăng ký
-            var claims = new List<Claim>
-            {
-                new(ClaimTypes.NameIdentifier, account.maTK.ToString()),
-                new(ClaimTypes.Name, account.tenDangNhap),
-                new(ClaimTypes.Role, account.vaiTro)
-            };
-            var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
-            TempData["AuthSuccess"] = $"Chúc mừng {customer.hoTen}! Bạn đã đăng ký tài khoản thành công.";
-
-            if (!string.IsNullOrWhiteSpace(request.ReturnUrl) && Url.IsLocalUrl(request.ReturnUrl))
-            {
-                return LocalRedirect(request.ReturnUrl);
+                ModelState.AddModelError(result.Field ?? string.Empty, result.Error!);
+                return View(request);
             }
 
-            return role == Roles.Admin
-                ? RedirectToAction("Index", "Home", new { area = "Admin" })
-                : RedirectToAction("Index", "Home");
+            // đăng nhập tự động ngay sau khi đăng ký
+            await SignInAsync(result.Value!);
+            TempData["AuthSuccess"] = $"Chúc mừng {request.HoTen.Trim()}! Bạn đã đăng ký tài khoản thành công.";
+            return RedirectToLocal(request.ReturnUrl);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            await transaction.RollbackAsync(ct);
-            ModelState.AddModelError(string.Empty, "Lỗi tạo tài khoản: " + ex.Message);
+            // chi tiết lỗi chỉ ghi vào log cho lập trình viên; người dùng chỉ thấy câu thông báo chung
+            // (ex.Message có thể lộ tên bảng, cột, cấu trúc CSDL).
+            logger.LogError(ex, "Lỗi khi đăng ký tài khoản {TenDangNhap}", request.TenDangNhap);
+            ModelState.AddModelError(string.Empty, "Không thể tạo tài khoản, vui lòng thử lại sau.");
             return View(request);
         }
     }
@@ -187,53 +82,12 @@ public class AccountController(DbContext_TuiXach db) : Controller
     [Authorize]
     public async Task<IActionResult> Profile(CancellationToken ct)
     {
-        var accountValue = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (!int.TryParse(accountValue, out var maTk))
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction(nameof(Login));
-        }
+        if (!TryGetAccountId(out var maTk)) return await ForceLoginAsync();
 
-        var account = await db.TaiKhoans
-            .Include(x => x.KhachHang)
-            .ThenInclude(kh => kh!.DonHangs)
-            .FirstOrDefaultAsync(x => x.maTK == maTk, ct);
+        var profile = await accountService.GetProfileAsync(maTk, ct);
+        if (profile is null) return await ForceLoginAsync();
 
-        if (account == null)
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction(nameof(Login));
-        }
-
-        var customer = account.KhachHang;
-        if (customer == null)
-        {
-            customer = new KhachHang
-            {
-                maTK = account.maTK,
-                hoTen = account.tenDangNhap,
-                email = $"{account.tenDangNhap}@gmail.com",
-                sdt = "0900000000",
-                diaChi = "TP. Hồ Chí Minh"
-            };
-            db.KhachHangs.Add(customer);
-            await db.SaveChangesAsync(ct);
-        }
-
-        var vm = new ProfileViewModel
-        {
-            MaKH = customer.maKH,
-            TenDangNhap = account.tenDangNhap,
-            VaiTro = account.vaiTro,
-            HoTen = customer.hoTen,
-            Email = customer.email ?? string.Empty,
-            SoDienThoai = customer.sdt ?? string.Empty,
-            DiaChi = customer.diaChi ?? string.Empty,
-            SoDonHang = customer.DonHangs?.Count ?? 0,
-            TongChiTieu = customer.DonHangs?.Where(d => d.trangThai != "Đã hủy").Sum(d => d.tongTien) ?? 0
-        };
-
-        return View(vm);
+        return View(profile);
     }
 
     [HttpPost]
@@ -241,57 +95,30 @@ public class AccountController(DbContext_TuiXach db) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Profile(ProfileViewModel request, CancellationToken ct)
     {
-        var accountValue = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (!int.TryParse(accountValue, out var maTk))
+        if (!TryGetAccountId(out var maTk)) return await ForceLoginAsync();
+
+        if (ModelState.IsValid)
         {
-            return RedirectToAction(nameof(Login));
+            var result = await accountService.UpdateProfileAsync(maTk, request, ct);
+            if (result.Success)
+            {
+                TempData["ProfileSuccess"] = "Cập nhật thông tin cá nhân thành công!";
+                return RedirectToAction(nameof(Profile));
+            }
+
+            ModelState.AddModelError(result.Field ?? string.Empty, result.Error!);
         }
 
-        var account = await db.TaiKhoans
-            .Include(x => x.KhachHang)
-            .ThenInclude(kh => kh!.DonHangs)
-            .FirstOrDefaultAsync(x => x.maTK == maTk, ct);
+        // hiển thị lại form: các trường chỉ đọc lấy từ CSDL, không tin giá trị client gửi lên.
+        var current = await accountService.GetProfileAsync(maTk, ct);
+        if (current is null) return await ForceLoginAsync();
 
-        if (account == null)
-        {
-            return RedirectToAction(nameof(Login));
-        }
-
-        var customer = account.KhachHang;
-        if (customer == null)
-        {
-            customer = new KhachHang { maTK = account.maTK };
-            db.KhachHangs.Add(customer);
-        }
-
-        var trimmedEmail = request.Email.Trim();
-        var emailExists = await db.KhachHangs.AnyAsync(
-            x => x.maTK != maTk && x.email != null && x.email.ToLower() == trimmedEmail.ToLower(), ct);
-
-        if (emailExists)
-        {
-            ModelState.AddModelError(nameof(request.Email), "Địa chỉ email này đã được sử dụng bởi một tài khoản khác.");
-        }
-
-        if (!ModelState.IsValid)
-        {
-            request.MaKH = customer.maKH;
-            request.TenDangNhap = account.tenDangNhap;
-            request.VaiTro = account.vaiTro;
-            request.SoDonHang = customer.DonHangs?.Count ?? 0;
-            request.TongChiTieu = customer.DonHangs?.Where(d => d.trangThai != "Đã hủy").Sum(d => d.tongTien) ?? 0;
-            return View(request);
-        }
-
-        customer.hoTen = request.HoTen.Trim();
-        customer.email = trimmedEmail;
-        customer.sdt = request.SoDienThoai.Trim();
-        customer.diaChi = !string.IsNullOrWhiteSpace(request.DiaChi) ? request.DiaChi.Trim() : null;
-
-        await db.SaveChangesAsync(ct);
-
-        TempData["ProfileSuccess"] = "Cập nhật thông tin cá nhân thành công!";
-        return RedirectToAction(nameof(Profile));
+        request.MaKH = current.MaKH;
+        request.TenDangNhap = current.TenDangNhap;
+        request.VaiTro = current.VaiTro;
+        request.SoDonHang = current.SoDonHang;
+        request.TongChiTieu = current.TongChiTieu;
+        return View(request);
     }
 
     // đổi mật khẩu từ trang hồ sơ
@@ -302,48 +129,19 @@ public class AccountController(DbContext_TuiXach db) : Controller
     {
         if (!ModelState.IsValid)
         {
-            var error = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage ?? "Dữ liệu đổi mật khẩu không hợp lệ.";
-            TempData["PasswordError"] = error;
+            TempData["PasswordError"] = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage
+                ?? "Dữ liệu đổi mật khẩu không hợp lệ.";
             return RedirectToAction(nameof(Profile));
         }
 
-        var accountValue = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (!int.TryParse(accountValue, out var maTk))
-        {
-            return RedirectToAction(nameof(Login));
-        }
+        if (!TryGetAccountId(out var maTk)) return await ForceLoginAsync();
 
-        var account = await db.TaiKhoans.FirstOrDefaultAsync(x => x.maTK == maTk, ct);
-        if (account == null)
+        var result = await accountService.ChangePasswordAsync(maTk, request.MatKhauHienTai, request.MatKhauMoi, ct);
+        if (!result.Success)
         {
-            return RedirectToAction(nameof(Login));
-        }
-
-        var verified = false;
-        if (account.matKhau == request.MatKhauHienTai)
-        {
-            verified = true;
-        }
-        else
-        {
-            try
-            {
-                verified = new PasswordHasher<TaiKhoan>().VerifyHashedPassword(account, account.matKhau, request.MatKhauHienTai) != PasswordVerificationResult.Failed;
-            }
-            catch
-            {
-                verified = false;
-            }
-        }
-
-        if (!verified)
-        {
-            TempData["PasswordError"] = "Mật khẩu hiện tại không chính xác.";
+            TempData["PasswordError"] = result.Error;
             return RedirectToAction(nameof(Profile));
         }
-
-        account.matKhau = request.MatKhauMoi;
-        await db.SaveChangesAsync(ct);
 
         TempData["ProfileSuccess"] = "Đổi mật khẩu thành công! Mật khẩu mới đã được áp dụng.";
         return RedirectToAction(nameof(Profile));
@@ -359,36 +157,14 @@ public class AccountController(DbContext_TuiXach db) : Controller
     {
         if (!ModelState.IsValid) return View(request);
 
-        var trimmedUsername = request.TenDangNhap.Trim();
-        var trimmedEmail = request.Email.Trim();
-
-        var account = await db.TaiKhoans
-            .Include(t => t.KhachHang)
-            .FirstOrDefaultAsync(x => x.tenDangNhap.ToLower() == trimmedUsername.ToLower(), ct);
-
-        if (account == null)
+        var result = await accountService.ResetPasswordAsync(request, ct);
+        if (!result.Success)
         {
-            ModelState.AddModelError(nameof(request.TenDangNhap), "Tên đăng nhập không tồn tại trong hệ thống.");
+            ModelState.AddModelError(result.Field ?? string.Empty, result.Error!);
             return View(request);
         }
 
-        var customer = account.KhachHang ?? await db.KhachHangs.FirstOrDefaultAsync(k => k.maTK == account.maTK, ct);
-        if (customer == null || string.IsNullOrWhiteSpace(customer.email))
-        {
-            ModelState.AddModelError(nameof(request.Email), "Tài khoản này chưa có email xác minh trong hệ thống.");
-            return View(request);
-        }
-
-        if (!string.Equals(customer.email.Trim(), trimmedEmail, StringComparison.OrdinalIgnoreCase))
-        {
-            ModelState.AddModelError(nameof(request.Email), "Địa chỉ email không khớp với email đã đăng ký của tài khoản này.");
-            return View(request);
-        }
-
-        account.matKhau = request.MatKhauMoi;
-        await db.SaveChangesAsync(ct);
-
-        TempData["AuthSuccess"] = $"Đặt lại mật khẩu thành công cho tài khoản '{account.tenDangNhap}'. Vui lòng đăng nhập bằng mật khẩu mới.";
+        TempData["AuthSuccess"] = $"Đặt lại mật khẩu thành công cho tài khoản '{result.Value}'. Vui lòng đăng nhập bằng mật khẩu mới.";
         return RedirectToAction(nameof(Login));
     }
 
@@ -401,4 +177,32 @@ public class AccountController(DbContext_TuiXach db) : Controller
 
     [HttpGet]
     public IActionResult AccessDenied() => View();
+
+    // dùng chung cho Login và Register: chỉ một role duy nhất lấy từ cột vaiTro.
+    private async Task SignInAsync(TaiKhoan account)
+    {
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, account.maTK.ToString()),
+            new(ClaimTypes.Name, account.tenDangNhap),
+            new(ClaimTypes.Role, account.vaiTro)
+        };
+        var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+    }
+
+    private bool TryGetAccountId(out int maTk) =>
+        int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out maTk);
+
+    private async Task<IActionResult> ForceLoginAsync()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return RedirectToAction(nameof(Login));
+    }
+
+    // chỉ chuyển hướng tới URL nội bộ để chống open redirect.
+    private IActionResult RedirectToLocal(string? returnUrl) =>
+        !string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)
+            ? LocalRedirect(returnUrl)
+            : RedirectToAction("Index", "Home");
 }

@@ -4,8 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DoAnLTW.Areas.Admin.Controllers
 {
-    [Area("Admin")]
-    public class PromotionController(IPromotionService promotionService) : Controller
+    public class PromotionController(IPromotionService promotionService) : AdminBaseController
     {
         // 1. Danh sách khuyến mãi
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
