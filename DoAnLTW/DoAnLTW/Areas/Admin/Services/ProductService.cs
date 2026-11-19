@@ -74,6 +74,7 @@ namespace DoAnLTW.Areas.Admin.Services
                     SoLuong = p.soLuong,
                     MoTa = p.moTa,
                     Badge = p.badge,
+                    SoLuongGoc = p.soLuong,
                     HinhAnhHienTai = p.HinhAnhTuis.Where(i => i.laAnhChinh).Select(i => i.tenHinhAnh).FirstOrDefault()
                 })
                 .FirstOrDefaultAsync(cancellationToken);
@@ -128,11 +129,27 @@ namespace DoAnLTW.Areas.Admin.Services
             var p = await db.TuiXachs.Include(x => x.HinhAnhTuis).FirstOrDefaultAsync(x => x.maTui == maTui, cancellationToken);
             if (p == null) return ServiceResult.Fail("Không tìm thấy sản phẩm.");
 
+            // chống ghi đè tồn kho: giữa lúc admin mở form và bấm lưu, khách có thể đã đặt/hủy đơn làm tồn kho đổi.
+            // - admin KHÔNG sửa ô tồn kho (giá trị gửi lên = giá trị lúc mở form): giữ nguyên tồn kho hiện tại trong CSDL.
+            // - admin CÓ sửa ô tồn kho nhưng CSDL cũng vừa đổi: báo xung đột, để admin xem lại số mới rồi lưu lần nữa.
+            var keepCurrentStock = false;
+            if (model.SoLuongGoc.HasValue && model.SoLuongGoc.Value != p.soLuong)
+            {
+                if (model.SoLuong != model.SoLuongGoc.Value)
+                {
+                    return ServiceResult.Fail(
+                        $"Tồn kho vừa thay đổi trong lúc bạn chỉnh sửa (hiện còn {p.soLuong}). Hãy kiểm tra lại số lượng rồi lưu lần nữa.",
+                        nameof(model.SoLuong));
+                }
+
+                keepCurrentStock = true;
+            }
+
             p.tenTui = model.TenTui.Trim();
             p.maLoai = model.MaLoai;
             p.maThuongHieu = model.MaThuongHieu;
             p.donGia = model.DonGia;
-            p.soLuong = model.SoLuong;
+            if (!keepCurrentStock) p.soLuong = model.SoLuong;
             p.moTa = model.MoTa;
             p.badge = model.Badge;
 
@@ -229,7 +246,28 @@ namespace DoAnLTW.Areas.Admin.Services
                 return "Dung lượng ảnh tối đa là 2MB.";
             }
 
+            if (!HasValidSignature(file, extension))
+            {
+                return $"Nội dung tệp không phải ảnh hợp lệ (không khớp định dạng {extension}).";
+            }
+
             return null;
+        }
+
+        // kiểm tra "chữ ký" ở đầu tệp để chắc đây thật sự là ảnh, không phải tệp khác (html, exe...) chỉ đổi đuôi thành .png/.jpg
+        private static bool HasValidSignature(IFormFile file, string extension)
+        {
+            Span<byte> head = stackalloc byte[12];
+            using var stream = file.OpenReadStream();
+            if (stream.ReadAtLeast(head, 12, throwOnEndOfStream: false) < 12) return false;
+
+            return extension switch
+            {
+                ".png" => head[..8].SequenceEqual(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }),
+                ".jpg" or ".jpeg" => head[0] == 0xFF && head[1] == 0xD8 && head[2] == 0xFF,
+                ".webp" => head[..4].SequenceEqual("RIFF"u8) && head[8..12].SequenceEqual("WEBP"u8),
+                _ => false
+            };
         }
 
         // lưu ảnh với tên mới = Guid + đuôi file; không dùng FileName gốc của client

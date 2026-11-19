@@ -57,6 +57,7 @@ namespace DoAnLTW.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, ProductFormViewModel model, CancellationToken cancellationToken)
         {
+            var stockConflict = false;
             if (ModelState.IsValid)
             {
                 var result = await productService.UpdateAsync(id, model, cancellationToken);
@@ -66,6 +67,7 @@ namespace DoAnLTW.Areas.Admin.Controllers
                     return RedirectToAction("Index");
                 }
 
+                stockConflict = result.Field == nameof(model.SoLuong);
                 ModelState.AddModelError(result.Field ?? string.Empty, result.Error!);
             }
 
@@ -75,6 +77,14 @@ namespace DoAnLTW.Areas.Admin.Controllers
 
             model.MaTui = id;
             model.HinhAnhHienTai = current.HinhAnhHienTai;
+
+            if (stockConflict)
+            {
+                // cập nhật "tồn kho gốc" thành số hiện tại để lần lưu tiếp theo (admin đã thấy số mới) được chấp nhận.
+                // phải xóa giá trị cũ trong ModelState, nếu không trường ẩn vẫn hiển thị số cũ do model binding.
+                ModelState.Remove(nameof(model.SoLuongGoc));
+                model.SoLuongGoc = current.SoLuongGoc;
+            }
             await productService.PopulateFormOptionsAsync(model, cancellationToken);
             return View(model);
         }
