@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using DoAnLTW.Data;
 using DoAnLTW.Services;
 using DoAnLTW.Areas.Admin.Services;
+using DoAnLTW.Hubs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +24,9 @@ builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<IFlashSaleService, CatalogService>();
 builder.Services.AddScoped<IPromotionService, PromotionService>();
+// thông báo đơn hàng thời gian thực (SignalR): NotificationService bọc IHubContext, lỗi gửi không làm hỏng nghiệp vụ.
+builder.Services.AddSignalR();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -31,7 +35,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Account/AccessDenied";
         options.Events.OnRedirectToLogin = context =>
         {
-            if (context.Request.Path.StartsWithSegments("/api"))
+            // API và hub SignalR là kênh gọi bằng script: trả 401 thay vì chuyển hướng sang trang đăng nhập HTML.
+            if (context.Request.Path.StartsWithSegments("/api") || context.Request.Path.StartsWithSegments("/hubs"))
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return Task.CompletedTask;
@@ -65,6 +70,9 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// hub thông báo thời gian thực (yêu cầu đăng nhập bằng cookie, xem [Authorize] trong NotificationHub)
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 // 1. route cho area admin: /admin => Areas/Admin/Controllers/HomeController.cs
 app.MapControllerRoute(
