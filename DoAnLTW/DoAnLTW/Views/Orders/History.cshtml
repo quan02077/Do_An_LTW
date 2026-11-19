@@ -49,6 +49,14 @@
                             <div class="order-line"><span>@item.TenTui × @item.SoLuong</span><strong>@item.ThanhTien.ToString("N0") đ</strong></div>
                         }
                     </div>
+                    <div class="order-card-body small text-secondary pt-0">
+                        <div>Người nhận: <strong>@order.TenNguoiNhan</strong> · @order.SdtNguoiNhan</div>
+                        <div>Thanh toán: @PaymentMethod.GetLabel(order.PhuongThucThanhToan)</div>
+                        @if (!string.IsNullOrWhiteSpace(order.GhiChu))
+                        {
+                            <div>Ghi chú: @order.GhiChu</div>
+                        }
+                    </div>
                     <footer class="order-card-footer">
                         <span>Giao đến: @order.DiaChiNhan</span>
                         <strong>Tổng: @order.TongTien.ToString("N0") đ</strong>

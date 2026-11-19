@@ -43,7 +43,14 @@ namespace DoAnLTW.Migrations
 
                     b.HasIndex("maTui");
 
-                    b.ToTable("ChiTietDonHangs");
+                    b.ToTable("ChiTietDonHangs", t =>
+                        {
+                            t.HasCheckConstraint("CK_ChiTietDonHang_donGia", "[donGia] >= 0");
+
+                            t.HasCheckConstraint("CK_ChiTietDonHang_soLuong", "[soLuong] > 0");
+
+                            t.HasCheckConstraint("CK_ChiTietDonHang_thanhTien", "[thanhTien] >= 0");
+                        });
                 });
 
             modelBuilder.Entity("DoAnLTW.Models.ChiTietGioHang", b =>
@@ -61,7 +68,10 @@ namespace DoAnLTW.Migrations
 
                     b.HasIndex("maTui");
 
-                    b.ToTable("ChiTietGioHangs");
+                    b.ToTable("ChiTietGioHangs", t =>
+                        {
+                            t.HasCheckConstraint("CK_ChiTietGioHang_soLuong", "[soLuong] > 0");
+                        });
                 });
 
             modelBuilder.Entity("DoAnLTW.Models.DonHang", b =>
@@ -77,11 +87,30 @@ namespace DoAnLTW.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<string>("ghiChu")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<int>("maKH")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ngayDat")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("phuongThucThanhToan")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("sdtNguoiNhan")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("tenNguoiNhan")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("tongTien")
                         .HasColumnType("decimal(15,2)");
@@ -95,7 +124,14 @@ namespace DoAnLTW.Migrations
 
                     b.HasIndex("maKH");
 
-                    b.ToTable("DonHangs");
+                    b.ToTable("DonHangs", t =>
+                        {
+                            t.HasCheckConstraint("CK_DonHang_phuongThucThanhToan", "[phuongThucThanhToan] IN (N'COD', N'ChuyenKhoan')");
+
+                            t.HasCheckConstraint("CK_DonHang_tongTien", "[tongTien] >= 0");
+
+                            t.HasCheckConstraint("CK_DonHang_trangThai", "[trangThai] IN (N'Chờ duyệt', N'Đang giao', N'Hoàn tất', N'Đã hủy')");
+                        });
                 });
 
             modelBuilder.Entity("DoAnLTW.Models.GioHang", b =>
@@ -322,7 +358,12 @@ namespace DoAnLTW.Migrations
 
                     b.HasIndex("maThuongHieu");
 
-                    b.ToTable("TuiXachs");
+                    b.ToTable("TuiXachs", t =>
+                        {
+                            t.HasCheckConstraint("CK_TuiXach_donGia", "[donGia] >= 0");
+
+                            t.HasCheckConstraint("CK_TuiXach_soLuong", "[soLuong] >= 0");
+                        });
                 });
 
             modelBuilder.Entity("DoAnLTW.Models.ChiTietDonHang", b =>

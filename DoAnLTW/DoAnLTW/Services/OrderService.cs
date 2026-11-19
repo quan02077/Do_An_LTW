@@ -30,9 +30,26 @@ public static class OrderStatus
     public static bool CanTransition(string from, string to) => GetNextStatuses(from).Contains(to);
 }
 
+// lưu mã không dấu trong CSDL, hiển thị nhãn tiếng Việt trên giao diện
+public static class PaymentMethod
+{
+    public const string COD = "COD";
+    public const string ChuyenKhoan = "ChuyenKhoan";
+
+    public static readonly IReadOnlyDictionary<string, string> Labels = new Dictionary<string, string>
+    {
+        [COD] = "Thanh toán khi nhận hàng (COD)",
+        [ChuyenKhoan] = "Chuyển khoản ngân hàng"
+    };
+
+    public static bool IsValid(string? code) => code is not null && Labels.ContainsKey(code);
+    public static string GetLabel(string? code) => code is not null && Labels.TryGetValue(code, out var label) ? label : "Không rõ";
+}
+
 public interface IOrderService
 {
     Task<OrderViewModel> CheckoutAsync(int maKh, CheckoutViewModel request, CancellationToken cancellationToken = default);
+    Task<CheckoutViewModel> GetCheckoutDefaultsAsync(int maKh, IEnumerable<int> selectedMaTui, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<OrderViewModel>> GetHistoryAsync(int maKh, CancellationToken cancellationToken = default);
     Task CancelAsync(int maKh, int maDh, CancellationToken cancellationToken = default);
 }
@@ -58,7 +75,24 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
                 throw new InvalidOperationException("Giỏ hàng đang trống.");
             }
 
-            foreach (var item in cart.ChiTietGioHangs)
+            // không tin danh sách mã túi từ form: chỉ lấy những dòng thật sự có trong giỏ của khách này.
+            var selectedIds = request.SelectedMaTui.Distinct().ToList();
+            var selectedItems = cart.ChiTietGioHangs.Where(x => selectedIds.Contains(x.maTui)).ToList();
+            if (selectedItems.Count == 0)
+            {
+                throw new InvalidOperationException("Vui lòng chọn ít nhất một sản phẩm để thanh toán.");
+            }
+            if (selectedItems.Count != selectedIds.Count)
+            {
+                throw new InvalidOperationException("Giỏ hàng đã thay đổi, vui lòng kiểm tra lại các sản phẩm đã chọn.");
+            }
+
+            if (!PaymentMethod.IsValid(request.PhuongThucThanhToan))
+            {
+                throw new InvalidOperationException("Phương thức thanh toán không hợp lệ.");
+            }
+
+            foreach (var item in selectedItems)
             {
                 if (item.TuiXach is null || item.soLuong > item.TuiXach.soLuong)
                 {
@@ -71,10 +105,14 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
                 maKH = maKh,
                 ngayDat = DateTime.Now,
                 trangThai = OrderStatus.ChoDuyet,
-                diaChiNhan = request.DiaChiNhan.Trim()
+                diaChiNhan = request.DiaChiNhan.Trim(),
+                tenNguoiNhan = request.TenNguoiNhan.Trim(),
+                sdtNguoiNhan = request.SdtNguoiNhan.Trim(),
+                phuongThucThanhToan = request.PhuongThucThanhToan,
+                ghiChu = string.IsNullOrWhiteSpace(request.GhiChu) ? null : request.GhiChu.Trim()
             };
 
-            foreach (var cartItem in cart.ChiTietGioHangs)
+            foreach (var cartItem in selectedItems)
             {
                 var product = cartItem.TuiXach!;
                 var price = pricingService.GetPrice(product, order.ngayDat);
@@ -90,7 +128,8 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
 
             order.tongTien = order.ChiTietDonHangs.Sum(x => x.thanhTien);
             db.DonHangs.Add(order);
-            db.ChiTietGioHangs.RemoveRange(cart.ChiTietGioHangs);
+            // chỉ xóa khỏi giỏ những sản phẩm đã đặt; sản phẩm không chọn vẫn nằm lại trong giỏ
+            db.ChiTietGioHangs.RemoveRange(selectedItems);
             await db.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
             return Map(order);
@@ -100,6 +139,20 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
             await transaction.RollbackAsync(ct);
             throw;
         }
+    }
+
+    // điền sẵn người nhận từ hồ sơ khách hàng; khách vẫn sửa được nếu giao cho người khác
+    public async Task<CheckoutViewModel> GetCheckoutDefaultsAsync(int maKh, IEnumerable<int> selectedMaTui, CancellationToken ct = default)
+    {
+        var customer = await db.KhachHangs.AsNoTracking().SingleOrDefaultAsync(x => x.maKH == maKh, ct);
+        return new CheckoutViewModel
+        {
+            SelectedMaTui = selectedMaTui.Distinct().ToList(),
+            TenNguoiNhan = customer?.hoTen ?? string.Empty,
+            SdtNguoiNhan = customer?.sdt ?? string.Empty,
+            DiaChiNhan = customer?.diaChi ?? string.Empty,
+            PhuongThucThanhToan = PaymentMethod.COD
+        };
     }
 
     public async Task<IReadOnlyCollection<OrderViewModel>> GetHistoryAsync(int maKh, CancellationToken ct = default)
@@ -159,5 +212,9 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
             x.TuiXach?.HinhAnhTuis.OrderBy(a => a.thuTu).FirstOrDefault()?.tenHinhAnh,
             x.soLuong,
             x.donGia,
-            x.thanhTien)).ToList());
+            x.thanhTien)).ToList(),
+        order.tenNguoiNhan,
+        order.sdtNguoiNhan,
+        order.phuongThucThanhToan,
+        order.ghiChu);
 }
