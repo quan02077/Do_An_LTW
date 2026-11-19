@@ -14,5 +14,17 @@ namespace DoAnLTW.Areas.Admin.ViewModels
         public int DonDangGiao { get; set; }
         public int DonHoanTat { get; set; }
         public int DonDaHuy { get; set; }
+
+        public int NamDuocChon { get; set; }
+        public List<int> DanhSachNam { get; set; } = [];
+        public decimal[] DoanhThuTheoThang { get; set; } = new decimal[12];
+        public List<SanPhamBanChayViewModel> SanPhamBanChay { get; set; } = [];
+    }
+
+    public class SanPhamBanChayViewModel
+    {
+        public string TenTui { get; set; } = string.Empty;
+        public int SoLuongDaBan { get; set; }
+        public decimal DoanhThu { get; set; }
     }
 }
