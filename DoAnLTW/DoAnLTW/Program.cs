@@ -3,7 +3,9 @@ using DoAnLTW.Data;
 using DoAnLTW.Services;
 using DoAnLTW.Areas.Admin.Services;
 using DoAnLTW.Hubs;
+using DoAnLTW.Services.Chatbot;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +29,37 @@ builder.Services.AddScoped<IPromotionService, PromotionService>();
 // thông báo đơn hàng thời gian thực (SignalR): NotificationService bọc IHubContext, lỗi gửi không làm hỏng nghiệp vụ.
 builder.Services.AddSignalR();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+
+// chatbot tư vấn túi: truy xuất sản phẩm từ CSDL rồi nhờ Groq (openai/gpt-oss-20b) viết câu tư vấn.
+// khóa API đặt bằng user-secrets (Chatbot:Groq:ApiKey); thiếu khóa hoặc AI lỗi thì tự dùng gợi ý từ CSDL.
+builder.Services.Configure<ChatbotOptions>(builder.Configuration.GetSection(ChatbotOptions.SectionName));
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<ChatLlmGate>();
+builder.Services.AddHttpClient<IChatModelClient, GroqChatClient>();
+builder.Services.AddScoped<IChatProductSearch, ChatProductSearch>();
+builder.Services.AddScoped<IChatbotService, ChatbotService>();
+
+// giới hạn tốc độ riêng cho /api/chat (khách chưa đăng nhập cũng gọi được): theo tên người dùng, không có thì theo IP.
+var chatbotOptions = builder.Configuration.GetSection(ChatbotOptions.SectionName).Get<ChatbotOptions>() ?? new ChatbotOptions();
+builder.Services.AddRateLimiter(limiter =>
+{
+    limiter.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    limiter.AddPolicy("chat", httpContext => RateLimitPartition.GetSlidingWindowLimiter(
+        partitionKey: httpContext.User.Identity?.Name ?? httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+        factory: _ => new SlidingWindowRateLimiterOptions
+        {
+            PermitLimit = chatbotOptions.PerSessionPerMinute,
+            Window = TimeSpan.FromMinutes(1),
+            SegmentsPerWindow = 6,
+            QueueLimit = 0
+        }));
+    limiter.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.Headers.RetryAfter = "10";
+        await context.HttpContext.Response.WriteAsJsonAsync(new { error = "Bạn gửi hơi nhanh, vui lòng thử lại sau ít giây." }, token);
+    };
+});
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -67,6 +100,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
