@@ -22,4 +22,13 @@ public record CartItemViewModel(int MaTui, string TenTui, int SoLuong, decimal D
     public string MaHienThi => $"TX{MaTui:D2}";
 }
 
-public record CartViewModel(IReadOnlyCollection<CartItemViewModel> Items, int TongSoLuong, decimal TongTien);
+public record CartViewModel(IReadOnlyCollection<CartItemViewModel> Items, int TongSoLuong, decimal TongTien)
+{
+    // giỏ con chỉ gồm các sản phẩm khách tick chọn để thanh toán (tổng được tính lại theo phần đã chọn)
+    public CartViewModel Only(IEnumerable<int> maTuis)
+    {
+        var selected = maTuis.ToHashSet();
+        var items = Items.Where(x => selected.Contains(x.MaTui)).ToList();
+        return new CartViewModel(items, items.Sum(x => x.SoLuong), items.Sum(x => x.ThanhTien));
+    }
+}

@@ -12,7 +12,8 @@ public class OrdersController(
     ICurrentCustomerService currentCustomer) : Controller
 {
     [HttpGet]
-    public async Task<IActionResult> Checkout(CancellationToken ct)
+    // GET: /Orders/Checkout?selected=1&selected=4 (danh sách sản phẩm khách tick chọn trong giỏ)
+    public async Task<IActionResult> Checkout(List<int>? selected, CancellationToken ct)
     {
         var maKh = await currentCustomer.GetRequiredCustomerIdAsync(ct);
         var cart = await cartService.GetAsync(maKh, ct);
@@ -22,7 +23,16 @@ public class OrdersController(
             return RedirectToAction("Index", "Cart");
         }
 
-        return View(new CheckoutPageViewModel(cart, new CheckoutViewModel()));
+        // chỉ giữ mã túi thật sự có trong giỏ (bỏ qua mã lạ do sửa URL)
+        var selectedCart = cart.Only(selected ?? []);
+        if (selectedCart.Items.Count == 0)
+        {
+            TempData["CartError"] = "Vui lòng chọn ít nhất một sản phẩm để thanh toán.";
+            return RedirectToAction("Index", "Cart");
+        }
+
+        var form = await orderService.GetCheckoutDefaultsAsync(maKh, selectedCart.Items.Select(x => x.MaTui), ct);
+        return View(new CheckoutPageViewModel(selectedCart, form));
     }
 
     [HttpPost]
@@ -32,7 +42,7 @@ public class OrdersController(
         var maKh = await currentCustomer.GetRequiredCustomerIdAsync(ct);
         if (!ModelState.IsValid)
         {
-            return View(new CheckoutPageViewModel(await cartService.GetAsync(maKh, ct), request));
+            return await CheckoutViewAsync(maKh, request, ct);
         }
 
         try
@@ -44,8 +54,15 @@ public class OrdersController(
         catch (InvalidOperationException ex)
         {
             ModelState.AddModelError(string.Empty, ex.Message);
-            return View(new CheckoutPageViewModel(await cartService.GetAsync(maKh, ct), request));
+            return await CheckoutViewAsync(maKh, request, ct);
         }
+    }
+
+    // hiển thị lại trang thanh toán với đúng các sản phẩm đã chọn và dữ liệu khách vừa nhập
+    private async Task<IActionResult> CheckoutViewAsync(int maKh, CheckoutViewModel request, CancellationToken ct)
+    {
+        var cart = await cartService.GetAsync(maKh, ct);
+        return View(nameof(Checkout), new CheckoutPageViewModel(cart.Only(request.SelectedMaTui), request));
     }
 
     [HttpGet]
