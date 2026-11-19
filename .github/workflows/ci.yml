@@ -1,0 +1,120 @@
+# CI cho đồ án ASP.NET Core MVC (.NET 8 + EF Core + SQL Server)
+# Chạy tự động khi push lên main hoặc khi mở/cập nhật Pull Request vào main.
+# Xem kết quả ở tab "Actions" trên GitHub, hoặc ngay trong trang Pull Request.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: # cho phép bấm "Run workflow" bằng tay trên tab Actions
+
+# chỉ cần quyền đọc code; CI không ghi gì vào repo
+permissions:
+  contents: read
+
+# push liên tiếp vào cùng một nhánh/PR thì hủy lần chạy cũ, đỡ tốn phút miễn phí
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_VERSION: "8.0.x"
+  DOTNET_EF_VERSION: "8.0.1" # trùng phiên bản Microsoft.EntityFrameworkCore trong DoAnLTW.csproj
+  SOLUTION: DoAnLTW/DoAnLTW.sln
+  PROJECT: DoAnLTW/DoAnLTW/DoAnLTW.csproj
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  # ------------------------------------------------------------------
+  # Job 1: biên dịch + chạy test + kiểm tra migration có đủ chưa
+  # ------------------------------------------------------------------
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v4
+
+      - name: Cài .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache gói NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore ${{ env.SOLUTION }}
+
+      - name: Build (Release)
+        run: dotnet build ${{ env.SOLUTION }} -c Release --no-restore
+
+      # chạy mọi project test có trong solution; chưa có project test thì bước này vẫn qua
+      - name: Test
+        run: dotnet test ${{ env.SOLUTION }} -c Release --no-build --verbosity normal
+
+      # bắt lỗi hay gặp khi làm nhóm: sửa Model/DbContext nhưng quên tạo migration
+      - name: Kiểm tra migration đã đủ cho model
+        run: |
+          dotnet tool install --global dotnet-ef --version ${{ env.DOTNET_EF_VERSION }}
+          dotnet ef migrations has-pending-model-changes \
+            --project ${{ env.PROJECT }} --configuration Release --no-build
+
+  # ------------------------------------------------------------------
+  # Job 2: áp dụng toàn bộ migration lên SQL Server thật (container tạm)
+  # Bắt lỗi SQL mà build không thấy: CHECK constraint sai, dữ liệu cũ vi phạm ràng buộc...
+  # ------------------------------------------------------------------
+  migrations:
+    name: Migration trên SQL Server
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 20
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: "Y"
+          # mật khẩu chỉ dùng cho container tạm, bị xóa ngay khi job kết thúc
+          MSSQL_SA_PASSWORD: "Ci_Only_Passw0rd!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Ci_Only_Passw0rd!' -C -Q 'SELECT 1' || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      # biến môi trường ghi đè ConnectionStrings:DefaultConnection trong appsettings.json
+      ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=QL_TuiXach_CI;User Id=sa;Password=Ci_Only_Passw0rd!;TrustServerCertificate=True"
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v4
+
+      - name: Cài .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache gói NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Cài dotnet-ef
+        run: dotnet tool install --global dotnet-ef --version ${{ env.DOTNET_EF_VERSION }}
+
+      - name: Áp dụng migration lên database trống
+        run: dotnet ef database update --project ${{ env.PROJECT }}
+
+      - name: Liệt kê migration đã áp dụng
+        run: dotnet ef migrations list --project ${{ env.PROJECT }} --no-build
