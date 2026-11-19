@@ -10,6 +10,7 @@ public class ChatbotOptions
     public const string SectionName = "Chatbot";
 
     public GroqOptions Groq { get; set; } = new();
+    public OpenRouterOptions OpenRouter { get; set; } = new();
 
     // giới hạn đầu vào (client gửi lên, không tin)
     public int MaxMessageChars { get; set; } = 500;
@@ -27,18 +28,36 @@ public class ChatbotOptions
     public int DailyLlmBudget { get; set; } = 800;          // dưới mức 1.000 yêu cầu/ngày
 }
 
-public class GroqOptions
+/// <summary>cấu hình kết nối chung của mọi nhà cung cấp AI kiểu OpenAI.</summary>
+public abstract class LlmProviderOptions
 {
     public string? ApiKey { get; set; }
-    public string BaseUrl { get; set; } = "https://api.groq.com/openai/v1/";
+    public string BaseUrl { get; set; } = string.Empty;
+
+    public int TimeoutSeconds { get; set; } = 20;     // mỗi lần gọi
+    public int MaxRetries { get; set; } = 2;          // thử lại cho 429/5xx/timeout
+    public int MaxRetryAfterSeconds { get; set; } = 4; // chờ lâu hơn mức này thì bỏ cuộc, chuyển mô hình dự phòng/fallback
+}
+
+public class GroqOptions : LlmProviderOptions
+{
+    public GroqOptions() => BaseUrl = "https://api.groq.com/openai/v1/";
+
     public string Model { get; set; } = "openai/gpt-oss-20b";
 
     // gpt-oss-20b chỉ nhận low | medium | high (giá trị khác Groq trả 400)
     public string ReasoningEffort { get; set; } = "low";
     public int MaxCompletionTokens { get; set; } = 700;
     public double Temperature { get; set; } = 0.3;
+}
 
-    public int TimeoutSeconds { get; set; } = 20;     // mỗi lần gọi
-    public int MaxRetries { get; set; } = 2;          // thử lại cho 429/5xx/timeout
-    public int MaxRetryAfterSeconds { get; set; } = 4; // chờ lâu hơn mức này thì bỏ cuộc, dùng fallback
+/// <summary>Gemma qua OpenRouter, dự phòng cho Groq. Khóa: Chatbot:OpenRouter:ApiKey / biến Chatbot__OpenRouter__ApiKey.</summary>
+public class OpenRouterOptions : LlmProviderOptions
+{
+    public OpenRouterOptions() { BaseUrl = "https://openrouter.ai/api/v1/"; MaxRetries = 1; }
+
+    // bản ":free" miễn phí nhưng hạn mức thấp; đổi sang "google/gemma-4-31b-it" (trả phí rất rẻ) nếu cần ổn định hơn
+    public string Model { get; set; } = "google/gemma-4-31b-it:free";
+    public int MaxTokens { get; set; } = 700;
+    public double Temperature { get; set; } = 0.3;
 }

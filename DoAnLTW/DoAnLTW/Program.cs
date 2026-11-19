@@ -42,7 +42,12 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.Configure<ChatbotOptions>(builder.Configuration.GetSection(ChatbotOptions.SectionName));
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<ChatLlmGate>();
-builder.Services.AddHttpClient<IChatModelClient, GroqChatClient>();
+// Groq là mô hình chính, Gemma (OpenRouter) dự phòng; ChatModelChain thử lần lượt các mô hình đã có khóa.
+builder.Services.AddHttpClient<GroqChatClient>();
+builder.Services.AddHttpClient<OpenRouterChatClient>();
+builder.Services.AddScoped<IChatModelClient>(sp => new ChatModelChain(
+    [sp.GetRequiredService<GroqChatClient>(), sp.GetRequiredService<OpenRouterChatClient>()],
+    sp.GetRequiredService<ILogger<ChatModelChain>>()));
 builder.Services.AddScoped<IChatProductSearch, ChatProductSearch>();
 builder.Services.AddScoped<IChatbotService, ChatbotService>();
 
