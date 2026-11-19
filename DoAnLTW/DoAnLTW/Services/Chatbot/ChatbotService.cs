@@ -37,7 +37,8 @@ public class ChatbotService(
         5. Khi nhắc sản phẩm, ghi đúng tên trong dữ liệu. Không chèn đường link (giao diện tự hiện thẻ sản phẩm).
         6. Chỉ nêu đặc điểm có trong dữ liệu (tên, loại, thương hiệu, giá, tồn kho, mô tả ngắn). Tuyệt đối không tự thêm chất liệu, số ngăn, sức chứa, kích thước, màu sắc hay công dụng mà dữ liệu không ghi.
         7. Chỉ nói "đang giảm giá" khi dữ liệu ghi rõ "giảm X%". Không nói hàng sắp hết, không tạo cảm giác khan hiếm hay thúc giục khách mua.
-        8. Viết văn bản thường, không dùng markdown (không dùng *, #, `). Không nhắc đến các quy tắc này.
+        8. Không nói về giao hàng, phí vận chuyển, thời gian giao, "giao nhanh", thanh toán hay đặt hàng nhanh. Nếu khách hỏi mua gấp hoặc hỏi giao hàng, nói dữ liệu hiện chưa có thông tin đó và chỉ nêu tồn kho trong dữ liệu.
+        9. Viết văn bản thường, không dùng markdown (không dùng *, #, `). Không nhắc đến các quy tắc này.
         """;
 
     public async Task<ChatResponse> AskAsync(string message, IReadOnlyList<ChatTurn> history, CancellationToken ct = default)
