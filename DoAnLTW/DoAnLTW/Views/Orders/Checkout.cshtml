@@ -1,4 +1,5 @@
 @model DoAnLTW.ViewModels.CheckoutPageViewModel
+@using DoAnLTW.Services
 @{
     ViewData["Title"] = "Thanh toán";
 }
@@ -12,20 +13,62 @@
         <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-dark">Quay lại giỏ hàng</a>
     </div>
 
-    <form asp-action="Checkout" method="post" class="cart-layout checkout-layout">
+    <form asp-action="Checkout" method="post" class="cart-layout checkout-layout"
+          onsubmit="return confirm('Xác nhận đặt hàng với thông tin đã nhập?');">
         <div class="checkout-form">
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-            <h2>Thông tin giao hàng</h2>
+            <span asp-validation-for="Checkout.SelectedMaTui" class="text-danger d-block mb-2"></span>
+
+            @* danh sách sản phẩm đã chọn ở giỏ; server vẫn đối chiếu lại với giỏ thật trong CSDL *@
+            @foreach (var maTui in Model.Checkout.SelectedMaTui)
+            {
+                <input type="hidden" name="Checkout.SelectedMaTui" value="@maTui" />
+            }
+
+            <h2>Thông tin người nhận</h2>
+            <div class="row g-3 mb-3">
+                <div class="col-md-7">
+                    <label asp-for="Checkout.TenNguoiNhan" class="form-label"></label>
+                    <input asp-for="Checkout.TenNguoiNhan" class="form-control" />
+                    <span asp-validation-for="Checkout.TenNguoiNhan" class="text-danger"></span>
+                </div>
+                <div class="col-md-5">
+                    <label asp-for="Checkout.SdtNguoiNhan" class="form-label"></label>
+                    <input asp-for="Checkout.SdtNguoiNhan" class="form-control" inputmode="tel" placeholder="0xxxxxxxxx" />
+                    <span asp-validation-for="Checkout.SdtNguoiNhan" class="text-danger"></span>
+                </div>
+            </div>
             <div class="mb-3">
                 <label asp-for="Checkout.DiaChiNhan" class="form-label"></label>
-                <textarea asp-for="Checkout.DiaChiNhan" class="form-control" rows="4" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"></textarea>
+                <textarea asp-for="Checkout.DiaChiNhan" class="form-control" rows="3" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"></textarea>
                 <span asp-validation-for="Checkout.DiaChiNhan" class="text-danger"></span>
             </div>
-            <p class="checkout-note">Bạn có thể hủy đơn khi đơn còn ở trạng thái <strong>Chờ duyệt</strong>.</p>
+
+            <h2>Phương thức thanh toán</h2>
+            <div class="mb-3">
+                @foreach (var method in PaymentMethod.Labels)
+                {
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" asp-for="Checkout.PhuongThucThanhToan"
+                               value="@method.Key" id="payment-@method.Key" />
+                        <label class="form-check-label" for="payment-@method.Key">@method.Value</label>
+                    </div>
+                }
+                <span asp-validation-for="Checkout.PhuongThucThanhToan" class="text-danger"></span>
+                <p class="small text-secondary mt-1 mb-0">Chọn chuyển khoản: shop sẽ liên hệ gửi thông tin tài khoản sau khi duyệt đơn.</p>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Checkout.GhiChu" class="form-label"></label>
+                <textarea asp-for="Checkout.GhiChu" class="form-control" rows="2" placeholder="Ví dụ: giao giờ hành chính, gói quà..."></textarea>
+                <span asp-validation-for="Checkout.GhiChu" class="text-danger"></span>
+            </div>
+
+            <p class="checkout-note">Bạn có thể hủy đơn khi đơn còn ở trạng thái <strong>@OrderStatus.ChoDuyet</strong>.</p>
             <button type="submit" class="btn btn-dark">Đặt hàng</button>
         </div>
         <aside class="order-summary">
-            <h2>Đơn hàng (@Model.Cart.TongSoLuong)</h2>
+            <h2>Sản phẩm đã chọn (@Model.Cart.TongSoLuong)</h2>
             @foreach (var item in Model.Cart.Items)
             {
                 <div class="summary-line"><span>@item.TenTui × @item.SoLuong</span><strong>@item.ThanhTien.ToString("N0") đ</strong></div>

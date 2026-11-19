@@ -122,7 +122,10 @@ namespace DoAnLTW.Data
             modelBuilder.Entity<DonHang>().ToTable(t =>
             {
                 t.HasCheckConstraint("CK_DonHang_tongTien", "[tongTien] >= 0");
-                t.HasCheckConstraint("CK_DonHang_trangThai", $"[trangThai] IN ({trangThaiHopLe})");            });
+                t.HasCheckConstraint("CK_DonHang_trangThai", $"[trangThai] IN ({trangThaiHopLe})");
+                t.HasCheckConstraint("CK_DonHang_phuongThucThanhToan",
+                    $"[phuongThucThanhToan] IN (N'{PaymentMethod.COD}', N'{PaymentMethod.ChuyenKhoan}')");
+            });
 
             modelBuilder.Entity<ChiTietDonHang>().ToTable(t =>
             {

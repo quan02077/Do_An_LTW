@@ -33,18 +33,30 @@
     {
         <div class="cart-layout">
             <div class="cart-items">
+                <div class="form-check px-3 pt-3">
+                    <input class="form-check-input ms-0 me-2" type="checkbox" id="selectAll" checked />
+                    <label class="form-check-label fw-semibold" for="selectAll">Chọn tất cả (@Model.Items.Count sản phẩm)</label>
+                </div>
+
                 @foreach (var item in Model.Items)
                 {
                     <article class="cart-item">
                         @if (!string.IsNullOrWhiteSpace(item.Anh))
                         {
-                            <img src="@item.Anh" alt="@item.TenTui" class="cart-product-image" />
+                            <img src="~/HinhAnh/@item.Anh" alt="@item.TenTui" class="cart-product-image" />
                         }
                         else
                         {
                             <div class="cart-product-image image-placeholder">Không có ảnh</div>
                         }
                         <div class="cart-item-info">
+                            <!-- ô chọn thuộc form thanh toán bên dưới (thuộc tính form=) vì HTML không cho lồng form -->
+                            <div class="form-check mb-1">
+                                <input class="form-check-input cart-select" type="checkbox" form="checkoutForm"
+                                       name="selected" value="@item.MaTui" id="select-@item.MaTui" checked
+                                       data-qty="@item.SoLuong" data-total="@item.ThanhTien.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+                                <label class="form-check-label small text-secondary" for="select-@item.MaTui">Chọn mua</label>
+                            </div>
                             <h2>@item.TenTui</h2>
                             <p class="price">@item.DonGia.ToString("N0") đ</p>
                         </div>
@@ -55,7 +67,7 @@
                             <button class="btn btn-sm btn-outline-dark" type="submit">Cập nhật</button>
                         </form>
                         <strong class="item-total">@item.ThanhTien.ToString("N0") đ</strong>
-                        <form asp-action="Remove" method="post">
+                        <form asp-action="Remove" method="post" onsubmit="return confirm('Xóa sản phẩm này khỏi giỏ hàng?');">
                             <input type="hidden" name="maTui" value="@item.MaTui" />
                             <button class="btn btn-link link-danger p-0" type="submit">Xóa</button>
                         </form>
@@ -64,12 +76,44 @@
             </div>
             <aside class="order-summary">
                 <h2>Tóm tắt đơn hàng</h2>
-                <div><span>Sản phẩm (@Model.TongSoLuong)</span><strong>@Model.TongTien.ToString("N0") đ</strong></div>
+                <div><span>Trong giỏ (@Model.TongSoLuong)</span><span>@Model.TongTien.ToString("N0") đ</span></div>
+                <div><span>Đã chọn (<span id="selectedQty">@Model.TongSoLuong</span>)</span><strong id="selectedTotal">@Model.TongTien.ToString("N0") đ</strong></div>
                 <div><span>Vận chuyển</span><span>Tính khi đặt hàng</span></div>
                 <hr />
-                <div class="summary-total"><span>Tạm tính</span><strong>@Model.TongTien.ToString("N0") đ</strong></div>
-                <a asp-controller="Orders" asp-action="Checkout" class="btn btn-dark w-100 mt-4">Tiến hành thanh toán</a>
+                <div class="summary-total"><span>Tạm tính</span><strong id="selectedTotal2">@Model.TongTien.ToString("N0") đ</strong></div>
+                <!-- GET: chỉ chuyển danh sách sản phẩm đã chọn sang trang xác nhận, chưa ghi gì vào CSDL -->
+                <form id="checkoutForm" asp-controller="Orders" asp-action="Checkout" method="get">
+                    <button id="checkoutButton" type="submit" class="btn btn-dark w-100 mt-4">Thanh toán sản phẩm đã chọn</button>
+                </form>
+                <p class="small text-secondary mt-2 mb-0">Sản phẩm không được chọn vẫn được giữ lại trong giỏ.</p>
             </aside>
         </div>
     }
 </section>
+
+@section Scripts {
+    <script>
+        // cập nhật tạm tính theo các sản phẩm được tick (chỉ để hiển thị; server luôn tính lại khi đặt hàng)
+        (function () {
+            const boxes = Array.from(document.querySelectorAll('.cart-select'));
+            const selectAll = document.getElementById('selectAll');
+            if (!boxes.length || !selectAll) return;
+            const fmt = new Intl.NumberFormat('vi-VN');
+
+            function refresh() {
+                const checked = boxes.filter(b => b.checked);
+                const qty = checked.reduce((s, b) => s + Number(b.dataset.qty), 0);
+                const total = checked.reduce((s, b) => s + Number(b.dataset.total), 0);
+                document.getElementById('selectedQty').textContent = qty;
+                document.getElementById('selectedTotal').textContent = fmt.format(total) + ' đ';
+                document.getElementById('selectedTotal2').textContent = fmt.format(total) + ' đ';
+                document.getElementById('checkoutButton').disabled = checked.length === 0;
+                selectAll.checked = checked.length === boxes.length;
+            }
+
+            boxes.forEach(b => b.addEventListener('change', refresh));
+            selectAll.addEventListener('change', () => { boxes.forEach(b => b.checked = selectAll.checked); refresh(); });
+            refresh();
+        })();
+    </script>
+}

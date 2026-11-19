@@ -87,11 +87,30 @@ namespace DoAnLTW.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<string>("ghiChu")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<int>("maKH")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ngayDat")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("phuongThucThanhToan")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("sdtNguoiNhan")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("tenNguoiNhan")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("tongTien")
                         .HasColumnType("decimal(15,2)");
@@ -107,6 +126,8 @@ namespace DoAnLTW.Migrations
 
                     b.ToTable("DonHangs", t =>
                         {
+                            t.HasCheckConstraint("CK_DonHang_phuongThucThanhToan", "[phuongThucThanhToan] IN (N'COD', N'ChuyenKhoan')");
+
                             t.HasCheckConstraint("CK_DonHang_tongTien", "[tongTien] >= 0");
 
                             t.HasCheckConstraint("CK_DonHang_trangThai", "[trangThai] IN (N'Chờ duyệt', N'Đang giao', N'Hoàn tất', N'Đã hủy')");
