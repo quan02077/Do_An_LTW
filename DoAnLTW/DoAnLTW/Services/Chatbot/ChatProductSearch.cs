@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using DoAnLTW.Data;
+using DoAnLTW.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DoAnLTW.Services.Chatbot;
@@ -13,11 +14,13 @@ public record ChatProduct(
 }
 
 /// <param name="Exact">false = không có sản phẩm khớp mọi tiêu chí, danh sách là các mẫu gần nhất (đã nới lỏng tiêu chí)</param>
-public record ChatSearchResult(IReadOnlyList<ChatProduct> Products, bool Exact, string FilterSummary);
+/// <param name="ShowCards">false = câu hỏi không liên quan tới mua túi (chào hỏi, ngoài chủ đề, tiêm lệnh): không hiện thẻ sản phẩm dưới câu trả lời</param>
+public record ChatSearchResult(IReadOnlyList<ChatProduct> Products, bool Exact, string FilterSummary, bool ShowCards = true);
 
 public interface IChatProductSearch
 {
-    Task<ChatSearchResult> SearchAsync(string message, int maxItems, CancellationToken cancellationToken = default);
+    // previousUserMessage: câu hỏi trước đó của khách, dùng cho câu hỏi nối tiếp ("cái nào rẻ nhất?") không nêu loại túi/thương hiệu
+    Task<ChatSearchResult> SearchAsync(string message, int maxItems, string? previousUserMessage = null, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -42,7 +45,20 @@ public partial class ChatProductSearch(DbContext_TuiXach db, IProductPricingServ
         "tu van", "hoi", "xem", "dang", "giam", "khuyen", "sale", "uu", "dai", "re", "ben", "kieu"
     ]);
 
-    public async Task<ChatSearchResult> SearchAsync(string message, int maxItems, CancellationToken ct = default)
+    private sealed record Intent(List<LoaiTui> Categories, List<ThuongHieu> Brands, decimal? Min, decimal? Max, bool Discount);
+
+    private static Intent Analyze(string text, List<LoaiTui> categories, List<ThuongHieu> brands)
+    {
+        var padded = " " + VietnameseText.Normalize(text) + " ";
+        var (min, max) = ParsePrice(text);
+        return new Intent(
+            categories.Where(c => MatchesCategory(padded, c.tenLoai)).ToList(),
+            brands.Where(b => MatchesBrand(padded, b.tenThuongHieu)).ToList(),
+            min, max,
+            DiscountPhrases.Any(p => padded.Contains(" " + p + " ")));
+    }
+
+    public async Task<ChatSearchResult> SearchAsync(string message, int maxItems, string? previousUserMessage = null, CancellationToken ct = default)
     {
         var norm = VietnameseText.Normalize(message);
         var padded = " " + norm + " ";
@@ -50,11 +66,27 @@ public partial class ChatProductSearch(DbContext_TuiXach db, IProductPricingServ
         var categories = await db.LoaiTuis.AsNoTracking().ToListAsync(ct);
         var brands = await db.ThuongHieus.AsNoTracking().ToListAsync(ct);
 
-        var matchedCategories = categories.Where(c => MatchesCategory(padded, c.tenLoai)).ToList();
-        var matchedBrands = brands.Where(b => MatchesBrand(padded, b.tenThuongHieu)).ToList();
-        var (minPrice, maxPrice) = ParsePrice(message);
-        var wantDiscount = DiscountPhrases.Any(p => padded.Contains(" " + p + " "));
-        var sort = DetectSort(padded);
+        var own = Analyze(message, categories, brands);
+        var ownHasTopic = own.Categories.Count > 0 || own.Brands.Count > 0;
+
+        // câu hỏi nối tiếp ("cái nào rẻ nhất?", "còn loại nào giảm giá?") không nêu loại túi/thương hiệu:
+        // kế thừa loại túi, thương hiệu, khoảng giá của câu hỏi trước để thẻ sản phẩm khớp với mạch hội thoại.
+        // câu mới có loại túi/thương hiệu riêng thì coi là chủ đề mới, không kế thừa gì.
+        var inherited = !ownHasTopic && !string.IsNullOrWhiteSpace(previousUserMessage)
+            ? Analyze(previousUserMessage, categories, brands)
+            : null;
+
+        var matchedCategories = inherited?.Categories ?? own.Categories;
+        var matchedBrands = inherited?.Brands ?? own.Brands;
+        var minPrice = own.Min;
+        var maxPrice = own.Max;
+        if (minPrice is null && maxPrice is null && inherited is not null)
+        {
+            minPrice = inherited.Min;
+            maxPrice = inherited.Max;
+        }
+        var wantDiscount = own.Discount || (inherited?.Discount ?? false);
+        var sort = DetectSort(padded, message);
 
         // từ khóa còn lại (nam, nữ, tên mẫu...) dùng để chấm điểm; bỏ các từ đã dùng làm bộ lọc loại/thương hiệu
         var consumed = new HashSet<string>(
@@ -69,6 +101,11 @@ public partial class ChatProductSearch(DbContext_TuiXach db, IProductPricingServ
         var brandIds = matchedBrands.Select(b => b.maThuongHieu).ToList();
 
         var scoped = await LoadCandidatesAsync(categoryIds, brandIds, keywords, ct);
+
+        // chỉ hiện thẻ sản phẩm khi CÂU HIỆN TẠI thật sự về mua túi (tự nó có loại/thương hiệu/giá/giảm giá/sắp xếp,
+        // có từ về mua sắm, hoặc trúng từ khóa của sản phẩm). Câu chào, ngoài chủ đề, tiêm lệnh thì không kèm thẻ.
+        var ownCriteria = ownHasTopic || own.Min is not null || own.Max is not null || own.Discount || sort != SortMode.Relevance;
+        var showCards = ownCriteria || ContainsAny(padded, ShoppingWords) || scoped.Any(c => c.Score > 0);
 
         var categoryNames = matchedCategories.Select(c => c.tenLoai).ToList();
         var brandNames = matchedBrands.Select(b => b.tenThuongHieu).ToList();
@@ -95,7 +132,8 @@ public partial class ChatProductSearch(DbContext_TuiXach db, IProductPricingServ
             return new ChatSearchResult(
                 Take(filtered, sort, maxItems),
                 dropped is null,
-                BuildSummary(categoryNames, brandNames, min, max, useDiscount, dropped));
+                BuildSummary(categoryNames, brandNames, min, max, useDiscount, dropped),
+                showCards);
         }
 
         // loại túi/thương hiệu khách nêu hiện không còn hàng: gợi ý các mẫu nổi bật khác của cửa hàng
@@ -105,7 +143,8 @@ public partial class ChatProductSearch(DbContext_TuiXach db, IProductPricingServ
         return new ChatSearchResult(
             Take(everything, sort, maxItems),
             false,
-            "không có sản phẩm còn hàng khớp loại túi/thương hiệu khách nêu; đây là các mẫu nổi bật khác của cửa hàng");
+            "không có sản phẩm còn hàng khớp loại túi/thương hiệu khách nêu; đây là các mẫu nổi bật khác của cửa hàng",
+            showCards);
     }
 
     private async Task<List<Candidate>> LoadCandidatesAsync(List<int> categoryIds, List<int> brandIds, List<string> keywords, CancellationToken ct)
@@ -162,12 +201,18 @@ public partial class ChatProductSearch(DbContext_TuiXach db, IProductPricingServ
     private static bool IsBadge(Candidate c, string badge) =>
         c.Product.Badge is not null && VietnameseText.Normalize(c.Product.Badge) == badge;
 
-    private static SortMode DetectSort(string padded)
+    // từ cho thấy khách đang hỏi về mua túi (đã bỏ dấu)
+    private static readonly string[] ShoppingWords = ["tui", "balo", "clutch", "mua", "goi y", "tu van", "san pham", "mau", "hang", "gia"];
+
+    private static SortMode DetectSort(string padded, string originalMessage)
     {
         if (ContainsAny(padded, "re nhat", "gia thap", "tiet kiem", "binh dan", "gia re")) return SortMode.PriceAsc;
         if (ContainsAny(padded, "dat nhat", "cao cap", "sang trong", "gia cao")) return SortMode.PriceDesc;
         if (ContainsAny(padded, "ban chay", "best seller", "hot")) return SortMode.BestSeller;
-        if (ContainsAny(padded, "moi", "new arrival", "moi ve")) return SortMode.NewArrival;
+
+        // "mới" (hàng mới về) và "mọi" (mọi quy tắc) giống hệt nhau sau khi bỏ dấu, nên phải xét chữ gốc có dấu
+        if (originalMessage.ToLowerInvariant().Contains("mới") || ContainsAny(padded, "new arrival")) return SortMode.NewArrival;
+
         return SortMode.Relevance;
     }
 
