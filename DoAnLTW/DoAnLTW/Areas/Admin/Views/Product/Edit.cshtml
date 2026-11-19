@@ -12,6 +12,7 @@
         <form class="form-new-product form-style-1" asp-action="Edit" asp-route-id="@Model.MaTui" method="post" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="MaTui" />
+            <input type="hidden" asp-for="SoLuongGoc" />
             <input type="hidden" asp-for="HinhAnhHienTai" />
             <div asp-validation-summary="ModelOnly" class="text-danger mb-20"></div>
 
@@ -102,7 +103,9 @@
                         </div>
                     }
                     <div class="body-title-2 mb-2 text-muted">Tải ảnh mới (nếu muốn thay đổi):</div>
-                    <input type="file" asp-for="FileHinhAnh" accept="image/*" class="form-control" />
+                    <input type="file" asp-for="FileHinhAnh" accept=".jpg,.jpeg,.png,.webp" class="form-control" />
+                    <small class="text-muted d-block mt-1">Định dạng .jpg, .jpeg, .png, .webp; tối đa 2MB.</small>
+                    <span asp-validation-for="FileHinhAnh" class="text-danger small mt-1 d-block"></span>
                 </div>
             </fieldset>
 

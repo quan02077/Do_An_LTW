@@ -4,8 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DoAnLTW.Areas.Admin.Controllers
 {
-    [Area("Admin")]
-    public class CategoryController(ICategoryService categoryService) : Controller
+    public class CategoryController(ICategoryService categoryService) : AdminBaseController
     {
         // 1. Danh sách tổng hợp
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
@@ -18,6 +17,7 @@ namespace DoAnLTW.Areas.Admin.Controllers
         public IActionResult AddLoaiTui() => View();
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddLoaiTui(TypeViewModel loaiTui, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid) return View(loaiTui);
@@ -29,6 +29,7 @@ namespace DoAnLTW.Areas.Admin.Controllers
         public IActionResult AddThuongHieu() => View();
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddThuongHieu(BrandViewModel thuongHieu, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid) return View(thuongHieu);
@@ -45,6 +46,7 @@ namespace DoAnLTW.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditLoaiTui(int maLoai, TypeViewModel loaiTui, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid) return View(loaiTui);
@@ -61,6 +63,7 @@ namespace DoAnLTW.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditThuongHieu(int maThuongHieu, BrandViewModel thuongHieu, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid) return View(thuongHieu);
@@ -70,6 +73,7 @@ namespace DoAnLTW.Areas.Admin.Controllers
 
         // 6. Xóa Loại túi
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteLoaiTui(int maLoai, CancellationToken cancellationToken)
         {
             var result = await categoryService.DeleteLoaiTuiAsync(maLoai, cancellationToken);
@@ -82,6 +86,7 @@ namespace DoAnLTW.Areas.Admin.Controllers
 
         // 7. Xóa Thương hiệu
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteThuongHieu(int maThuongHieu, CancellationToken cancellationToken)
         {
             var result = await categoryService.DeleteThuongHieuAsync(maThuongHieu, cancellationToken);

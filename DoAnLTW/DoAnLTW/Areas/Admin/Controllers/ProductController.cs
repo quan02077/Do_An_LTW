@@ -4,14 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DoAnLTW.Areas.Admin.Controllers
 {
-    [Area("Admin")]
-    public class ProductController(IProductService productService) : Controller
+    public class ProductController(IProductService productService) : AdminBaseController
     {
         // 1. Danh sách sản phẩm
-        public async Task<IActionResult> Index(CancellationToken cancellationToken)
+        // GET: /Admin/Product?keyword=...
+        public async Task<IActionResult> Index(string? keyword, CancellationToken cancellationToken)
         {
-            var products = await productService.GetAllAsync(cancellationToken);
-            return View(products);
+            var model = await productService.GetAllAsync(keyword, cancellationToken);
+            return View(model);
         }
 
         // 2. Thêm mới sản phẩm
@@ -23,16 +23,24 @@ namespace DoAnLTW.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(ProductFormViewModel model, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                await productService.PopulateFormOptionsAsync(model, cancellationToken);
-                return View(model);
+                var result = await productService.AddAsync(model, cancellationToken);
+                if (result.Success)
+                {
+                    TempData["Success"] = "Đã thêm sản phẩm.";
+                    return RedirectToAction("Index");
+                }
+
+                // lỗi ảnh (sai đuôi/quá 2MB) hiển thị ngay dưới ô chọn file, không thành lỗi 500.
+                ModelState.AddModelError(result.Field ?? string.Empty, result.Error!);
             }
 
-            await productService.AddAsync(model, cancellationToken);
-            return RedirectToAction("Index");
+            await productService.PopulateFormOptionsAsync(model, cancellationToken);
+            return View(model);
         }
 
         // 3. Chỉnh sửa sản phẩm
@@ -46,26 +54,54 @@ namespace DoAnLTW.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, ProductFormViewModel model, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
+            var stockConflict = false;
+            if (ModelState.IsValid)
             {
-                await productService.PopulateFormOptionsAsync(model, cancellationToken);
-                return View(model);
+                var result = await productService.UpdateAsync(id, model, cancellationToken);
+                if (result.Success)
+                {
+                    TempData["Success"] = "Đã cập nhật sản phẩm.";
+                    return RedirectToAction("Index");
+                }
+
+                stockConflict = result.Field == nameof(model.SoLuong);
+                ModelState.AddModelError(result.Field ?? string.Empty, result.Error!);
             }
 
-            await productService.UpdateAsync(id, model, cancellationToken);
-            return RedirectToAction("Index");
+            // hiển thị lại form: lấy lại ảnh hiện tại từ CSDL vì form không gửi trường này lên.
+            var current = await productService.GetByIdAsync(id, cancellationToken);
+            if (current == null) return NotFound();
+
+            model.MaTui = id;
+            model.HinhAnhHienTai = current.HinhAnhHienTai;
+
+            if (stockConflict)
+            {
+                // cập nhật "tồn kho gốc" thành số hiện tại để lần lưu tiếp theo (admin đã thấy số mới) được chấp nhận.
+                // phải xóa giá trị cũ trong ModelState, nếu không trường ẩn vẫn hiển thị số cũ do model binding.
+                ModelState.Remove(nameof(model.SoLuongGoc));
+                model.SoLuongGoc = current.SoLuongGoc;
+            }
+            await productService.PopulateFormOptionsAsync(model, cancellationToken);
+            return View(model);
         }
 
         // 4. Xóa sản phẩm
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
             var result = await productService.DeleteAsync(id, cancellationToken);
-            if (!result)
+            if (result.Success)
             {
-                TempData["Error"] = "Không thể xóa sản phẩm này!";
+                TempData["Success"] = "Đã xóa sản phẩm.";
+            }
+            else
+            {
+                TempData["Error"] = result.Error;
             }
             return RedirectToAction("Index");
         }

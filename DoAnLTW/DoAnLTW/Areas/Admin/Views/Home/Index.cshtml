@@ -125,6 +125,44 @@
             <div id="order-status-pie-chart"></div>
         </div>
     </div>
+
+    <div class="wg-box mb-30">
+        <div class="flex items-center justify-between mb-20">
+            <h5>Doanh thu theo tháng</h5>
+            <form method="get" asp-area="Admin" asp-controller="Home" asp-action="Index">
+                <label for="revenue-year">Năm</label>
+                <select id="revenue-year" name="year" onchange="this.form.submit()">
+                    @foreach (var year in Model.DanhSachNam)
+                    {
+                        <option value="@year" selected="@(year == Model.NamDuocChon)">@year</option>
+                    }
+                </select>
+            </form>
+        </div>
+        <div id="monthly-revenue-chart"></div>
+    </div>
+
+    <div class="wg-box">
+        <h5 class="mb-20">Top 5 sản phẩm bán chạy</h5>
+        @if (Model.SanPhamBanChay.Count == 0)
+        {
+            <p>Chưa có sản phẩm bán ra từ đơn hoàn tất.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table">
+                    <thead><tr><th>Tên túi</th><th>Số lượng đã bán</th><th>Doanh thu</th></tr></thead>
+                    <tbody>
+                        @foreach (var product in Model.SanPhamBanChay)
+                        {
+                            <tr><td>@product.TenTui</td><td>@product.SoLuongDaBan</td><td>@product.DoanhThu.ToString("N0") ₫</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
 </div>
 
 @section Scripts {
@@ -135,7 +173,7 @@
 
             var options = {
                 series: totalOrders > 0 ? seriesData : [],
-                labels: ['Chờ duyệt', 'Đang giao', 'Hoàn tất', 'Đã hủy'],
+                labels: @Json.Serialize(OrderStatus.All),
                 chart: {
                     type: 'donut',
                     height: 320
@@ -202,6 +240,15 @@
 
             var chart = new ApexCharts(document.querySelector("#order-status-pie-chart"), options);
             chart.render();
+
+            var revenueChart = new ApexCharts(document.querySelector("#monthly-revenue-chart"), {
+                chart: { type: 'bar', height: 320 },
+                series: [{ name: 'Doanh thu', data: @Json.Serialize(Model.DoanhThuTheoThang) }],
+                xaxis: { categories: @Json.Serialize(Enumerable.Range(1, 12).Select(month => $"Tháng {month}")) },
+                yaxis: { labels: { formatter: function (value) { return value.toLocaleString('vi-VN'); } } },
+                tooltip: { y: { formatter: function (value) { return value.toLocaleString('vi-VN') + ' ₫'; } } }
+            });
+            revenueChart.render();
         });
     </script>
 }

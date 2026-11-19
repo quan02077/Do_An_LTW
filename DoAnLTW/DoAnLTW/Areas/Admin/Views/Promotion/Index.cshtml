@@ -8,6 +8,14 @@
         <h3>Quản lý Khuyến mãi</h3>
     </div>
 
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-20" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger alert-dismissible fade show mb-20" role="alert">
@@ -34,6 +42,7 @@
                             <th class="text-center" style="width: 90px;">Mã</th>
                             <th style="min-width: 250px;">Tên khuyến mãi</th>
                             <th class="text-center" style="width: 140px;">Giảm giá</th>
+                            <th class="text-center" style="width: 120px;">Sản phẩm</th>
                             <th class="text-center" style="width: 140px;">Ngày bắt đầu</th>
                             <th class="text-center" style="width: 140px;">Ngày kết thúc</th>
                             <th class="text-center" style="width: 140px;">Trạng thái</th>
@@ -57,6 +66,7 @@
                                     <td class="text-center">
                                         <span class="badge bg-danger text-white fs-6 px-3 py-2">-@item.PhanTramGiam%</span>
                                     </td>
+                                    <td class="text-center">@item.SoSanPham túi</td>
                                     <td class="text-center">
                                         @item.NgayBatDau.ToString("dd/MM/yyyy")
                                     </td>
@@ -96,7 +106,7 @@
                         else
                         {
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-4">Chưa có chương trình khuyến mãi nào.</td>
+                                <td colspan="8" class="text-center text-muted py-4">Chưa có chương trình khuyến mãi nào.</td>
                             </tr>
                         }
                     </tbody>

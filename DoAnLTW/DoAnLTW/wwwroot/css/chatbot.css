@@ -1,0 +1,604 @@
+/* Khung chat trợ lý tư vấn túi - đồng bộ phong cách Basau Bags */
+
+.cb-root {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1050;
+    font-family: var(--font-body, 'Josefin Sans', sans-serif);
+    color: var(--color-text, #18181b);
+}
+
+/* Nút tròn nổi mở/đóng khung chat */
+.cb-fab {
+    width: 56px;
+    height: 56px;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background-color: var(--color-dark, #121214);
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 12px 28px rgba(18, 18, 20, 0.28);
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    padding: 0;
+    margin: 0;
+}
+
+.cb-fab:hover {
+    background-color: #27272a;
+    transform: translateY(-2px);
+    box-shadow: 0 16px 32px rgba(18, 18, 20, 0.34);
+}
+
+.cb-fab:active {
+    transform: translateY(0);
+}
+
+.cb-fab:focus-visible {
+    outline: 2px solid var(--color-dark, #121214);
+    outline-offset: 3px;
+}
+
+.cb-fab i {
+    font-size: 22px;
+    line-height: 1;
+}
+
+/* Cửa sổ chat chính */
+.cb-window {
+    position: fixed;
+    right: 24px;
+    bottom: 92px;
+    width: 380px;
+    max-width: calc(100vw - 32px);
+    height: 540px;
+    max-height: calc(100vh - 116px);
+    background-color: var(--bg-surface, #ffffff);
+    border: 1px solid var(--color-border, #e4e4e7);
+    border-radius: 16px;
+    box-shadow: 0 20px 48px rgba(18, 18, 20, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(14px) scale(0.98);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+}
+
+.cb-root.is-open .cb-window {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+/* Thanh tiêu đề khung chat */
+.cb-header {
+    background-color: var(--color-dark, #121214);
+    color: #ffffff;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.cb-header-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.cb-header-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 9999px;
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cb-header-avatar i {
+    font-size: 16px;
+    color: #ffffff;
+    line-height: 1;
+}
+
+.cb-header-text {
+    min-width: 0;
+}
+
+.cb-title {
+    font-family: var(--font-heading, 'Oswald', sans-serif);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.25 !important;
+}
+
+.cb-subtitle {
+    font-size: 11px;
+    color: #a1a1aa;
+    margin: 2px 0 0;
+    line-height: 1.3;
+}
+
+.cb-header-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.cb-clear-btn,
+.cb-close-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #e4e4e7;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    line-height: 1;
+}
+
+.cb-clear-btn {
+    padding: 6px 9px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.cb-close-btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    font-size: 14px;
+}
+
+.cb-clear-btn:hover:not(:disabled),
+.cb-close-btn:hover {
+    background-color: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.45);
+    color: #ffffff;
+}
+
+.cb-clear-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* Vùng danh sách tin nhắn cuộn */
+.cb-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
+    background-color: var(--bg-page, #fafafa);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.cb-msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 88%;
+    gap: 6px;
+}
+
+.cb-msg-user {
+    align-self: flex-end;
+    align-items: flex-end;
+}
+
+.cb-msg-assistant {
+    align-self: flex-start;
+    align-items: flex-start;
+    max-width: 94%;
+}
+
+.cb-bubble {
+    padding: 10px 13px;
+    border-radius: 14px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.cb-msg-user .cb-bubble {
+    background-color: var(--color-dark, #121214);
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+}
+
+.cb-msg-assistant .cb-bubble {
+    background-color: #ffffff;
+    color: var(--color-text, #18181b);
+    border: 1px solid var(--color-border, #e4e4e7);
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 8px rgba(18, 18, 20, 0.04);
+}
+
+.cb-msg-error .cb-bubble {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    border-bottom-left-radius: 4px;
+}
+
+/* Dòng ghi chú khi trợ lý AI dùng gợi ý nhanh dự phòng */
+.cb-fallback-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    line-height: 1.4;
+    color: #92400e;
+    background-color: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 4px 9px;
+}
+
+.cb-fallback-note i {
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+/* Các chip gợi ý bấm nhanh */
+.cb-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.cb-chip {
+    background-color: #ffffff;
+    color: var(--color-text, #18181b);
+    border: 1px solid #d4d4d8;
+    border-radius: 9999px;
+    padding: 5px 11px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    line-height: 1.3;
+}
+
+.cb-chip:hover:not(:disabled) {
+    background-color: var(--color-dark, #121214);
+    border-color: var(--color-dark, #121214);
+    color: #ffffff;
+}
+
+.cb-chip:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Chỉ báo đang trả lời */
+.cb-typing {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 13px;
+    background-color: #ffffff;
+    border: 1px solid var(--color-border, #e4e4e7);
+    border-radius: 14px;
+    border-bottom-left-radius: 4px;
+    font-size: 12.5px;
+    color: var(--color-muted, #71717a);
+}
+
+.cb-typing-dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.cb-typing-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #71717a;
+    animation: cbTypingBounce 1.2s infinite ease-in-out;
+}
+
+.cb-typing-dots span:nth-child(2) {
+    animation-delay: 0.18s;
+}
+
+.cb-typing-dots span:nth-child(3) {
+    animation-delay: 0.36s;
+}
+
+@keyframes cbTypingBounce {
+    0%, 80%, 100% {
+        opacity: 0.35;
+        transform: translateY(0);
+    }
+    40% {
+        opacity: 1;
+        transform: translateY(-3px);
+    }
+}
+
+/* Danh sách thẻ sản phẩm gợi ý */
+.cb-products {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.cb-product-card {
+    display: flex;
+    gap: 10px;
+    padding: 9px;
+    background-color: #ffffff;
+    border: 1px solid var(--color-border, #e4e4e7);
+    border-radius: 12px;
+    align-items: center;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cb-product-card:hover {
+    border-color: var(--color-border-hover, #18181b);
+    box-shadow: 0 6px 16px rgba(18, 18, 20, 0.08);
+}
+
+.cb-product-thumb {
+    width: 66px;
+    height: 66px;
+    border-radius: 8px;
+    background-color: #f4f4f5;
+    border: 1px solid #f4f4f5;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cb-product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.cb-product-placeholder {
+    color: #a1a1aa;
+    font-size: 22px;
+    line-height: 1;
+}
+
+.cb-product-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.cb-product-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-text, #18181b);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.cb-product-prices {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.cb-price-current {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-text, #18181b);
+    line-height: 1.2;
+}
+
+.cb-price-current.is-sale {
+    color: var(--color-sale, #b91c1c);
+}
+
+.cb-price-original {
+    font-size: 11.5px;
+    color: #a1a1aa;
+    text-decoration: line-through;
+    line-height: 1.2;
+}
+
+.cb-product-badges {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.cb-badge {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    line-height: 1.25;
+}
+
+.cb-badge-sale {
+    background-color: var(--color-sale, #b91c1c);
+    color: #ffffff;
+}
+
+.cb-badge-out {
+    background-color: #f4f4f5;
+    color: #52525b;
+    border: 1px solid #d4d4d8;
+}
+
+.cb-product-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.cb-product-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--color-dark, #121214);
+    text-decoration: none;
+    padding: 3px 9px;
+    border: 1px solid var(--color-dark, #121214);
+    border-radius: 9999px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    line-height: 1.3;
+}
+
+.cb-product-link:hover {
+    background-color: var(--color-dark, #121214);
+    color: #ffffff;
+}
+
+/* Khu vực nhập liệu cuối khung chat */
+.cb-footer {
+    border-top: 1px solid var(--color-border, #e4e4e7);
+    background-color: #ffffff;
+    padding: 10px 12px 9px;
+    flex-shrink: 0;
+}
+
+.cb-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.cb-input {
+    flex: 1;
+    min-height: 38px;
+    max-height: 96px;
+    resize: none;
+    border: 1px solid #d4d4d8;
+    border-radius: 10px;
+    padding: 8px 11px;
+    font-family: inherit;
+    font-size: 13.5px;
+    line-height: 1.4;
+    color: var(--color-text, #18181b);
+    background-color: #fafafa;
+    overflow-y: auto;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.cb-input:focus {
+    outline: none;
+    border-color: var(--color-dark, #121214);
+    background-color: #ffffff;
+}
+
+.cb-input:disabled {
+    background-color: #f4f4f5;
+    color: #71717a;
+    cursor: not-allowed;
+}
+
+.cb-send-btn {
+    height: 38px;
+    padding: 0 13px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--color-dark, #121214);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.cb-send-btn:hover:not(:disabled) {
+    background-color: #27272a;
+}
+
+.cb-send-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.cb-meta-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-size: 11px;
+    color: var(--color-muted, #71717a);
+    line-height: 1.2;
+}
+
+.cb-counter.is-near-limit {
+    color: var(--color-sale, #b91c1c);
+    font-weight: 700;
+}
+
+/* Giao diện màn hình nhỏ (< 576px): gần full-width */
+@media (max-width: 575.98px) {
+    .cb-root {
+        right: 14px;
+        bottom: 14px;
+    }
+
+    .cb-fab {
+        width: 52px;
+        height: 52px;
+    }
+
+    .cb-window {
+        left: 10px;
+        right: 10px;
+        bottom: 76px;
+        width: auto;
+        max-width: none;
+        height: min(74vh, 540px);
+        max-height: calc(100vh - 92px);
+        border-radius: 14px;
+    }
+
+    .cb-hint {
+        display: none;
+    }
+}

@@ -1,4 +1,4 @@
-@model List<DoAnLTW.ViewModels.ProductViewModel>
+@model DoAnLTW.ViewModels.ProductIndexViewModel
 @{
     ViewData["Title"] = "Quản lý Sản phẩm";
 }
@@ -7,6 +7,14 @@
     <div class="mb-27">
         <h3>Quản lý Sản phẩm</h3>
     </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-20" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
     @if (TempData["Error"] != null)
     {
@@ -20,6 +28,14 @@
         <div class="flex items-center justify-between gap10 flex-wrap">
             <div class="wg-filter flex-grow">
                 <h5>Danh sách Túi xách</h5>
+                <form method="get" asp-action="Index" class="d-flex gap-2 mt-10" style="max-width: 420px;">
+                    <input type="text" name="keyword" value="@Model.Keyword" class="form-control" placeholder="Tìm theo tên túi..." />
+                    <button type="submit" class="tf-button style-1">Tìm</button>
+                    @if (!string.IsNullOrWhiteSpace(Model.Keyword))
+                    {
+                        <a asp-action="Index" class="tf-button style-2">Bỏ lọc</a>
+                    }
+                </form>
             </div>
             <a class="tf-button style-1 w208" asp-action="Add">
                 <i class="icon-plus"></i>Thêm sản phẩm
@@ -41,9 +57,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if (Model != null && Model.Any())
+                        @if (Model.SanPhams.Any())
                         {
-                            foreach (var item in Model)
+                            foreach (var item in Model.SanPhams)
                             {
                                 var imgName = string.IsNullOrEmpty(item.HinhAnhChinh) ? "tui1_1.png" : item.HinhAnhChinh;
                                 <tr>
@@ -95,7 +111,7 @@
                         else
                         {
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-4">Chưa có sản phẩm nào.</td>
+                                <td colspan="7" class="text-center text-muted py-4">@(string.IsNullOrWhiteSpace(Model.Keyword) ? "Chưa có sản phẩm nào." : "Không tìm thấy sản phẩm phù hợp.")</td>
                             </tr>
                         }
                     </tbody>

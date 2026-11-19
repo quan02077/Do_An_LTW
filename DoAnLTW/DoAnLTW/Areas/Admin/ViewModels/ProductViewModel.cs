@@ -80,6 +80,10 @@ public class ProductFormViewModel
     [Display(Name = "Số lượng trong kho")]
     public int SoLuong { get; set; }
 
+    // tồn kho tại thời điểm mở form (trường ẩn): để phát hiện tồn kho đã đổi (khách đặt/hủy đơn) trong lúc admin đang sửa,
+    // tránh ghi đè bằng con số cũ.
+    public int? SoLuongGoc { get; set; }
+
     [Display(Name = "Mô tả sản phẩm")]
     public string? MoTa { get; set; }
 

@@ -72,16 +72,6 @@
                 <label class="form-check-label small text-secondary" for="togglePasswordSwitch">Hiển thị mật khẩu</label>
             </div>
 
-            <!-- vai trò tài khoản -->
-            <div class="mb-4">
-                <label asp-for="VaiTro" class="form-label text-uppercase fw-bold small text-secondary">Vai trò tài khoản *</label>
-                <select asp-for="VaiTro" class="form-select rounded-3">
-                    <option value="@DoAnLTW.Models.Roles.Customer" selected>Khách hàng mua sắm</option>
-                    <option value="@DoAnLTW.Models.Roles.Admin">Người bán (Quản trị viên)</option>
-                </select>
-                <span asp-validation-for="VaiTro" class="text-danger small"></span>
-            </div>
-
             <button type="submit" class="btn btn-dark w-100 rounded-pill py-3 fw-bold shadow-sm text-uppercase" style="letter-spacing: 1px;">
                 <i class="bi bi-person-plus-fill me-1"></i> HOÀN TẤT ĐĂNG KÝ
             </button>
