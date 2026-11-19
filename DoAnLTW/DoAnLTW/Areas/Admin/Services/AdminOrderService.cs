@@ -14,7 +14,7 @@ namespace DoAnLTW.Areas.Admin.Services
         Task<ServiceResult> UpdateStatusAsync(int maDh, string trangThaiMoi, CancellationToken cancellationToken = default);
     }
 
-    public class AdminOrderService(DbContext_TuiXach db) : IAdminOrderService
+    public class AdminOrderService(DbContext_TuiXach db, INotificationService notificationService) : IAdminOrderService
     {
         // 1. lay danh sach tat ca don hang co loc va tim kiem
         public async Task<AdminOrderIndexViewModel> GetAllAsync(string? keyword = null, string? trangThai = null, CancellationToken cancellationToken = default)
@@ -152,9 +152,22 @@ namespace DoAnLTW.Areas.Admin.Services
                 }
             }
 
+            var trangThaiCu = donHang.trangThai;
             donHang.trangThai = trangThaiMoi;
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
+
+            // gửi thông báo cho khách hàng sau khi đã commit trạng thái mới
+            await notificationService.NotifyOrderStatusChangedAsync(new OrderNotification(
+                donHang.maDH,
+                donHang.MaHienThi,
+                donHang.maKH,
+                donHang.tenNguoiNhan,
+                donHang.tongTien,
+                donHang.ngayDat,
+                donHang.trangThai,
+                trangThaiCu), cancellationToken);
+
             return ServiceResult.Ok();
         }
     }
