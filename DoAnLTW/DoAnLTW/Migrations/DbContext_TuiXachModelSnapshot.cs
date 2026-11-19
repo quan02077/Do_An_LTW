@@ -43,7 +43,14 @@ namespace DoAnLTW.Migrations
 
                     b.HasIndex("maTui");
 
-                    b.ToTable("ChiTietDonHangs");
+                    b.ToTable("ChiTietDonHangs", t =>
+                        {
+                            t.HasCheckConstraint("CK_ChiTietDonHang_donGia", "[donGia] >= 0");
+
+                            t.HasCheckConstraint("CK_ChiTietDonHang_soLuong", "[soLuong] > 0");
+
+                            t.HasCheckConstraint("CK_ChiTietDonHang_thanhTien", "[thanhTien] >= 0");
+                        });
                 });
 
             modelBuilder.Entity("DoAnLTW.Models.ChiTietGioHang", b =>
@@ -61,7 +68,10 @@ namespace DoAnLTW.Migrations
 
                     b.HasIndex("maTui");
 
-                    b.ToTable("ChiTietGioHangs");
+                    b.ToTable("ChiTietGioHangs", t =>
+                        {
+                            t.HasCheckConstraint("CK_ChiTietGioHang_soLuong", "[soLuong] > 0");
+                        });
                 });
 
             modelBuilder.Entity("DoAnLTW.Models.DonHang", b =>
@@ -95,7 +105,12 @@ namespace DoAnLTW.Migrations
 
                     b.HasIndex("maKH");
 
-                    b.ToTable("DonHangs");
+                    b.ToTable("DonHangs", t =>
+                        {
+                            t.HasCheckConstraint("CK_DonHang_tongTien", "[tongTien] >= 0");
+
+                            t.HasCheckConstraint("CK_DonHang_trangThai", "[trangThai] IN (N'Chờ duyệt', N'Đang giao', N'Hoàn tất', N'Đã hủy')");
+                        });
                 });
 
             modelBuilder.Entity("DoAnLTW.Models.GioHang", b =>
@@ -322,7 +337,12 @@ namespace DoAnLTW.Migrations
 
                     b.HasIndex("maThuongHieu");
 
-                    b.ToTable("TuiXachs");
+                    b.ToTable("TuiXachs", t =>
+                        {
+                            t.HasCheckConstraint("CK_TuiXach_donGia", "[donGia] >= 0");
+
+                            t.HasCheckConstraint("CK_TuiXach_soLuong", "[soLuong] >= 0");
+                        });
                 });
 
             modelBuilder.Entity("DoAnLTW.Models.ChiTietDonHang", b =>

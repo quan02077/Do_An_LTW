@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using DoAnLTW.Models;
+using DoAnLTW.Services;
 
 namespace DoAnLTW.Data
 {
@@ -24,6 +25,8 @@ namespace DoAnLTW.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            ConfigureCheckConstraints(modelBuilder);
 
             // tài khoản - khách hàng: 1-1
             modelBuilder.Entity<KhachHang>()
@@ -95,6 +98,38 @@ namespace DoAnLTW.Data
                 .WithMany(km => km.TuiXachs)
                 .HasForeignKey(tx => tx.maKM)
                 .IsRequired(false);
+        }
+
+        // ràng buộc CHECK ở tầng CSDL: lớp bảo vệ cuối cùng, kể cả khi code C# có lỗi
+        // hoặc dữ liệu được sửa trực tiếp bằng SQL.
+        private static void ConfigureCheckConstraints(ModelBuilder modelBuilder)
+        {
+            // tiền tố N'...' bắt buộc để SQL Server so sánh chuỗi Unicode (có dấu tiếng Việt).
+            var trangThaiHopLe = string.Join(", ", new[]
+            {
+                OrderStatus.ChoDuyet, OrderStatus.DangGiao, OrderStatus.HoanTat, OrderStatus.DaHuy
+            }.Select(s => $"N'{s}'"));
+
+            modelBuilder.Entity<TuiXach>().ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_TuiXach_soLuong", "[soLuong] >= 0");
+                t.HasCheckConstraint("CK_TuiXach_donGia", "[donGia] >= 0");
+            });
+
+            modelBuilder.Entity<ChiTietGioHang>().ToTable(t =>
+                t.HasCheckConstraint("CK_ChiTietGioHang_soLuong", "[soLuong] > 0"));
+
+            modelBuilder.Entity<DonHang>().ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_DonHang_tongTien", "[tongTien] >= 0");
+                t.HasCheckConstraint("CK_DonHang_trangThai", $"[trangThai] IN ({trangThaiHopLe})");            });
+
+            modelBuilder.Entity<ChiTietDonHang>().ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_ChiTietDonHang_soLuong", "[soLuong] > 0");
+                t.HasCheckConstraint("CK_ChiTietDonHang_donGia", "[donGia] >= 0");
+                t.HasCheckConstraint("CK_ChiTietDonHang_thanhTien", "[thanhTien] >= 0");
+            });
         }
     }
 }
