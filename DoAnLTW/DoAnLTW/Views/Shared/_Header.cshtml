@@ -73,54 +73,7 @@
             <nav class="menu d-none d-lg-flex justify-content-center align-items-center" id="nav-menu" style="flex: 2;">
                 <a asp-controller="Catalog" asp-action="Index" class="text-dark text-decoration-none menu-link">TẤT CẢ</a>
 
-                <div class="dropdown">
-                    <a asp-controller="Catalog" asp-action="Index" class="text-dark text-decoration-none menu-link">LOẠI TÚI</a>
-                    <div class="mega-menu p-4">
-                        <div class="container">
-                            <div class="row text-start g-3">
-                                <div class="col-4">
-                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">THÔNG DỤNG</h6>
-                                    <a href="/Catalog?category=Balo" class="d-block text-white-50 text-decoration-none py-1 hover-white">Balo thời trang</a>
-                                    <a href="/Catalog?category=Túi đeo chéo" class="d-block text-white-50 text-decoration-none py-1 hover-white">Túi đeo chéo</a>
-                                </div>
-                                <div class="col-4">
-                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">THANH LỊCH</h6>
-                                    <a href="/Catalog?category=Túi đeo vai" class="d-block text-white-50 text-decoration-none py-1 hover-white">Túi đeo vai</a>
-                                    <a href="/Catalog?category=Túi tote" class="d-block text-white-50 text-decoration-none py-1 hover-white">Túi tote</a>
-                                </div>
-                                <div class="col-4">
-                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">SỰ KIỆN</h6>
-                                    <a href="/Catalog?category=Clutch" class="d-block text-white-50 text-decoration-none py-1 hover-white">Clutch dự tiệc</a>
-                                    <a href="/Catalog?category=Túi dự tiệc" class="d-block text-white-50 text-decoration-none py-1 hover-white">Túi dự tiệc</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="dropdown">
-                    <a asp-controller="Catalog" asp-action="Index" class="text-dark text-decoration-none menu-link">THƯƠNG HIỆU</a>
-                    <div class="mega-menu p-4">
-                        <div class="container">
-                            <div class="row text-start g-3">
-                                <div class="col-4">
-                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">QUỐC TẾ</h6>
-                                    <a href="/Catalog?brand=CHARLES%20%26%20KEITH" class="d-block text-white-50 text-decoration-none py-1 hover-white">CHARLES & KEITH</a>
-                                    <a href="/Catalog?brand=Pedro" class="d-block text-white-50 text-decoration-none py-1 hover-white">Pedro</a>
-                                </div>
-                                <div class="col-4">
-                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">NỘI ĐỊA CAO CẤP</h6>
-                                    <a href="/Catalog?brand=ELLY" class="d-block text-white-50 text-decoration-none py-1 hover-white">ELLY</a>
-                                </div>
-                                <div class="col-4">
-                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">TRẺ TRUNG & TIỆN ÍCH</h6>
-                                    <a href="/Catalog?brand=Natoli" class="d-block text-white-50 text-decoration-none py-1 hover-white">Natoli</a>
-                                    <a href="/Catalog?brand=Jamlos" class="d-block text-white-50 text-decoration-none py-1 hover-white">Jamlos</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @await Component.InvokeAsync("Menu")
 
                 <a asp-controller="FlashSale" asp-action="Index" class="text-danger text-decoration-none menu-link fw-bold">KHUYẾN MÃI</a>
             </nav>
