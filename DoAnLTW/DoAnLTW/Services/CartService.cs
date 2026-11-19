@@ -43,6 +43,8 @@ public class CartService(DbContext_TuiXach db, IProductPricingService pricingSer
         var cart = await GetOrCreateAsync(maKh, ct);
         var item = await db.ChiTietGioHangs.FindAsync([cart.maGioHang, request.MaTui], ct);
         var quantity = (item?.soLuong ?? 0) + request.SoLuong;
+        EnsureValidQuantity(request.SoLuong);
+        EnsureValidQuantity(quantity);
         if (quantity > product.soLuong) throw new InvalidOperationException("Số lượng vượt quá tồn kho.");
         if (item is null)
         {
@@ -58,6 +60,7 @@ public class CartService(DbContext_TuiXach db, IProductPricingService pricingSer
 
     public async Task<CartViewModel> UpdateAsync(int maKh, int maTui, UpdateCartItemViewModel request, CancellationToken ct = default)
     {
+        EnsureValidQuantity(request.SoLuong);
         var cart = await GetOrCreateAsync(maKh, ct);
         var item = await db.ChiTietGioHangs.FindAsync([cart.maGioHang, maTui], ct) ?? throw new KeyNotFoundException("Sản phẩm không có trong giỏ.");
         var product = await db.TuiXachs.FindAsync([maTui], ct) ?? throw new KeyNotFoundException("Không tìm thấy túi xách.");
@@ -77,6 +80,18 @@ public class CartService(DbContext_TuiXach db, IProductPricingService pricingSer
             await db.SaveChangesAsync(ct);
         }
         return await GetAsync(maKh, ct);
+    }
+
+    // giới hạn trùng với [Range(1, 99)] trong ViewModel.
+    private const int MaxQuantityPerItem = 99;
+
+    // lớp bảo vệ thứ hai: service không tin dữ liệu đầu vào, kể cả khi controller quên kiểm tra ModelState.
+    private static void EnsureValidQuantity(int soLuong)
+    {
+        if (soLuong < 1 || soLuong > MaxQuantityPerItem)
+        {
+            throw new InvalidOperationException($"Số lượng mỗi sản phẩm phải từ 1 đến {MaxQuantityPerItem}.");
+        }
     }
 
     private async Task<GioHang> GetOrCreateAsync(int maKh, CancellationToken ct)

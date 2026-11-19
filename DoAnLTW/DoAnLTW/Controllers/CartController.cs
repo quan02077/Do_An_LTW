@@ -39,6 +39,14 @@ public class CartController(ICartService cartService, ICurrentCustomerService cu
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Update(int maTui, UpdateCartItemViewModel request, CancellationToken ct)
     {
+        // [Range(1, 99)] chỉ ghi lỗi vào ModelState, không tự chặn request:
+        // controller MVC phải tự kiểm tra trước khi gọi service.
+        if (!ModelState.IsValid)
+        {
+            TempData["CartError"] = "Số lượng phải từ 1 đến 99. Muốn bỏ sản phẩm, hãy bấm Xóa.";
+            return RedirectToAction(nameof(Index));
+        }
+
         try
         {
             await cartService.UpdateAsync(await currentCustomer.GetRequiredCustomerIdAsync(ct), maTui, request, ct);
