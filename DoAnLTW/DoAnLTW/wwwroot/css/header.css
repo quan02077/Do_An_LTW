@@ -105,8 +105,15 @@
     background: transparent;
 }
 
-.dropdown:hover .mega-menu {
+.dropdown:hover .mega-menu,
+.dropdown:focus-within .mega-menu {
     display: block;
+}
+
+/* Giới hạn chiều cao nội dung mega menu khi danh sách động dài, không cắt cầu hover ::before */
+.mega-menu > .container {
+    max-height: 70vh;
+    overflow-y: auto;
 }
 
 .mega-menu h6 {
@@ -164,4 +171,32 @@
     height: 2px;
     background-color: #18181b;
     transition: all 0.2s ease;
+}
+
+/* Responsive menu trên màn hình nhỏ (< lg) */
+@media (max-width: 991.98px) {
+    .rowMenu > .container {
+        flex-wrap: wrap;
+    }
+
+    .rowMenu .menu {
+        flex: 0 0 100% !important;
+        gap: 12px;
+    }
+
+    .rowMenu .dropdown {
+        width: 100%;
+        text-align: center;
+    }
+
+    .rowMenu .mega-menu {
+        position: static;
+        padding: 1rem 0.5rem;
+        margin-top: 0.5rem;
+        box-shadow: none;
+    }
+
+    .rowMenu .mega-menu::before {
+        display: none;
+    }
 }
