@@ -54,10 +54,11 @@ public interface IOrderService
     Task CancelAsync(int maKh, int maDh, CancellationToken cancellationToken = default);
 }
 
-public class OrderService(DbContext_TuiXach db, IProductPricingService pricingService) : IOrderService
+public class OrderService(DbContext_TuiXach db, IProductPricingService pricingService, INotificationService notificationService) : IOrderService
 {
     public async Task<OrderViewModel> CheckoutAsync(int maKh, CheckoutViewModel request, CancellationToken ct = default)
     {
+        DonHang order;
         await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, ct);
         try
         {
@@ -100,7 +101,7 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
                 }
             }
 
-            var order = new DonHang
+            order = new DonHang
             {
                 maKH = maKh,
                 ngayDat = DateTime.Now,
@@ -132,13 +133,16 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
             db.ChiTietGioHangs.RemoveRange(selectedItems);
             await db.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
-            return Map(order);
         }
         catch
         {
             await transaction.RollbackAsync(ct);
             throw;
         }
+
+        // gửi thông báo sau khi đã commit giao dịch đặt hàng
+        await notificationService.NotifyOrderCreatedAsync(ToNotification(order), ct);
+        return Map(order);
     }
 
     // điền sẵn người nhận từ hồ sơ khách hàng; khách vẫn sửa được nếu giao cho người khác
@@ -168,10 +172,11 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
 
     public async Task CancelAsync(int maKh, int maDh, CancellationToken ct = default)
     {
+        DonHang order;
         await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, ct);
         try
         {
-            var order = await db.DonHangs
+            order = await db.DonHangs
                 .Include(x => x.ChiTietDonHangs).ThenInclude(x => x.TuiXach)
                 .SingleOrDefaultAsync(x => x.maDH == maDh && x.maKH == maKh, ct)
                 ?? throw new KeyNotFoundException("Không tìm thấy đơn hàng.");
@@ -198,7 +203,19 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
             await transaction.RollbackAsync(ct);
             throw;
         }
+
+        // gửi thông báo sau khi đã commit giao dịch hủy đơn
+        await notificationService.NotifyOrderCancelledByCustomerAsync(ToNotification(order), ct);
     }
+
+    private static OrderNotification ToNotification(DonHang order) => new(
+        order.maDH,
+        order.MaHienThi,
+        order.maKH,
+        order.tenNguoiNhan,
+        order.tongTien,
+        order.ngayDat,
+        order.trangThai);
 
     private static OrderViewModel Map(DonHang order) => new(
         order.maDH,

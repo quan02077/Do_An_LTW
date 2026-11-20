@@ -15,9 +15,6 @@ public class ProductIndexViewModel
     public int? SelectedMaThuongHieu { get; set; }
     public List<SelectListItem> LoaiTuiOptions { get; set; } = new();
     public List<SelectListItem> ThuongHieuOptions { get; set; } = new();
-
-    // phân trang
-    public DoAnLTW.Areas.Admin.ViewModels.PaginationViewModel Pagination { get; set; } = new();
 }
 
 // 2. Dùng để hiển thị từng dòng trong bảng sản phẩm
@@ -82,6 +79,10 @@ public class ProductFormViewModel
     [Range(0, 100000, ErrorMessage = "Số lượng kho phải từ 0 đến 100.000.")]
     [Display(Name = "Số lượng trong kho")]
     public int SoLuong { get; set; }
+
+    // tồn kho tại thời điểm mở form (trường ẩn): để phát hiện tồn kho đã đổi (khách đặt/hủy đơn) trong lúc admin đang sửa,
+    // tránh ghi đè bằng con số cũ.
+    public int? SoLuongGoc { get; set; }
 
     [Display(Name = "Mô tả sản phẩm")]
     public string? MoTa { get; set; }

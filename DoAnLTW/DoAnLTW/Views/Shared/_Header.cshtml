@@ -30,6 +30,27 @@
                     <span>Yêu thích</span>
                 </a>
             </div>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                var notiScope = $"{User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? User.Identity?.Name ?? "user"}_{(User.IsInRole(DoAnLTW.Models.Roles.Admin) ? "admin" : "customer")}";
+                <div class="tienich noti-bell-wrapper" data-noti-bell data-noti-scope="@notiScope">
+                    <button type="button" class="noti-bell-btn" data-noti-toggle aria-expanded="false" aria-label="Thông báo đơn hàng" title="Thông báo đơn hàng">
+                        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                            <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901"/>
+                        </svg>
+                        <span class="noti-badge d-none" data-noti-badge>0</span>
+                    </button>
+                    <div class="noti-panel" data-noti-panel role="region" aria-label="Danh sách thông báo">
+                        <div class="noti-panel-header">
+                            <span class="noti-panel-title">Thông báo</span>
+                            <button type="button" class="noti-clear-btn" data-noti-clear>Xóa tất cả</button>
+                        </div>
+                        <ul class="noti-list" data-noti-list>
+                            <li class="noti-empty">Chưa có thông báo nào.</li>
+                        </ul>
+                    </div>
+                </div>
+            }
             <div class="tienich">
                 @if (User.Identity?.IsAuthenticated == true)
                 {
@@ -73,54 +94,7 @@
             <nav class="menu d-none d-lg-flex justify-content-center align-items-center" id="nav-menu" style="flex: 2;">
                 <a asp-controller="Catalog" asp-action="Index" class="text-dark text-decoration-none menu-link">TẤT CẢ</a>
 
-                <div class="dropdown">
-                    <a asp-controller="Catalog" asp-action="Index" class="text-dark text-decoration-none menu-link">LOẠI TÚI</a>
-                    <div class="mega-menu p-4">
-                        <div class="container">
-                            <div class="row text-start g-3">
-                                <div class="col-4">
-                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">THÔNG DỤNG</h6>
-                                    <a href="/Catalog?category=Balo" class="d-block text-white-50 text-decoration-none py-1 hover-white">Balo thời trang</a>
-                                    <a href="/Catalog?category=Túi đeo chéo" class="d-block text-white-50 text-decoration-none py-1 hover-white">Túi đeo chéo</a>
-                                </div>
-                                <div class="col-4">
-                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">THANH LỊCH</h6>
-                                    <a href="/Catalog?category=Túi đeo vai" class="d-block text-white-50 text-decoration-none py-1 hover-white">Túi đeo vai</a>
-                                    <a href="/Catalog?category=Túi tote" class="d-block text-white-50 text-decoration-none py-1 hover-white">Túi tote</a>
-                                </div>
-                                <div class="col-4">
-                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">SỰ KIỆN</h6>
-                                    <a href="/Catalog?category=Clutch" class="d-block text-white-50 text-decoration-none py-1 hover-white">Clutch dự tiệc</a>
-                                    <a href="/Catalog?category=Túi dự tiệc" class="d-block text-white-50 text-decoration-none py-1 hover-white">Túi dự tiệc</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="dropdown">
-                    <a asp-controller="Catalog" asp-action="Index" class="text-dark text-decoration-none menu-link">THƯƠNG HIỆU</a>
-                    <div class="mega-menu p-4">
-                        <div class="container">
-                            <div class="row text-start g-3">
-                                <div class="col-4">
-                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">QUỐC TẾ</h6>
-                                    <a href="/Catalog?brand=CHARLES%20%26%20KEITH" class="d-block text-white-50 text-decoration-none py-1 hover-white">CHARLES & KEITH</a>
-                                    <a href="/Catalog?brand=Pedro" class="d-block text-white-50 text-decoration-none py-1 hover-white">Pedro</a>
-                                </div>
-                                <div class="col-4">
-                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">NỘI ĐỊA CAO CẤP</h6>
-                                    <a href="/Catalog?brand=ELLY" class="d-block text-white-50 text-decoration-none py-1 hover-white">ELLY</a>
-                                </div>
-                                <div class="col-4">
-                                    <h6 class="fw-bold text-white border-bottom border-secondary pb-2">TRẺ TRUNG & TIỆN ÍCH</h6>
-                                    <a href="/Catalog?brand=Natoli" class="d-block text-white-50 text-decoration-none py-1 hover-white">Natoli</a>
-                                    <a href="/Catalog?brand=Jamlos" class="d-block text-white-50 text-decoration-none py-1 hover-white">Jamlos</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @await Component.InvokeAsync("Menu")
 
                 <a asp-controller="FlashSale" asp-action="Index" class="text-danger text-decoration-none menu-link fw-bold">KHUYẾN MÃI</a>
             </nav>

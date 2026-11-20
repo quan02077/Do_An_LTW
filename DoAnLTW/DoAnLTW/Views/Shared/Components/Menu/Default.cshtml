@@ -1,0 +1,47 @@
+@model DoAnLTW.ViewComponents.MenuViewModel
+
+@if (Model.LoaiTuis.Count > 0)
+{
+    <div class="dropdown">
+        <a asp-controller="Catalog" asp-action="Index" class="text-dark text-decoration-none menu-link">LOẠI TÚI</a>
+        <div class="mega-menu p-4">
+            <div class="container">
+                <h6 class="fw-bold text-white border-bottom border-secondary pb-2">LOẠI TÚI</h6>
+                <div class="row text-start g-3">
+                    @foreach (var item in Model.LoaiTuis)
+                    {
+                        <div class="col-6 col-md-4">
+                            <a asp-controller="Catalog"
+                               asp-action="Index"
+                               asp-route-category="@item.TenLoai"
+                               class="d-block text-white-50 text-decoration-none py-1 hover-white">@item.TenLoai</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.ThuongHieus.Count > 0)
+{
+    <div class="dropdown">
+        <a asp-controller="Catalog" asp-action="Index" class="text-dark text-decoration-none menu-link">THƯƠNG HIỆU</a>
+        <div class="mega-menu p-4">
+            <div class="container">
+                <h6 class="fw-bold text-white border-bottom border-secondary pb-2">THƯƠNG HIỆU</h6>
+                <div class="row text-start g-3">
+                    @foreach (var item in Model.ThuongHieus)
+                    {
+                        <div class="col-6 col-md-4">
+                            <a asp-controller="Catalog"
+                               asp-action="Index"
+                               asp-route-brand="@item.TenThuongHieu"
+                               class="d-block text-white-50 text-decoration-none py-1 hover-white">@item.TenThuongHieu</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

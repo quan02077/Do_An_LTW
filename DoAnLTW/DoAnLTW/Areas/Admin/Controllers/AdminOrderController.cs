@@ -6,10 +6,10 @@ namespace DoAnLTW.Areas.Admin.Controllers
     public class AdminOrderController(IAdminOrderService orderService) : AdminBaseController
     {
         // 1. Danh sách đơn hàng
-        // GET: /Admin/AdminOrder?keyword=...&trangThai=...&page=2
-        public async Task<IActionResult> Index(string? keyword, string? trangThai, int page = 1, CancellationToken cancellationToken = default)
+        // GET: /Admin/AdminOrder?keyword=...&trangThai=...
+        public async Task<IActionResult> Index(string? keyword, string? trangThai, CancellationToken cancellationToken)
         {
-            var model = await orderService.GetAllAsync(keyword, trangThai, page, cancellationToken);
+            var model = await orderService.GetAllAsync(keyword, trangThai, cancellationToken);
             return View(model);
         }
 

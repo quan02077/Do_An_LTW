@@ -17,6 +17,10 @@
     <link rel="stylesheet" type="text/css" href="~/css/sweetalert.min.css" asp-append-version="true">
     <link rel="stylesheet" type="text/css" href="~/css/custom.css" asp-append-version="true">
     <link rel="stylesheet" type="text/css" href="~/css/admin.css" asp-append-version="true">
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <link rel="stylesheet" type="text/css" href="~/css/notifications.css" asp-append-version="true">
+    }
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="body">
@@ -129,6 +133,27 @@
                                 </form>
                             </div>
                             <div class="header-grid">
+                                @if (User.Identity?.IsAuthenticated == true)
+                                {
+                                    var notiScope = $"{User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? User.Identity?.Name ?? "admin"}_{(User.IsInRole(DoAnLTW.Models.Roles.Admin) ? "admin" : "customer")}";
+                                    <div class="popup-wrap message type-header noti-bell-wrapper noti-bell-admin" data-noti-bell data-noti-scope="@notiScope">
+                                        <button type="button" class="noti-admin-trigger" data-noti-toggle aria-expanded="false" aria-label="Thông báo đơn hàng" title="Thông báo đơn hàng">
+                                            <span class="header-item">
+                                                <span class="noti-badge d-none" data-noti-badge>0</span>
+                                                <i class="icon-bell"></i>
+                                            </span>
+                                        </button>
+                                        <div class="noti-panel" data-noti-panel role="region" aria-label="Danh sách thông báo">
+                                            <div class="noti-panel-header">
+                                                <span class="noti-panel-title">Thông báo đơn hàng</span>
+                                                <button type="button" class="noti-clear-btn" data-noti-clear>Xóa tất cả</button>
+                                            </div>
+                                            <ul class="noti-list" data-noti-list>
+                                                <li class="noti-empty">Chưa có thông báo nào.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                }
                                 <div class="popup-wrap user type-header">
                                     <div class="dropdown">
                                         <button class="btn btn-secondary dropdown-toggle" type="button"
@@ -195,6 +220,11 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="~/js/apexcharts/apexcharts.js"></script>
     <script src="~/js/main.js"></script>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <script src="~/lib/signalr/signalr.min.js" asp-append-version="true"></script>
+        <script src="~/js/notifications.js" asp-append-version="true"></script>
+    }
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

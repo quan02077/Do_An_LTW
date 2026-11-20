@@ -14,7 +14,7 @@ namespace DoAnLTW.Areas.Admin.Controllers
         }
 
         // 2. Thêm mới khuyến mãi
-        public IActionResult Add()
+        public async Task<IActionResult> Add(CancellationToken cancellationToken)
         {
             var model = new PromotionFormViewModel
             {
@@ -22,6 +22,7 @@ namespace DoAnLTW.Areas.Admin.Controllers
                 NgayKetThuc = DateTime.Today.AddMonths(1),
                 TrangThai = true
             };
+            await promotionService.PopulateProductOptionsAsync(model, cancellationToken);
             return View(model);
         }
 
@@ -36,10 +37,13 @@ namespace DoAnLTW.Areas.Admin.Controllers
 
             if (!ModelState.IsValid)
             {
+                // danh sách checkbox không được gửi lên từ form -> nạp lại, giữ nguyên các ô đã tick
+                await promotionService.PopulateProductOptionsAsync(model, cancellationToken);
                 return View(model);
             }
 
-            await promotionService.AddAsync(model, cancellationToken);
+            var soSanPham = await promotionService.AddAsync(model, cancellationToken);
+            TempData["Success"] = $"Đã thêm khuyến mãi '{model.TenKM}' cho {soSanPham} sản phẩm.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -63,12 +67,14 @@ namespace DoAnLTW.Areas.Admin.Controllers
 
             if (!ModelState.IsValid)
             {
+                await promotionService.PopulateProductOptionsAsync(model, cancellationToken);
                 return View(model);
             }
 
-            var result = await promotionService.UpdateAsync(id, model, cancellationToken);
-            if (!result) return NotFound();
+            var soSanPham = await promotionService.UpdateAsync(id, model, cancellationToken);
+            if (soSanPham == null) return NotFound();
 
+            TempData["Success"] = $"Đã cập nhật khuyến mãi '{model.TenKM}' ({soSanPham} sản phẩm áp dụng).";
             return RedirectToAction(nameof(Index));
         }
 
