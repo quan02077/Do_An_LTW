@@ -9,7 +9,7 @@ namespace DoAnLTW.Areas.Admin.Services
 {
     public interface IAdminOrderService
     {
-        Task<AdminOrderIndexViewModel> GetAllAsync(string? keyword = null, string? trangThai = null, int page = 1, CancellationToken cancellationToken = default);
+        Task<AdminOrderIndexViewModel> GetAllAsync(string? keyword = null, string? trangThai = null, CancellationToken cancellationToken = default);
         Task<AdminOrderFormViewModel?> GetByIdAsync(int maDh, CancellationToken cancellationToken = default);
         Task<ServiceResult> UpdateStatusAsync(int maDh, string trangThaiMoi, CancellationToken cancellationToken = default);
     }
@@ -17,7 +17,7 @@ namespace DoAnLTW.Areas.Admin.Services
     public class AdminOrderService(DbContext_TuiXach db) : IAdminOrderService
     {
         // 1. lay danh sach tat ca don hang co loc va tim kiem
-        public async Task<AdminOrderIndexViewModel> GetAllAsync(string? keyword = null, string? trangThai = null, int page = 1, CancellationToken cancellationToken = default)
+        public async Task<AdminOrderIndexViewModel> GetAllAsync(string? keyword = null, string? trangThai = null, CancellationToken cancellationToken = default)
         {
             var query = db.DonHangs
                 .AsNoTracking()
@@ -45,17 +45,10 @@ namespace DoAnLTW.Areas.Admin.Services
                 query = query.Where(d => d.trangThai == trangThai);
             }
 
-            // đếm tổng sau khi lọc rồi mới lấy đúng 10 dòng của trang hiện tại (Skip/Take chạy trong SQL)
-            var total = await query.CountAsync(cancellationToken);
-            page = PaginationViewModel.Normalize(page, total);
-            var pageSize = PaginationViewModel.DefaultPageSize;
-
             // sap xep don moi nhat len dau (thêm maDH để thứ tự cố định khi trùng ngày đặt)
             var donHangs = await query
                 .OrderByDescending(d => d.ngayDat)
                 .ThenByDescending(d => d.maDH)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
                 .Select(d => new AdminOrderViewModel
                 {
                     MaDH = d.maDH,
@@ -80,14 +73,7 @@ namespace DoAnLTW.Areas.Admin.Services
                     Value = s,
                     Text = s,
                     Selected = (s == trangThai)
-                }).ToList(),
-                Pagination = new PaginationViewModel
-                {
-                    Page = page,
-                    TotalItems = total,
-                    // giữ keyword + trạng thái khi chuyển trang
-                    Filters = PaginationViewModel.BuildFilters(("keyword", keyword), ("trangThai", trangThai))
-                }
+                }).ToList()
             };
         }
 
