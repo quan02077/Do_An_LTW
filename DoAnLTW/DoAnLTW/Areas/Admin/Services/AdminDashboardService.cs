@@ -1,5 +1,6 @@
 using DoAnLTW.Areas.Admin.ViewModels;
 using DoAnLTW.Data;
+using DoAnLTW.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace DoAnLTW.Areas.Admin.Services;
@@ -17,12 +18,12 @@ public class AdminDashboardService(DbContext_TuiXach db) : IAdminDashboardServic
         {
             TongDonHang = await db.DonHangs.CountAsync(ct),
             TongDoanhThu = await db.DonHangs
-                .Where(d => d.trangThai == "Hoàn tất")
+                .Where(d => d.trangThai == OrderStatus.HoanTat)
                 .SumAsync(d => (decimal?)d.tongTien, ct) ?? 0,
-            DonChoDuyet = await db.DonHangs.CountAsync(d => d.trangThai == "Chờ duyệt", ct),
-            DonDangGiao = await db.DonHangs.CountAsync(d => d.trangThai == "Đang giao", ct),
-            DonHoanTat = await db.DonHangs.CountAsync(d => d.trangThai == "Hoàn tất", ct),
-            DonDaHuy = await db.DonHangs.CountAsync(d => d.trangThai == "Đã hủy", ct)
+            DonChoDuyet = await db.DonHangs.CountAsync(d => d.trangThai == OrderStatus.ChoDuyet, ct),
+            DonDangGiao = await db.DonHangs.CountAsync(d => d.trangThai == OrderStatus.DangGiao, ct),
+            DonHoanTat = await db.DonHangs.CountAsync(d => d.trangThai == OrderStatus.HoanTat, ct),
+            DonDaHuy = await db.DonHangs.CountAsync(d => d.trangThai == OrderStatus.DaHuy, ct)
         };
     }
 }

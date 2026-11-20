@@ -11,6 +11,7 @@ namespace DoAnLTW.Areas.Admin.ViewModels
         public string? Keyword { get; set; }
         public string? SelectedTrangThai { get; set; }
         public List<SelectListItem> TrangThaiOptions { get; set; } = new();
+        public PaginationViewModel Pagination { get; set; } = new();
     }
 
     // 2. Hien thi tung don hang tren bang danh sach

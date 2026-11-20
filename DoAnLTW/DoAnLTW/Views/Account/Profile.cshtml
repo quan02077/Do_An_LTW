@@ -99,7 +99,7 @@
                         </div>
                     </div>
 
-                    @if (User.IsInRole(DoAnLTW.Models.Roles.Admin) || User.IsInRole("Admin"))
+                    @if (User.IsInRole(DoAnLTW.Models.Roles.Admin))
                     {
                         <hr class="my-3 text-muted" />
                         <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="btn w-100 rounded-0 fw-semibold small py-2 text-decoration-none" style="background-color: #f3f4f6; color: #374151; border: 1px solid #d1d5db;">

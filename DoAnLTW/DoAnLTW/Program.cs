@@ -14,6 +14,8 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IHomeRender, HomeRender>();
 builder.Services.AddSingleton<IProductPricingService, ProductPricingService>();
 builder.Services.AddScoped<ICurrentCustomerService, CurrentCustomerService>();
+builder.Services.AddSingleton<IPasswordService, PasswordService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAdminOrderService, AdminOrderService>();
