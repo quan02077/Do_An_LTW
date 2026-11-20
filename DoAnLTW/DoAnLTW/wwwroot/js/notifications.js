@@ -36,15 +36,15 @@
     function getStatusBadgeClass(status) {
         switch (status) {
             case 'Chờ duyệt':
-                return 'bg-warning-subtle text-warning-emphasis border border-warning';
+                return 'bg-light text-secondary border border-warning';
             case 'Đang giao':
-                return 'bg-primary-subtle text-primary-emphasis border border-primary';
+                return 'bg-light text-secondary border border-primary';
             case 'Hoàn tất':
-                return 'bg-success-subtle text-success-emphasis border border-success';
+                return 'bg-light text-secondary border border-success';
             case 'Đã hủy':
-                return 'bg-danger-subtle text-danger-emphasis border border-danger';
+                return 'bg-light text-secondary border border-danger';
             default:
-                return 'bg-secondary-subtle text-secondary-emphasis border border-secondary';
+                return 'bg-light text-secondary border border-secondary';
         }
     }
 
