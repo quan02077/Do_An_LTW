@@ -4,6 +4,82 @@
     ViewData["Title"] = "Lịch sử đơn hàng";
 }
 
+<style>
+    .stepper-container {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        margin: 1.2rem 0;
+        padding: 0 1rem;
+    }
+        .stepper-container::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 3rem;
+            right: 3rem;
+            height: 3px;
+            background-color: #e5e7eb;
+            z-index: 0;
+        }
+    .stepper-progress-bar {
+        position: absolute;
+        top: 20px;
+        left: 3rem;
+        height: 3px;
+        background-color: #10b981;
+        z-index: 1;
+        transition: width 0.4s ease;
+    }
+    .stepper-step {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        background-color: white;
+        padding: 0 0.5rem;
+    }
+
+    .stepper-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #f3f4f6;
+        color: #9ca3af;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 6px;
+        font-size: 1.1rem;
+        border: 2px solid #e5e7eb;
+    }
+
+    .stepper-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6b7280;
+    }
+    .stepper-step.active .stepper-circle {
+        background-color: #111827;
+        color: #ffffff;
+        border-color: #111827;
+        box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.15);
+    }
+
+    .stepper-step.active .stepper-label {
+        color: #111827;
+        font-weight: 700;
+    }
+    .stepper-step.completed .stepper-circle {
+        background-color: #10b981;
+        color: #ffffff;
+        border-color: #10b981;
+    }
+
+    .stepper-step.completed .stepper-label {
+        color: #10b981;
+    }
+</style>
+
 <section class="shop-page">
     <div class="page-heading">
         <div>
@@ -43,6 +119,52 @@
                         </div>
                         <span class="status-badge @(order.TrangThai == OrderStatus.DaHuy ? "status-cancelled" : "")">@order.TrangThai</span>
                     </header>
+                    @if (order.TrangThai == OrderStatus.DaHuy)
+                    {
+                        <div class="alert alert-danger py-2 px-3 small d-flex align-items-center my-3 rounded-3" role="alert">
+                            <i class="bi bi-x-circle-fill me-2 fs-5"></i>
+                            <span>Đơn hàng này đã bị hủy. Số lượng sản phẩm đã được hoàn trả lại tồn kho.</span>
+                        </div>
+                    }
+                    else
+                    {
+                        int step = order.TrangThai switch
+                        {
+                            OrderStatus.ChoDuyet => 1,
+                            OrderStatus.DangGiao => 2,
+                            OrderStatus.HoanTat => 3,
+                            _ => 1
+                        };
+                        string progressWidth = step switch
+                        {
+                            1 => "0%",
+                            2 => "50%",
+                            3 => "100%",
+                            _ => "0%"
+                        };
+
+                        <div class="stepper-container">
+                            <div class="stepper-progress-bar" style="width: @progressWidth;"></div>
+                            <div class="stepper-step @(step > 1 ? "completed" : "active")">
+                                <div class="stepper-circle">
+                                    <i class="bi @(step > 1 ? "bi-check-lg" : "bi-receipt")"></i>
+                                </div>
+                                <div class="stepper-label">Đã đặt hàng</div>
+                            </div>
+                            <div class="stepper-step @(step > 2 ? "completed" : (step == 2 ? "active" : ""))">
+                                <div class="stepper-circle">
+                                    <i class="bi @(step > 2 ? "bi-check-lg" : "bi-truck")"></i>
+                                </div>
+                                <div class="stepper-label">Đang giao hàng</div>
+                            </div>
+                            <div class="stepper-step @(step == 3 ? "completed" : "")">
+                                <div class="stepper-circle">
+                                    <i class="bi bi-box2-heart"></i>
+                                </div>
+                                <div class="stepper-label">Đã nhận hàng</div>
+                            </div>
+                        </div>
+                    }
                     <div class="order-card-body">
                         @foreach (var item in order.Items)
                         {

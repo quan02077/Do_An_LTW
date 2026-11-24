@@ -33,6 +33,7 @@ builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<IFlashSaleService, CatalogService>();
 builder.Services.AddScoped<IPromotionService, PromotionService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 // thông báo đơn hàng thời gian thực (SignalR): NotificationService bọc IHubContext, lỗi gửi không làm hỏng nghiệp vụ.
 builder.Services.AddSignalR();
 builder.Services.AddScoped<INotificationService, NotificationService>();

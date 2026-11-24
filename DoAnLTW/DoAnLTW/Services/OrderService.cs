@@ -54,7 +54,7 @@ public interface IOrderService
     Task CancelAsync(int maKh, int maDh, CancellationToken cancellationToken = default);
 }
 
-public class OrderService(DbContext_TuiXach db, IProductPricingService pricingService, INotificationService notificationService) : IOrderService
+public class OrderService(DbContext_TuiXach db, IProductPricingService pricingService, INotificationService notificationService, IEmailService emailService) : IOrderService
 {
     public async Task<OrderViewModel> CheckoutAsync(int maKh, CheckoutViewModel request, CancellationToken ct = default)
     {
@@ -142,6 +142,22 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
 
         // gửi thông báo sau khi đã commit giao dịch đặt hàng
         await notificationService.NotifyOrderCreatedAsync(ToNotification(order), ct);
+
+        // 👉 THÊM ĐOẠN GỬI EMAIL NÀY:
+        try
+        {
+            var khachHang = await db.KhachHangs.FindAsync([maKh], ct);
+            if (khachHang != null && !string.IsNullOrWhiteSpace(khachHang.email))
+            {
+                await emailService.SendOrdersConfirmationAsync(khachHang.email, khachHang.hoTen, Map(order), ct);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Đặt trong try/catch để lỡ mất mạng Gmail thì đơn hàng vẫn được lưu thành công
+            Console.WriteLine($"[Email Error] Không gửi được mail: {ex.Message}");
+        }
+
         return Map(order);
     }
 
