@@ -15,7 +15,9 @@
 
     var HUB_URL = '/hubs/support-chat';
     var MAX_LENGTH = 1000;
-    var WELCOME = 'Chào bạn! Nhân viên Basau Bags sẽ trả lời bạn tại đây. Tin nhắn được lưu lại nên bạn có thể quay lại xem sau. Vui lòng không gửi mật khẩu hoặc số thẻ.';
+    var WELCOME = 'Chào bạn! Hãy nhắn câu hỏi của bạn tại đây, tin nhắn được lưu lại nên bạn có thể quay lại xem sau. Vui lòng không gửi mật khẩu hoặc số thẻ.';
+    // dòng nhắc luôn hiện ở đầu tab: chưa có chỉ báo nhân viên trực tuyến nên nói rõ khách có thể phải chờ
+    var ONLINE_NOTE = 'Nhân viên sẽ trả lời bạn khi trực tuyến.';
 
     var ctx = null;            // giao diện khung chat từ chatbot.js
     var ui = null;             // các phần tử của tab nhân viên
@@ -78,6 +80,11 @@
         // panel chat với nhân viên: dùng lại các lớp CSS của khung AI để đồng bộ giao diện
         var panel = el('div', 'sc-panel');
         panel.hidden = true;
+        var note = el('div', 'sc-note');
+        var noteIcon = el('i', 'bi bi-clock-history');
+        noteIcon.setAttribute('aria-hidden', 'true');
+        note.appendChild(noteIcon);
+        note.appendChild(el('span', null, ONLINE_NOTE));
         var log = el('div', 'cb-messages sc-messages');
         log.setAttribute('role', 'log');
         log.setAttribute('aria-live', 'polite');
@@ -108,6 +115,7 @@
         footer.appendChild(form);
         footer.appendChild(meta);
 
+        panel.appendChild(note);
         panel.appendChild(log);
         panel.appendChild(footer);
         win.appendChild(panel);
