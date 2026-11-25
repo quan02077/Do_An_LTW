@@ -29,7 +29,9 @@
         : null;
     var hasModel = modelFile != null;
     var modelUrl = hasModel ? Url.Content("~/models/" + Uri.EscapeDataString(modelFile!)) : "";
-    var posterUrl = Url.Content("~/HinhAnh/tui1_1.png");
+    // ảnh chờ trong lúc tải mô hình (file .glb thường nặng): thả poster.webp (hoặc .png/.jpg) vào wwwroot/models, chưa có thì dùng ảnh túi mặc định
+    var posterFile = new[] { "poster.webp", "poster.png", "poster.jpg" }.FirstOrDefault(n => System.IO.File.Exists(System.IO.Path.Combine(modelDir, n)));
+    var posterUrl = posterFile != null ? Url.Content("~/models/" + posterFile) : Url.Content("~/HinhAnh/tui1_1.png");
     var viewerLabel = hasSequence ? "Túi xách xoay 360 độ. Kéo hoặc dùng phím mũi tên trái phải để xoay" : (hasViews ? "Túi xách nhiều góc nhìn. Kéo hoặc dùng phím mũi tên trái phải để đổi góc" : "Ảnh túi xách, kéo để nghiêng");
 }
 <!-- khối banner flash sale mùa thu kèm túi xách xoay 3D 360 độ -->
