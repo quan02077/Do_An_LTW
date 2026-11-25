@@ -149,31 +149,45 @@ public class AccountController(IAccountService accountService, ILogger<AccountCo
 
     // quên mật khẩu & đặt lại mật khẩu
     [HttpGet]
-    public IActionResult ForgotPassword(string? username) => View(new ForgotPasswordViewModel { TenDangNhap = username ?? string.Empty });
+    public IActionResult ForgotPassword() => View(new ForgotPasswordViewModel());
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel request, CancellationToken ct)
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model, CancellationToken ct)
     {
-        if (!ModelState.IsValid) return View(request);
+        if (!ModelState.IsValid) return View(model);
 
-        var result = await accountService.ResetPasswordAsync(request, ct);
-        if (!result.Success)
-        {
-            ModelState.AddModelError(result.Field ?? string.Empty, result.Error!);
-            return View(request);
-        }
+        var linkTemplate = Url.Action(nameof(ResetPassword), "Account", new { token = "__TOKEN__" }, Request.Scheme)!.Replace("__TOKEN__", "{0}");
 
-        TempData["AuthSuccess"] = $"Đặt lại mật khẩu thành công cho tài khoản '{result.Value}'. Vui lòng đăng nhập bằng mật khẩu mới.";
+        await accountService.SendResetPasswordEmailAsync(model.Email, linkTemplate, ct);
+
+        TempData["AuthSuccess"] = "Đã gửi liên kết đặt lại mật khẩu về email của bạn. Vui lòng kiểm tra hộp thư!";
         return RedirectToAction(nameof(Login));
     }
 
     [HttpGet]
-    public IActionResult ResetPassword(string? username) => RedirectToAction(nameof(ForgotPassword), new { username });
+    public IActionResult ResetPassword(string? token)
+    {
+        if (string.IsNullOrWhiteSpace(token)) return RedirectToAction(nameof(ForgotPassword));
+        return View(new ResetPasswordViewModel { Token = token });
+    }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public Task<IActionResult> ResetPassword(ForgotPasswordViewModel request, CancellationToken ct) => ForgotPassword(request, ct);
+    public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model, CancellationToken ct)
+    {
+        if (!ModelState.IsValid) return View(model);
+
+        var result = await accountService.ResetPasswordWithTokenAsync(model.Token, model.MatKhauMoi, ct);
+        if (!result.Success)
+        {
+            TempData["AuthError"] = result.Error;
+            return RedirectToAction(nameof(ForgotPassword));
+        }
+
+        TempData["AuthSuccess"] = "Đặt lại mật khẩu thành công! Vui lòng đăng nhập bằng mật khẩu mới.";
+        return RedirectToAction(nameof(Login));
+    }
 
     [HttpGet]
     public IActionResult AccessDenied() => View();

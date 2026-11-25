@@ -10,6 +10,7 @@ namespace DoAnLTW.Services
     public interface IEmailService
     {
         Task SendOrdersConfirmationAsync(string to, string name, OrderViewModel order, CancellationToken ct = default);
+        Task SendPasswordResetAsync(string to, string name, string resetLink, CancellationToken ct = default);
     }
 
     /// <summary>
@@ -24,6 +25,9 @@ namespace DoAnLTW.Services
 
         public async Task SendOrdersConfirmationAsync(string to, string name, OrderViewModel order, CancellationToken ct = default)
         {
+            var smtpServer = config["EmailSettings:SmtpServer"] ?? "smtp.gmail.com";
+            var port = int.Parse(config["EmailSettings:Port"] ?? "587");
+            var senderName = config["EmailSettings:SenderName"] ?? "Shop Túi Xách BASAU";
             var senderEmail = config["EmailSettings:SenderEmail"] ?? "";
             var appPassword = config["EmailSettings:AppPassword"] ?? "";
             if (string.IsNullOrWhiteSpace(senderEmail) || string.IsNullOrWhiteSpace(appPassword))
@@ -97,6 +101,52 @@ namespace DoAnLTW.Services
                 Chúc bạn một ngày tuyệt vời!
             </p>
         </div>";
+        }
+
+        public async Task SendPasswordResetAsync(string to, string name, string resetLink, CancellationToken ct = default)
+        {
+            var smtpServer = config["EmailSettings:SmtpServer"] ?? "smtp.gmail.com";
+            var port = int.Parse(config["EmailSettings:Port"] ?? "587");
+            var senderName = config["EmailSettings:SenderName"] ?? "Shop Túi Xách BASAU";
+            var senderEmail = config["EmailSettings:SenderEmail"] ?? "";
+            var appPassword = config["EmailSettings:AppPassword"] ?? "";
+
+            if (string.IsNullOrWhiteSpace(senderEmail) || string.IsNullOrWhiteSpace(appPassword)) return;
+
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(senderName, senderEmail));
+            message.To.Add(new MailboxAddress(name, to));
+            message.Subject = $"[Yêu cầu đặt lại mật khẩu] - {senderName}";
+
+            var bodyBuilder = new BodyBuilder
+            {
+                HtmlBody = $@"
+        <div style='font-family: Arial, sans-serif; max-width: 550px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 25px;'>
+            <h2 style='color: #111827; text-align: center; border-bottom: 2px solid #111827; padding-bottom: 12px;'>ĐẶT LẠI MẬT KHẨU</h2>
+            <p>Xin chào <strong>{name}</strong>,</p>
+            <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản liên kết với email <strong>{to}</strong> tại {senderName}.</p>
+            <p>Vui lòng bấm vào nút bên dưới để tiến hành đổi mật khẩu mới:</p>
+            
+            <div style='text-align: center; margin: 30px 0;'>
+                <a href='{resetLink}' style='background-color: #111827; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; letter-spacing: 0.5px;'>
+                    ĐẶT LẠI MẬT KHẨU NGAY
+                </a>
+            </div>
+
+            <p style='color: #ef4444; font-size: 13px;'>* <strong>Lưu ý:</strong> Liên kết này chỉ có hiệu lực trong vòng <strong>15 phút</strong> vì lý do bảo mật.</p>
+            <p style='color: #6b7280; font-size: 13px;'>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email. Mật khẩu của bạn vẫn được an toàn.</p>
+            <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;' />
+            <p style='font-size: 12px; color: #9ca3af; text-align: center;'>{senderName} - Hệ thống bán lẻ túi xách thời trang cao cấp</p>
+        </div>"
+            };
+
+            message.Body = bodyBuilder.ToMessageBody();
+
+            using var client = new SmtpClient();
+            await client.ConnectAsync(smtpServer, port, SecureSocketOptions.StartTls, ct);
+            await client.AuthenticateAsync(senderEmail, appPassword, ct);
+            await client.SendAsync(message, ct);
+            await client.DisconnectAsync(true, ct);
         }
     }
 }

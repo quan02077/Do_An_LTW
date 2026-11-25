@@ -2,6 +2,7 @@ using DoAnLTW.Data;
 using DoAnLTW.Models;
 using DoAnLTW.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace DoAnLTW.Services;
 
@@ -12,10 +13,11 @@ public interface IAccountService
     Task<ProfileViewModel?> GetProfileAsync(int maTk, CancellationToken cancellationToken = default);
     Task<ServiceResult> UpdateProfileAsync(int maTk, ProfileViewModel request, CancellationToken cancellationToken = default);
     Task<ServiceResult> ChangePasswordAsync(int maTk, string matKhauHienTai, string matKhauMoi, CancellationToken cancellationToken = default);
-    Task<ServiceResult<string>> ResetPasswordAsync(ForgotPasswordViewModel request, CancellationToken cancellationToken = default);
+    Task<ServiceResult> SendResetPasswordEmailAsync(string email, string linkTemplate, CancellationToken cancellationToken = default);
+    Task<ServiceResult> ResetPasswordWithTokenAsync(string token, string matKhauMoi, CancellationToken cancellationToken = default);
 }
 
-public class AccountService(DbContext_TuiXach db, IPasswordService passwordService) : IAccountService
+public class AccountService(DbContext_TuiXach db, IPasswordService passwordService, IEmailService emailService, IMemoryCache cache) : IAccountService
 {
     public async Task<TaiKhoan?> ValidateCredentialsAsync(string tenDangNhap, string matKhau, CancellationToken ct = default)
     {
@@ -138,32 +140,52 @@ public class AccountService(DbContext_TuiXach db, IPasswordService passwordServi
         return ServiceResult.Ok();
     }
 
-    public async Task<ServiceResult<string>> ResetPasswordAsync(ForgotPasswordViewModel request, CancellationToken ct = default)
+    public async Task<ServiceResult> SendResetPasswordEmailAsync(string email, string linkTemplate, CancellationToken ct = default)
     {
-        var tenDangNhap = request.TenDangNhap.Trim();
-        var email = request.Email.Trim();
+        var cleanEmail = email.Trim().ToLower();
+        var customer = await db.KhachHangs
+            .FirstOrDefaultAsync(k => k.email != null && k.email.ToLower() == cleanEmail, ct);
 
-        var account = await db.TaiKhoans
-            .Include(t => t.KhachHang)
-            .FirstOrDefaultAsync(x => x.tenDangNhap.ToLower() == tenDangNhap.ToLower(), ct);
-        if (account is null)
+        // Bảo mật: Dù có email hay không thì vẫn trả về OK để chống kẻ xấu dò email
+        if (customer == null) return ServiceResult.Ok();
+
+        // Tạo token ngẫu nhiên (32 ký tự hex) & lưu vào cache trong 15 phút
+        var token = Guid.NewGuid().ToString("N");
+        cache.Set($"pwd_reset_{token}", customer.maTK, TimeSpan.FromMinutes(15));
+
+        // Ghép link và gửi email
+        var resetLink = string.Format(linkTemplate, token);
+        try
         {
-            return ServiceResult<string>.Fail("Tên đăng nhập không tồn tại trong hệ thống.", nameof(request.TenDangNhap));
+            await emailService.SendPasswordResetAsync(customer.email!, customer.hoTen, resetLink, ct);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Email Error] Không gửi được mail reset password: {ex.Message}");
         }
 
-        var customer = account.KhachHang;
-        if (customer is null || string.IsNullOrWhiteSpace(customer.email))
+        return ServiceResult.Ok();
+    }
+
+    public async Task<ServiceResult> ResetPasswordWithTokenAsync(string token, string matKhauMoi, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(token) || !cache.TryGetValue($"pwd_reset_{token}", out int maTk))
         {
-            return ServiceResult<string>.Fail("Tài khoản này chưa có email xác minh trong hệ thống.", nameof(request.Email));
+            return ServiceResult.Fail("Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn (chỉ có hiệu lực trong 15 phút). Vui lòng yêu cầu lại.");
         }
 
-        if (!string.Equals(customer.email.Trim(), email, StringComparison.OrdinalIgnoreCase))
+        var account = await db.TaiKhoans.FindAsync([maTk], ct);
+        if (account == null)
         {
-            return ServiceResult<string>.Fail("Địa chỉ email không khớp với email đã đăng ký của tài khoản này.", nameof(request.Email));
+            return ServiceResult.Fail("Tài khoản không tồn tại trong hệ thống.");
         }
 
-        account.matKhau = passwordService.Hash(account, request.MatKhauMoi);
+        // Băm mật khẩu mới và lưu vào CSDL
+        account.matKhau = passwordService.Hash(account, matKhauMoi);
         await db.SaveChangesAsync(ct);
-        return ServiceResult<string>.Ok(account.tenDangNhap);
+
+        // Xóa token khỏi cache để không dùng lại được nữa
+        cache.Remove($"pwd_reset_{token}");
+        return ServiceResult.Ok();
     }
 }

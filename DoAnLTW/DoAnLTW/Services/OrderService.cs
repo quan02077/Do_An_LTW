@@ -143,7 +143,6 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
         // gửi thông báo sau khi đã commit giao dịch đặt hàng
         await notificationService.NotifyOrderCreatedAsync(ToNotification(order), ct);
 
-        // xếp thư xác nhận vào hàng đợi gửi nền (không chờ SMTP); lỗi ở đây không được làm hỏng đơn đã đặt thành công
         try
         {
             var khachHang = await db.KhachHangs.AsNoTracking().SingleOrDefaultAsync(x => x.maKH == maKh, ct);
@@ -154,13 +153,12 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            logger.LogWarning(ex, "Không xếp được mail xác nhận cho đơn {MaDonHang}.", order.maDH);
+            Console.WriteLine($"[Email Error] Không gửi được mail: {ex.Message}");
         }
 
         return Map(order);
     }
 
-    // điền sẵn người nhận từ hồ sơ khách hàng; khách vẫn sửa được nếu giao cho người khác
     public async Task<CheckoutViewModel> GetCheckoutDefaultsAsync(int maKh, IEnumerable<int> selectedMaTui, CancellationToken ct = default)
     {
         var customer = await db.KhachHangs.AsNoTracking().SingleOrDefaultAsync(x => x.maKH == maKh, ct);
