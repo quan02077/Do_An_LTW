@@ -86,26 +86,29 @@
                 @if (hasModel)
                 {
                     <!-- Mô hình 3D thật (.glb): kéo để xoay mọi hướng; không phóng to để khỏi chặn cuộn trang -->
-                    <model-viewer id="bagModel" class="bag-glb-viewer"
-                                  src="@modelUrl"
-                                  alt="Mô hình 3D túi xách, kéo để xoay 360 độ"
-                                  camera-controls
-                                  auto-rotate
-                                  auto-rotate-delay="2500"
-                                  rotation-per-second="28deg"
-                                  camera-orbit="35deg 76deg 118%"
-                                  min-camera-orbit="auto 55deg auto"
-                                  max-camera-orbit="auto 100deg auto"
-                                  interaction-prompt="none"
-                                  disable-zoom
-                                  touch-action="pan-y"
-                                  environment-image="neutral"
-                                  exposure="1.05"
-                                  shadow-intensity="1"
-                                  shadow-softness="0.9"
-                                  reveal="auto">
-                        <img slot="poster" src="@posterUrl" alt="Túi xách" class="bag-glb-poster" />
-                    </model-viewer>
+                    <div class="bag-glb-wrap">
+                        <model-viewer id="bagModel" class="bag-glb-viewer"
+                                      src="@modelUrl"
+                                      alt="Mô hình 3D túi xách, kéo để xoay 360 độ"
+                                      camera-controls
+                                      auto-rotate
+                                      auto-rotate-delay="2500"
+                                      rotation-per-second="28deg"
+                                      camera-orbit="35deg 76deg 118%"
+                                      min-camera-orbit="auto 55deg auto"
+                                      max-camera-orbit="auto 100deg auto"
+                                      interaction-prompt="none"
+                                      disable-zoom
+                                      touch-action="pan-y"
+                                      environment-image="neutral"
+                                      exposure="1.05"
+                                      shadow-intensity="1"
+                                      shadow-softness="0.9"
+                                      reveal="auto">
+                            <img slot="poster" src="@posterUrl" alt="Túi xách" class="bag-glb-poster" />
+                        </model-viewer>
+                        <div class="bag-load" id="bagLoad" role="progressbar" aria-label="Đang tải mô hình 3D" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+                    </div>
                     <div class="bag-controls-bar is-no-scrubber mt-2">
                         <span></span>
                         <span class="bag-drag-hint" id="bagDragHint">
@@ -164,6 +167,17 @@
         }
         sync();
 
+        // chỉ báo tải: đường kẻ mảnh dưới mô hình (thay cho thanh mặc định đè lên nút)
+        var load = document.getElementById('bagLoad');
+        var bar = load ? load.firstElementChild : null;
+        model.addEventListener('progress', function (e) {
+            var p = e.detail && typeof e.detail.totalProgress === 'number' ? e.detail.totalProgress : 0;
+            if (bar) bar.style.transform = 'scaleX(' + p.toFixed(3) + ')';
+            if (load) load.setAttribute('aria-valuenow', String(Math.round(p * 100)));
+            if (p >= 1 && load) load.classList.add('is-done');
+        });
+        model.addEventListener('load', function () { if (load) load.classList.add('is-done'); });
+
         // chạm vào mô hình lần đầu thì ẩn gợi ý
         model.addEventListener('camera-change', function (e) {
             if (e.detail && e.detail.source === 'user-interaction' && hint) hint.classList.add('is-hidden');
@@ -171,6 +185,7 @@
         // tải .glb lỗi: giữ ảnh tĩnh, không để khung trống
         model.addEventListener('error', function () {
             model.setAttribute('poster', '@posterUrl');
+            if (load) load.classList.add('is-done');
             if (hint) hint.textContent = 'Không tải được mô hình 3D';
         });
     })();

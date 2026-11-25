@@ -242,10 +242,12 @@ h1, h2, h3, h4, h5, h6,
     background-color: #18181b;
     color: #ffffff;
     border: 1px solid #27272a;
-    padding: 12px 18px;
+    padding: 12px 6px;
     border-radius: 8px;
     text-align: center;
-    min-width: 72px;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 84px;
 }
 
 .countdown-box .count-num {
@@ -253,6 +255,7 @@ h1, h2, h3, h4, h5, h6,
     font-size: 1.8rem;
     font-weight: 700;
     line-height: 1.45;
+    font-variant-numeric: tabular-nums;
 }
 
 .countdown-box .count-lbl {
@@ -350,7 +353,7 @@ h1, h2, h3, h4, h5, h6,
 .bag-360-viewport {
     position: relative;
     width: 100%;
-    height: 310px;
+    height: clamp(300px, 28vw, 400px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -375,7 +378,7 @@ h1, h2, h3, h4, h5, h6,
     position: relative;
     z-index: 2;
     width: 100%;
-    height: 270px;
+    height: calc(100% - 40px);
     display: block;
     pointer-events: none;
     filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.65));
@@ -473,8 +476,8 @@ h1, h2, h3, h4, h5, h6,
 .bag-drag-hint {
     transition: opacity 0.5s ease;
     white-space: nowrap;
-    font-size: 11px;
-    color: #71717a;
+    font-size: 12px;
+    color: #a1a1aa;
     letter-spacing: 0.3px;
     display: inline-flex;
     align-items: center;
@@ -486,7 +489,7 @@ h1, h2, h3, h4, h5, h6,
     position: relative;
     z-index: 2;
     width: 100%;
-    height: 310px;
+    height: clamp(300px, 28vw, 400px);
     background: transparent;
     --poster-color: transparent;
     --progress-bar-color: rgba(255, 255, 255, 0.6);
@@ -518,6 +521,77 @@ h1, h2, h3, h4, h5, h6,
     .bag-halo-light,
     .badge-360-rotate.is-active .spin-icon {
         animation: none;
+    }
+}
+
+/* Tinh chỉnh banner: tiêu đề, trạng thái tải mô hình 3D, focus bàn phím, cảm ứng, màn hình rộng/hẹp */
+.flash-sale-banner h2 {
+    text-wrap: balance;
+}
+
+@media (min-width: 1200px) {
+    .bag-3d-stage {
+        max-width: 520px;
+    }
+}
+
+.bag-glb-wrap {
+    position: relative;
+}
+
+/* thanh tiến độ mặc định của model-viewer đè lên nút: thay bằng đường kẻ mảnh dưới mô hình */
+.bag-glb-viewer::part(default-progress-bar) {
+    display: none;
+}
+
+.bag-load {
+    position: absolute;
+    left: 20%;
+    right: 20%;
+    bottom: 10px;
+    height: 2px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 3;
+    transition: opacity 0.5s ease 0.2s;
+}
+
+.bag-load > span {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.75);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.25s ease-out;
+}
+
+.bag-load.is-done {
+    opacity: 0;
+}
+
+.badge-360-rotate:focus-visible,
+.btn-sale-cta:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 3px;
+}
+
+@media (pointer: coarse) {
+    .badge-360-rotate {
+        min-height: 40px;
+        padding: 8px 16px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .btn-sale-cta {
+        width: 100%;
+    }
+
+    .countdown-box .count-num {
+        font-size: 1.5rem;
     }
 }
 
