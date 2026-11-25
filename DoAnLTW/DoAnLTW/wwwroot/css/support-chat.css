@@ -106,8 +106,33 @@
     flex-shrink: 0;
 }
 
-.sc-note i {
+.sc-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #d97706;
     flex-shrink: 0;
+}
+
+.sc-note.is-online {
+    background: #ecfdf5;
+    border-bottom-color: #a7f3d0;
+    color: #065f46;
+}
+
+.sc-note.is-online .sc-dot {
+    background: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+}
+
+.sc-note.is-offline {
+    background: #f4f4f5;
+    border-bottom-color: #e4e4e7;
+    color: #52525b;
+}
+
+.sc-note.is-offline .sc-dot {
+    background: #a1a1aa;
 }
 
 .sc-sender {

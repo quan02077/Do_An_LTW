@@ -13,10 +13,12 @@ namespace DoAnLTW.Hubs;
 /// các hàm của nhân viên khóa bằng [Authorize(Roles)]; mọi tin đều được kiểm tra độ dài, ký tự và giới hạn tốc độ.
 /// </summary>
 [Authorize]
-public class SupportChatHub(ISupportChatService service, SupportChatRateGate gate, ILogger<SupportChatHub> logger) : Hub
+public class SupportChatHub(ISupportChatService service, SupportChatRateGate gate, StaffPresenceTracker presence, ILogger<SupportChatHub> logger) : Hub
 {
     internal const string StaffGroup = "support-staff";
     internal static string CustomerGroup(int maKh) => $"support-customer-{maKh}";
+    // mọi khách đang kết nối: nhận sự kiện staffPresence (nhân viên trực tuyến hay không)
+    internal const string CustomersGroup = "support-customers";
 
     private const string MaKhKey = "maKh";
 
@@ -30,6 +32,7 @@ public class SupportChatHub(ISupportChatService service, SupportChatRateGate gat
         if (IsStaff)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, StaffGroup, Context.ConnectionAborted);
+            presence.StaffConnected(Context.ConnectionId);
         }
         else
         {
@@ -44,9 +47,18 @@ public class SupportChatHub(ISupportChatService service, SupportChatRateGate gat
 
             Context.Items[MaKhKey] = maKh.Value;
             await Groups.AddToGroupAsync(Context.ConnectionId, CustomerGroup(maKh.Value), Context.ConnectionAborted);
+            await Groups.AddToGroupAsync(Context.ConnectionId, CustomersGroup, Context.ConnectionAborted);
+            // báo ngay trạng thái hiện tại cho khách vừa kết nối (vào nhóm trước rồi mới đọc, để không lỡ lần đổi trạng thái nào)
+            await Clients.Caller.SendAsync("staffPresence", presence.IsOnline, Context.ConnectionAborted);
         }
 
         await base.OnConnectedAsync();
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        if (IsStaff) presence.StaffDisconnected(Context.ConnectionId);
+        await base.OnDisconnectedAsync(exception);
     }
 
     // khách gửi tin cho nhân viên
