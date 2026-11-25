@@ -46,6 +46,8 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 // chat thời gian thực giữa khách hàng và nhân viên (SupportChatHub): lưu lịch sử trong CSDL, giới hạn tốc độ gửi tin theo tài khoản.
 builder.Services.AddScoped<ISupportChatService, SupportChatService>();
 builder.Services.AddSingleton<SupportChatRateGate>();
+// chỉ báo nhân viên trực tuyến (theo số kết nối SignalR của tài khoản nhân viên)
+builder.Services.AddSingleton<StaffPresenceTracker>();
 
 // chatbot tư vấn túi: truy xuất sản phẩm từ CSDL rồi nhờ Groq (openai/gpt-oss-20b) viết câu tư vấn.
 // khóa API đặt bằng user-secrets (Chatbot:Groq:ApiKey); thiếu khóa hoặc AI lỗi thì tự dùng gợi ý từ CSDL.

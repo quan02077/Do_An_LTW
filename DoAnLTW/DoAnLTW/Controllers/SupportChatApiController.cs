@@ -13,7 +13,7 @@ namespace DoAnLTW.Controllers;
 /// </summary>
 [Route("api/support-chat")]
 [Authorize]
-public class SupportChatApiController(ISupportChatService service) : ControllerBase
+public class SupportChatApiController(ISupportChatService service, StaffPresenceTracker presence) : ControllerBase
 {
     private const int HistoryTake = 60;
 
@@ -28,7 +28,7 @@ public class SupportChatApiController(ISupportChatService service) : ControllerB
 
         var history = await service.GetCustomerHistoryAsync(maKh.Value, HistoryTake, ct);
         var unread = await service.CountUnreadForCustomerAsync(maKh.Value, ct);
-        return Ok(new { history, unread });
+        return Ok(new { history, unread, staffOnline = presence.IsOnline });
     }
 
     // GET /api/support-chat/unread: tổng số tin chưa đọc (khách: của chính mình; nhân viên: toàn bộ cửa hàng)

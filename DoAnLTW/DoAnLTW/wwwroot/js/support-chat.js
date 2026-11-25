@@ -18,6 +18,8 @@
     var WELCOME = 'Chào bạn! Hãy nhắn câu hỏi của bạn tại đây, tin nhắn được lưu lại nên bạn có thể quay lại xem sau. Vui lòng không gửi mật khẩu hoặc số thẻ.';
     // dòng nhắc luôn hiện ở đầu tab: chưa có chỉ báo nhân viên trực tuyến nên nói rõ khách có thể phải chờ
     var ONLINE_NOTE = 'Nhân viên sẽ trả lời bạn khi trực tuyến.';
+    var NOTE_ONLINE = 'Nhân viên đang trực tuyến.';
+    var NOTE_OFFLINE = 'Hiện chưa có nhân viên trực tuyến. Bạn cứ để lại tin, nhân viên sẽ trả lời sớm nhất.';
 
     var ctx = null;            // giao diện khung chat từ chatbot.js
     var ui = null;             // các phần tử của tab nhân viên
@@ -25,6 +27,7 @@
     var unread = 0;
     var loaded = false;        // đã nạp lịch sử từ máy chủ ít nhất một lần
     var sending = false;
+    var staffOnline = null;    // null = chưa biết; true/false do máy chủ báo (staffPresence)
     var seen = new Set();      // mã tin đã hiển thị (tránh trùng khi tin đến cả từ lịch sử lẫn sự kiện)
 
     var connection = new signalR.HubConnectionBuilder()
@@ -81,10 +84,12 @@
         var panel = el('div', 'sc-panel');
         panel.hidden = true;
         var note = el('div', 'sc-note');
-        var noteIcon = el('i', 'bi bi-clock-history');
+        note.setAttribute('role', 'status');
+        var noteIcon = el('span', 'sc-dot');
         noteIcon.setAttribute('aria-hidden', 'true');
         note.appendChild(noteIcon);
-        note.appendChild(el('span', null, ONLINE_NOTE));
+        var noteText = el('span', null, ONLINE_NOTE);
+        note.appendChild(noteText);
         var log = el('div', 'cb-messages sc-messages');
         log.setAttribute('role', 'log');
         log.setAttribute('aria-live', 'polite');
@@ -126,7 +131,7 @@
         ctx.fabBtn.appendChild(fabBadge);
 
         ui = {
-            tabs: tabs, tabAi: tabAi, tabStaff: tabStaff, tabBadge: tabBadge, panel: panel, log: log, input: input,
+            note: note, noteText: noteText, tabs: tabs, tabAi: tabAi, tabStaff: tabStaff, tabBadge: tabBadge, panel: panel, log: log, input: input,
             sendBtn: sendBtn, counter: counter, fabBadge: fabBadge,
             title: ctx.header.querySelector('.cb-title'), subtitle: ctx.header.querySelector('.cb-subtitle'),
             clearBtn: ctx.header.querySelector('.cb-clear-btn')
@@ -149,6 +154,23 @@
         });
 
         setUnread(unread);
+        renderPresence();
+    }
+
+    // chấm xanh/xám và câu chữ theo việc nhân viên có đang trực tuyến hay không
+    function renderPresence() {
+        if (!ui) return;
+        ui.note.classList.toggle('is-online', staffOnline === true);
+        ui.note.classList.toggle('is-offline', staffOnline === false);
+        ui.noteText.textContent = staffOnline === true ? NOTE_ONLINE : (staffOnline === false ? NOTE_OFFLINE : ONLINE_NOTE);
+        if (tab === 'staff' && ui.subtitle) {
+            ui.subtitle.textContent = staffOnline === true ? 'Basau Bags • Nhân viên đang trực tuyến' : 'Basau Bags • Nhân viên trả lời bạn tại đây';
+        }
+    }
+
+    function setPresence(online) {
+        staffOnline = typeof online === 'boolean' ? online : null;
+        renderPresence();
     }
 
     function makeTab(label, iconClass) {
@@ -177,6 +199,7 @@
         ui.tabStaff.setAttribute('aria-selected', String(staff));
         if (ui.title) ui.title.textContent = staff ? 'Chat với nhân viên' : 'Trợ lý tư vấn túi';
         if (ui.subtitle) ui.subtitle.textContent = staff ? 'Basau Bags • Nhân viên trả lời bạn tại đây' : 'Basau Bags • Gợi ý mẫu phù hợp';
+        renderPresence();
 
         if (staff) {
             if (!loaded) {
@@ -266,6 +289,7 @@
             history.forEach(appendMessage);
             loaded = true;
             setUnread(Number(data.unread) || 0);
+            if (typeof data.staffOnline === 'boolean') setPresence(data.staffOnline);
             markReadIfVisible();
             scrollToBottom();
         } catch (_) {
@@ -330,6 +354,9 @@
     }
 
     connection.on('supportRead', function () { setUnread(0); });
+
+    // máy chủ báo nhân viên vào/ra trực tuyến (cũng được gửi ngay khi vừa kết nối hoặc kết nối lại)
+    connection.on('staffPresence', function (online) { setPresence(online); });
 
     connection.onreconnected(function () {
         if (loaded) loadHistory(); else refreshUnread();
