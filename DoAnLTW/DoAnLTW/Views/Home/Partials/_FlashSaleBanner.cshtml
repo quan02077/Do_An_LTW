@@ -3,8 +3,8 @@
 @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
 @{
     // Chuỗi ảnh xoay 360°: thả các ảnh chụp quanh chiếc túi vào wwwroot/images/bag360 (24-36 ảnh, cùng kích thước, nền trong suốt,
-    // đặt tên theo thứ tự frame_001.webp, frame_002.webp...). Có từ 8 ảnh trở lên thì tự dùng chế độ xoay 360°;
-    // chưa có thì chỉ hiện ảnh tĩnh nghiêng nhẹ theo tay kéo (không giả vờ xoay 360°).
+    // đặt tên theo thứ tự frame_001.webp, frame_002.webp...). Từ 8 ảnh trở lên: xoay 360°; 2-7 ảnh: chuyển giữa các góc nhìn
+    // (hòa ảnh, nút ghi "NHIỀU GÓC"); chưa có thì chỉ hiện ảnh tĩnh nghiêng nhẹ theo tay kéo (không giả vờ xoay 360°).
     var bagDir = System.IO.Path.Combine(Env.WebRootPath, "images", "bag360");
     var allowedExt = new[] { ".webp", ".jpg", ".jpeg", ".png" };
     var bagFrames = Directory.Exists(bagDir)
@@ -16,7 +16,8 @@
             .ToList()
         : new List<string>();
     var hasSequence = bagFrames.Count >= 8;
-    var framesJson = JsonSerializer.Serialize(hasSequence ? bagFrames : new List<string> { Url.Content("~/HinhAnh/tui1_1.png") });
+    var hasViews = bagFrames.Count >= 2;
+    var framesJson = JsonSerializer.Serialize(hasViews ? bagFrames : new List<string> { Url.Content("~/HinhAnh/tui1_1.png") });
     // Mô hình 3D: thả file .glb vào wwwroot/models (lấy file đầu tiên theo tên). Có file này thì dùng khung xem 3D thật
     // (model-viewer của Google: xoay mọi hướng) và ưu tiên hơn chuỗi ảnh.
     var modelDir = System.IO.Path.Combine(Env.WebRootPath, "models");
@@ -29,7 +30,7 @@
     var hasModel = modelFile != null;
     var modelUrl = hasModel ? Url.Content("~/models/" + Uri.EscapeDataString(modelFile!)) : "";
     var posterUrl = Url.Content("~/HinhAnh/tui1_1.png");
-    var viewerLabel = hasSequence ? "Túi xách xoay 360 độ. Kéo hoặc dùng phím mũi tên trái phải để xoay" : "Ảnh túi xách, kéo để nghiêng";
+    var viewerLabel = hasSequence ? "Túi xách xoay 360 độ. Kéo hoặc dùng phím mũi tên trái phải để xoay" : (hasViews ? "Túi xách nhiều góc nhìn. Kéo hoặc dùng phím mũi tên trái phải để đổi góc" : "Ảnh túi xách, kéo để nghiêng");
 }
 <!-- khối banner flash sale mùa thu kèm túi xách xoay 3D 360 độ -->
 <section class="container-fluid my-5 px-4 px-md-5">
