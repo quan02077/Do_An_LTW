@@ -20,6 +20,7 @@
     @if (User.Identity?.IsAuthenticated == true)
     {
         <link rel="stylesheet" type="text/css" href="~/css/notifications.css" asp-append-version="true">
+        <link rel="stylesheet" type="text/css" href="~/css/support-chat.css" asp-append-version="true">
     }
     @await RenderSectionAsync("Styles", required: false)
 </head>
@@ -90,6 +91,13 @@
                                     <a asp-area="Admin" asp-controller="Promotion" asp-action="Index" class="">
                                         <div class="icon"><i class="icon-percent"></i></div>
                                         <div class="text">Promotion</div>
+                                    </a>
+                                </li>
+                                <!-- Mục Hỗ trợ khách hàng (chat thời gian thực, huy hiệu số tin chưa đọc) -->
+                                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Admin/SupportChat") ? "active" : "")">
+                                    <a asp-area="Admin" asp-controller="SupportChat" asp-action="Index" class="">
+                                        <div class="icon"><i class="icon-message-circle"></i></div>
+                                        <div class="text">Hỗ trợ khách<span id="supportUnreadBadge" class="sc-menu-badge" hidden>0</span></div>
                                     </a>
                                 </li>
                                 <li class="menu-item">
@@ -224,6 +232,7 @@
     {
         <script src="~/lib/signalr/signalr.min.js" asp-append-version="true"></script>
         <script src="~/js/notifications.js" asp-append-version="true"></script>
+        <script src="~/js/support-admin.js" asp-append-version="true"></script>
     }
     @await RenderSectionAsync("Scripts", required: false)
 </body>

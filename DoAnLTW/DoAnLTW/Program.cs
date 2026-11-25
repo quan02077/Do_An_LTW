@@ -43,6 +43,10 @@ builder.Services.AddHostedService(sp => sp.GetRequiredService<OrderEmailQueue>()
 builder.Services.AddSignalR();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
+// chat thời gian thực giữa khách hàng và nhân viên (SupportChatHub): lưu lịch sử trong CSDL, giới hạn tốc độ gửi tin theo tài khoản.
+builder.Services.AddScoped<ISupportChatService, SupportChatService>();
+builder.Services.AddSingleton<SupportChatRateGate>();
+
 // chatbot tư vấn túi: truy xuất sản phẩm từ CSDL rồi nhờ Groq (openai/gpt-oss-20b) viết câu tư vấn.
 // khóa API đặt bằng user-secrets (Chatbot:Groq:ApiKey); thiếu khóa hoặc AI lỗi thì tự dùng gợi ý từ CSDL.
 // token chống giả mạo (CSRF) cho các lời gọi fetch/JSON: gửi trong header thay vì trường form.
@@ -98,6 +102,18 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
             context.Response.Redirect(context.RedirectUri);
             return Task.CompletedTask;
         };
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            // đã đăng nhập nhưng không đủ quyền (ví dụ khách gọi API của nhân viên): script cần mã 403, không phải trang HTML.
+            if (context.Request.Path.StartsWithSegments("/api") || context.Request.Path.StartsWithSegments("/hubs"))
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            }
+
+            context.Response.Redirect(context.RedirectUri);
+            return Task.CompletedTask;
+        };
     });
 
 var app = builder.Build();
@@ -132,6 +148,8 @@ app.UseAuthorization();
 
 // hub thông báo thời gian thực (yêu cầu đăng nhập bằng cookie, xem [Authorize] trong NotificationHub)
 app.MapHub<NotificationHub>("/hubs/notifications");
+// khung chat khách hàng - nhân viên (đăng nhập bắt buộc, xem [Authorize] trong SupportChatHub)
+app.MapHub<SupportChatHub>("/hubs/support-chat");
 
 // 1. route cho area admin: /admin => Areas/Admin/Controllers/HomeController.cs
 app.MapControllerRoute(

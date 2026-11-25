@@ -74,6 +74,28 @@ namespace DoAnLTW.Migrations
                         });
                 });
 
+            modelBuilder.Entity("DoAnLTW.Models.CuocTroChuyen", b =>
+                {
+                    b.Property<int>("maCTC")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("maCTC"));
+
+                    b.Property<DateTime>("capNhatLuc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("maKH")
+                        .HasColumnType("int");
+
+                    b.HasKey("maCTC");
+
+                    b.HasIndex("maKH")
+                        .IsUnique();
+
+                    b.ToTable("CuocTroChuyens");
+                });
+
             modelBuilder.Entity("DoAnLTW.Models.DonHang", b =>
                 {
                     b.Property<int>("maDH")
@@ -315,6 +337,46 @@ namespace DoAnLTW.Migrations
                     b.ToTable("ThuongHieus");
                 });
 
+            modelBuilder.Entity("DoAnLTW.Models.TinNhan", b =>
+                {
+                    b.Property<long>("maTN")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("maTN"));
+
+                    b.Property<bool>("daDoc")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("guiLuc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("maCTC")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("maTKNhanVien")
+                        .HasColumnType("int");
+
+                    b.Property<string>("noiDung")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("tuKhach")
+                        .HasColumnType("bit");
+
+                    b.HasKey("maTN");
+
+                    b.HasIndex("maTKNhanVien");
+
+                    b.HasIndex("maCTC", "guiLuc");
+
+                    b.ToTable("TinNhans", t =>
+                        {
+                            t.HasCheckConstraint("CK_TinNhan_noiDung", "LEN(LTRIM(RTRIM([noiDung]))) > 0");
+                        });
+                });
+
             modelBuilder.Entity("DoAnLTW.Models.TuiXach", b =>
                 {
                     b.Property<int>("maTui")
@@ -404,6 +466,17 @@ namespace DoAnLTW.Migrations
                     b.Navigation("TuiXach");
                 });
 
+            modelBuilder.Entity("DoAnLTW.Models.CuocTroChuyen", b =>
+                {
+                    b.HasOne("DoAnLTW.Models.KhachHang", "KhachHang")
+                        .WithOne()
+                        .HasForeignKey("DoAnLTW.Models.CuocTroChuyen", "maKH")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("KhachHang");
+                });
+
             modelBuilder.Entity("DoAnLTW.Models.DonHang", b =>
                 {
                     b.HasOne("DoAnLTW.Models.KhachHang", "KhachHang")
@@ -448,6 +521,22 @@ namespace DoAnLTW.Migrations
                     b.Navigation("TaiKhoan");
                 });
 
+            modelBuilder.Entity("DoAnLTW.Models.TinNhan", b =>
+                {
+                    b.HasOne("DoAnLTW.Models.CuocTroChuyen", "CuocTroChuyen")
+                        .WithMany("TinNhans")
+                        .HasForeignKey("maCTC")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DoAnLTW.Models.TaiKhoan", null)
+                        .WithMany()
+                        .HasForeignKey("maTKNhanVien")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CuocTroChuyen");
+                });
+
             modelBuilder.Entity("DoAnLTW.Models.TuiXach", b =>
                 {
                     b.HasOne("DoAnLTW.Models.KhuyenMai", "KhuyenMai")
@@ -471,6 +560,11 @@ namespace DoAnLTW.Migrations
                     b.Navigation("LoaiTui");
 
                     b.Navigation("ThuongHieu");
+                });
+
+            modelBuilder.Entity("DoAnLTW.Models.CuocTroChuyen", b =>
+                {
+                    b.Navigation("TinNhans");
                 });
 
             modelBuilder.Entity("DoAnLTW.Models.DonHang", b =>
