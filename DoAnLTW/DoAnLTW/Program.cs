@@ -33,7 +33,11 @@ builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<IFlashSaleService, CatalogService>();
 builder.Services.AddScoped<IPromotionService, PromotionService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
+// email xác nhận đơn: EmailService gửi SMTP; OrderEmailQueue chạy nền để bước đặt hàng không phải chờ SMTP
+builder.Services.AddSingleton<IEmailService, EmailService>();
+builder.Services.AddSingleton<OrderEmailQueue>();
+builder.Services.AddSingleton<IOrderEmailQueue>(sp => sp.GetRequiredService<OrderEmailQueue>());
+builder.Services.AddHostedService(sp => sp.GetRequiredService<OrderEmailQueue>());
 // thông báo đơn hàng thời gian thực (SignalR): NotificationService bọc IHubContext, lỗi gửi không làm hỏng nghiệp vụ.
 builder.Services.AddSignalR();
 builder.Services.AddScoped<INotificationService, NotificationService>();
