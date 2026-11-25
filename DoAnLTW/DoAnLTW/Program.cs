@@ -6,6 +6,7 @@ using DoAnLTW.Hubs;
 using DoAnLTW.Services.Chatbot;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.StaticFiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -111,7 +112,11 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+// mô hình 3D (.glb/.gltf) dùng cho khung xem túi xoay 360° ở trang chủ: mặc định ASP.NET không biết kiểu file này nên trả 404.
+var staticFileTypes = new FileExtensionContentTypeProvider();
+staticFileTypes.Mappings[".glb"] = "model/gltf-binary";
+staticFileTypes.Mappings[".gltf"] = "model/gltf+json";
+app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = staticFileTypes });
 
 app.UseRouting();
 
