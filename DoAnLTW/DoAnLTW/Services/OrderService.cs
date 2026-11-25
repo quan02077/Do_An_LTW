@@ -54,7 +54,7 @@ public interface IOrderService
     Task CancelAsync(int maKh, int maDh, CancellationToken cancellationToken = default);
 }
 
-public class OrderService(DbContext_TuiXach db, IProductPricingService pricingService, INotificationService notificationService) : IOrderService
+public class OrderService(DbContext_TuiXach db, IProductPricingService pricingService, INotificationService notificationService, IOrderEmailQueue emailQueue, ILogger<OrderService> logger) : IOrderService
 {
     public async Task<OrderViewModel> CheckoutAsync(int maKh, CheckoutViewModel request, CancellationToken ct = default)
     {
@@ -142,6 +142,21 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
 
         // gửi thông báo sau khi đã commit giao dịch đặt hàng
         await notificationService.NotifyOrderCreatedAsync(ToNotification(order), ct);
+
+        // xếp thư xác nhận vào hàng đợi gửi nền (không chờ SMTP); lỗi ở đây không được làm hỏng đơn đã đặt thành công
+        try
+        {
+            var khachHang = await db.KhachHangs.AsNoTracking().SingleOrDefaultAsync(x => x.maKH == maKh, ct);
+            if (khachHang != null && !string.IsNullOrWhiteSpace(khachHang.email))
+            {
+                emailQueue.TryEnqueue(khachHang.email, khachHang.hoTen, Map(order));
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogWarning(ex, "Không xếp được mail xác nhận cho đơn {MaDonHang}.", order.maDH);
+        }
+
         return Map(order);
     }
 
