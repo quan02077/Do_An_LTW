@@ -143,7 +143,6 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
         // gửi thông báo sau khi đã commit giao dịch đặt hàng
         await notificationService.NotifyOrderCreatedAsync(ToNotification(order), ct);
 
-        // 👉 THÊM ĐOẠN GỬI EMAIL NÀY:
         try
         {
             var khachHang = await db.KhachHangs.FindAsync([maKh], ct);
@@ -154,14 +153,12 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
         }
         catch (Exception ex)
         {
-            // Đặt trong try/catch để lỡ mất mạng Gmail thì đơn hàng vẫn được lưu thành công
             Console.WriteLine($"[Email Error] Không gửi được mail: {ex.Message}");
         }
 
         return Map(order);
     }
 
-    // điền sẵn người nhận từ hồ sơ khách hàng; khách vẫn sửa được nếu giao cho người khác
     public async Task<CheckoutViewModel> GetCheckoutDefaultsAsync(int maKh, IEnumerable<int> selectedMaTui, CancellationToken ct = default)
     {
         var customer = await db.KhachHangs.AsNoTracking().SingleOrDefaultAsync(x => x.maKH == maKh, ct);
