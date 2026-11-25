@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     @* thông tin cho khung chat (chatbot.js): đã đăng nhập chưa, token CSRF (chỉ khi đã đăng nhập), đường dẫn đăng nhập *@
     <meta name="chat-auth" content="@(User.Identity?.IsAuthenticated == true ? "1" : "0")" />
+    @* tài khoản nhân viên (Người bán) trả lời khách ở trang Admin, nên không hiện tab "Nhân viên" ở khung chat của khách *@
+    <meta name="chat-staff" content="@(User.IsInRole(Roles.Admin) ? "1" : "0")" />
     @if (User.Identity?.IsAuthenticated == true)
     {
         <meta name="csrf-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
@@ -29,6 +31,7 @@
     @if (User.Identity?.IsAuthenticated == true)
     {
         <link rel="stylesheet" href="~/css/notifications.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/support-chat.css" asp-append-version="true" />
     }
     @await RenderSectionAsync("Styles", required: false)
 </head>
@@ -90,6 +93,8 @@
     {
         <script src="~/lib/signalr/signalr.min.js" asp-append-version="true"></script>
         <script src="~/js/notifications.js" asp-append-version="true"></script>
+        @* tab "Nhân viên" trong khung chat: phải nạp sau signalr.min.js và chatbot.js *@
+        <script src="~/js/support-chat.js" asp-append-version="true"></script>
     }
     @await RenderSectionAsync("Scripts", required: false)
 </body>

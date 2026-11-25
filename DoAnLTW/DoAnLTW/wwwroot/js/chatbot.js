@@ -19,6 +19,8 @@
 
     var WELCOME_MESSAGE =
         'Xin chào! Mình là trợ lý tư vấn của Basau Bags. Bạn đang tìm mẫu túi nào (đeo chéo, balo, đi làm hay tầm giá bao nhiêu)? Chọn nhanh gợi ý bên dưới hoặc nhắn cho mình nhé!';
+    // khách nhờ gặp người thật hoặc nêu vấn đề mà bot không xử lý được: gợi ý chuyển sang nhân viên
+    var WANTS_HUMAN = /nhân viên|người thật|tư vấn viên|chủ shop|quản trị|khiếu nại|hoàn tiền|đổi trả|liên hệ|gặp người|gọi cho/i;
     var FALLBACK_NOTICE = 'Trợ lý AI đang bận, đây là gợi ý nhanh từ cửa hàng';
     var RATE_LIMIT_MESSAGE = 'Bạn gửi hơi nhanh, vui lòng thử lại sau ít giây.';
     var QUICK_SUGGESTIONS = [
@@ -493,7 +495,7 @@
             scrollToBottom();
         }
 
-        function appendAssistantMessage(text, source, products) {
+        function appendAssistantMessage(text, source, products, offerStaff) {
             var wrapper = document.createElement('div');
             wrapper.className = 'cb-msg cb-msg-assistant';
 
@@ -525,6 +527,18 @@
                     listEl.appendChild(createProductCard(safeProducts[i]));
                 }
                 wrapper.appendChild(listEl);
+            }
+
+            // chuyển sang nhân viên thật (chỉ khi tab "Nhân viên" đã được nạp)
+            if (offerStaff && window.BasauSupportChat) {
+                var staffBtn = document.createElement('button');
+                staffBtn.type = 'button';
+                staffBtn.className = 'cb-chip cb-staff-offer';
+                staffBtn.textContent = 'Chat với nhân viên';
+                staffBtn.addEventListener('click', function () {
+                    document.dispatchEvent(new CustomEvent('cb:open-staff'));
+                });
+                wrapper.appendChild(staffBtn);
             }
 
             messagesEl.appendChild(wrapper);
@@ -616,6 +630,8 @@
                 fabBtn.setAttribute('aria-label', 'Mở trợ lý tư vấn túi');
                 fabIcon.className = 'bi bi-chat-dots-fill';
             }
+            // báo cho tab "Nhân viên" (support-chat.js) biết khung chat đóng/mở để đánh dấu tin đã đọc
+            document.dispatchEvent(new CustomEvent('cb:toggle', { detail: { open: isOpen } }));
         }
 
         // lời mời đăng nhập (kèm liên kết), dùng cho khách chưa đăng nhập hoặc phiên đã hết hạn (HTTP 401)
@@ -736,7 +752,7 @@
                         : 'Xin lỗi, mình chưa nhận được nội dung trả lời phù hợp. Bạn vui lòng thử lại nhé.';
                 }
 
-                appendAssistantMessage(replyText, source, products);
+                appendAssistantMessage(replyText, source, products, source === 'fallback' || WANTS_HUMAN.test(text));
 
                 // Cập nhật và lưu tối đa 6 tin gần nhất vào sessionStorage
                 history.push({ role: 'user', content: text });
@@ -813,6 +829,20 @@
 
         renderConversation();
         updateCounterAndResize();
+
+        // giao diện công khai cho support-chat.js (tab chat với nhân viên): dùng chung cửa sổ, tiêu đề và nút mở/đóng
+        var api = {
+            root: root,
+            chatWindow: chatWindow,
+            header: header,
+            messagesEl: messagesEl,
+            footer: footer,
+            fabBtn: fabBtn,
+            setOpen: setOpen,
+            isOpen: function () { return isOpen; }
+        };
+        window.BasauChatbot = api;
+        document.dispatchEvent(new CustomEvent('cb:ready', { detail: api }));
     }
 
     if (document.readyState === 'loading') {
