@@ -1,0 +1,448 @@
+/* Chat khách hàng - nhân viên: tab "Nhân viên" trong khung chat của khách và trang "Hỗ trợ khách hàng" của admin */
+
+/* ===== Khách: thanh tab trong khung chat ===== */
+.cb-window [hidden] {
+    display: none !important;
+}
+
+.cb-fab {
+    position: relative;
+}
+
+.cb-fab-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #dc2626;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.cb-tabs {
+    display: flex;
+    background: #ffffff;
+    border-bottom: 1px solid var(--color-border, #e4e4e7);
+    flex-shrink: 0;
+}
+
+.cb-tab {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 8px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--color-muted, #71717a);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.cb-tab:hover {
+    background: #fafafa;
+    color: var(--color-text, #18181b);
+}
+
+.cb-tab.is-active {
+    color: var(--color-dark, #121214);
+    border-bottom-color: var(--color-dark, #121214);
+}
+
+.cb-tab:focus-visible {
+    outline: 2px solid var(--color-dark, #121214);
+    outline-offset: -2px;
+}
+
+.cb-tab-badge {
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #dc2626;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.sc-panel {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.sc-messages {
+    min-height: 0;
+}
+
+/* dòng nhắc: nhân viên trả lời khi trực tuyến */
+.sc-note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: #fffbeb;
+    border-bottom: 1px solid #fde68a;
+    color: #78350f;
+    font-size: 12.5px;
+    line-height: 1.3;
+    flex-shrink: 0;
+}
+
+.sc-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #d97706;
+    flex-shrink: 0;
+}
+
+.sc-note.is-online {
+    background: #ecfdf5;
+    border-bottom-color: #a7f3d0;
+    color: #065f46;
+}
+
+.sc-note.is-online .sc-dot {
+    background: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+}
+
+.sc-note.is-offline {
+    background: #f4f4f5;
+    border-bottom-color: #e4e4e7;
+    color: #52525b;
+}
+
+.sc-note.is-offline .sc-dot {
+    background: #a1a1aa;
+}
+
+.sc-sender {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-muted, #71717a);
+    letter-spacing: 0.2px;
+}
+
+.sc-time {
+    font-size: 11px;
+    color: var(--color-muted, #71717a);
+}
+
+.cb-msg-user .sc-time {
+    align-self: flex-end;
+}
+
+.cb-staff-offer {
+    align-self: flex-start;
+    margin-top: 2px;
+}
+
+/* ===== Admin: trang Hỗ trợ khách hàng ===== */
+.sc-menu-badge {
+    display: inline-block;
+    min-width: 20px;
+    height: 20px;
+    margin-left: 6px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #dc2626;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 20px;
+    text-align: center;
+    box-sizing: border-box;
+    vertical-align: middle;
+}
+
+.sc-menu-badge[hidden] {
+    display: none;
+}
+
+.sc-admin {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: 0;
+    padding: 0 !important;
+    height: calc(100vh - 230px);
+    min-height: 460px;
+    overflow: hidden;
+}
+
+.sc-list {
+    border-right: 1px solid #e5e7eb;
+    overflow-y: auto;
+    background: #fafafa;
+}
+
+.sc-list-empty {
+    padding: 24px 18px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.sc-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px 16px;
+    border: 0;
+    border-bottom: 1px solid #eeeeee;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.sc-item:hover {
+    background: #f3f4f6;
+}
+
+.sc-item.is-active {
+    background: #ffffff;
+    box-shadow: inset 3px 0 0 #111827;
+}
+
+.sc-item:focus-visible {
+    outline: 2px solid #111827;
+    outline-offset: -2px;
+}
+
+.sc-item-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.sc-item-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #111827;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sc-item-time {
+    font-size: 11px;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.sc-item-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 3px;
+}
+
+.sc-item-snippet {
+    font-size: 13px;
+    color: #6b7280;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sc-item.has-unread .sc-item-snippet {
+    color: #111827;
+    font-weight: 600;
+}
+
+.sc-item-badge {
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #dc2626;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 20px;
+    text-align: center;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.sc-chat {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+}
+
+.sc-chat-head {
+    padding: 14px 18px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #ffffff;
+}
+
+.sc-chat-head strong {
+    display: block;
+    font-size: 15px;
+    color: #111827;
+}
+
+.sc-chat-head span {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.sc-log {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #f9fafb;
+}
+
+.sc-empty {
+    margin: auto;
+    color: #6b7280;
+    font-size: 14px;
+    text-align: center;
+}
+
+.sc-row {
+    display: flex;
+    flex-direction: column;
+    max-width: 70%;
+    gap: 4px;
+}
+
+.sc-row.is-staff {
+    align-self: flex-end;
+    align-items: flex-end;
+}
+
+.sc-row.is-customer {
+    align-self: flex-start;
+    align-items: flex-start;
+}
+
+.sc-bubble {
+    padding: 9px 13px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.sc-row.is-staff .sc-bubble {
+    background: #111827;
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+}
+
+.sc-row.is-customer .sc-bubble {
+    background: #ffffff;
+    color: #111827;
+    border: 1px solid #e5e7eb;
+    border-bottom-left-radius: 4px;
+}
+
+.sc-row .sc-time {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.sc-form {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    padding: 12px 16px;
+    border-top: 1px solid #e5e7eb;
+    background: #ffffff;
+}
+
+.sc-form textarea {
+    flex: 1;
+    min-height: 42px;
+    max-height: 120px;
+    resize: none;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    padding: 9px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.sc-form textarea:focus {
+    outline: none;
+    border-color: #111827;
+}
+
+.sc-form textarea:disabled {
+    background: #f3f4f6;
+    cursor: not-allowed;
+}
+
+.sc-form button {
+    height: 42px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 10px;
+    background: #111827;
+    color: #ffffff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.sc-form button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.sc-error-bar {
+    padding: 8px 18px;
+    background: #fef2f2;
+    color: #991b1b;
+    border-top: 1px solid #fecaca;
+    font-size: 13px;
+}
+
+.sc-error-bar[hidden] {
+    display: none;
+}
+
+@media (max-width: 991.98px) {
+    .sc-admin {
+        grid-template-columns: 1fr;
+        grid-template-rows: 220px minmax(0, 1fr);
+        height: calc(100vh - 200px);
+    }
+
+    .sc-list {
+        border-right: 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .sc-row {
+        max-width: 88%;
+    }
+}

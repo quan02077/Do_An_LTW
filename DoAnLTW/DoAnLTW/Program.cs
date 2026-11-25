@@ -6,6 +6,7 @@ using DoAnLTW.Hubs;
 using DoAnLTW.Services.Chatbot;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.StaticFiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,10 +35,20 @@ builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<IFlashSaleService, CatalogService>();
 builder.Services.AddScoped<IPromotionService, PromotionService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
+// email xác nhận đơn: EmailService gửi SMTP; OrderEmailQueue chạy nền để bước đặt hàng không phải chờ SMTP
+builder.Services.AddSingleton<IEmailService, EmailService>();
+builder.Services.AddSingleton<OrderEmailQueue>();
+builder.Services.AddSingleton<IOrderEmailQueue>(sp => sp.GetRequiredService<OrderEmailQueue>());
+builder.Services.AddHostedService(sp => sp.GetRequiredService<OrderEmailQueue>());
 // thông báo đơn hàng thời gian thực (SignalR): NotificationService bọc IHubContext, lỗi gửi không làm hỏng nghiệp vụ.
 builder.Services.AddSignalR();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+
+// chat thời gian thực giữa khách hàng và nhân viên (SupportChatHub): lưu lịch sử trong CSDL, giới hạn tốc độ gửi tin theo tài khoản.
+builder.Services.AddScoped<ISupportChatService, SupportChatService>();
+builder.Services.AddSingleton<SupportChatRateGate>();
+// chỉ báo nhân viên trực tuyến (theo số kết nối SignalR của tài khoản nhân viên)
+builder.Services.AddSingleton<StaffPresenceTracker>();
 
 // chatbot tư vấn túi: truy xuất sản phẩm từ CSDL rồi nhờ Groq (openai/gpt-oss-20b) viết câu tư vấn.
 // khóa API đặt bằng user-secrets (Chatbot:Groq:ApiKey); thiếu khóa hoặc AI lỗi thì tự dùng gợi ý từ CSDL.
@@ -94,6 +105,18 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
             context.Response.Redirect(context.RedirectUri);
             return Task.CompletedTask;
         };
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            // đã đăng nhập nhưng không đủ quyền (ví dụ khách gọi API của nhân viên): script cần mã 403, không phải trang HTML.
+            if (context.Request.Path.StartsWithSegments("/api") || context.Request.Path.StartsWithSegments("/hubs"))
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            }
+
+            context.Response.Redirect(context.RedirectUri);
+            return Task.CompletedTask;
+        };
     });
 
 var app = builder.Build();
@@ -113,7 +136,11 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+// mô hình 3D (.glb/.gltf) dùng cho khung xem túi xoay 360° ở trang chủ: mặc định ASP.NET không biết kiểu file này nên trả 404.
+var staticFileTypes = new FileExtensionContentTypeProvider();
+staticFileTypes.Mappings[".glb"] = "model/gltf-binary";
+staticFileTypes.Mappings[".gltf"] = "model/gltf+json";
+app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = staticFileTypes });
 
 app.UseRouting();
 
@@ -124,6 +151,8 @@ app.UseAuthorization();
 
 // hub thông báo thời gian thực (yêu cầu đăng nhập bằng cookie, xem [Authorize] trong NotificationHub)
 app.MapHub<NotificationHub>("/hubs/notifications");
+// khung chat khách hàng - nhân viên (đăng nhập bắt buộc, xem [Authorize] trong SupportChatHub)
+app.MapHub<SupportChatHub>("/hubs/support-chat");
 
 // 1. route cho area admin: /admin => Areas/Admin/Controllers/HomeController.cs
 app.MapControllerRoute(

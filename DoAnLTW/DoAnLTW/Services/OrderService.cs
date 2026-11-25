@@ -54,7 +54,7 @@ public interface IOrderService
     Task CancelAsync(int maKh, int maDh, CancellationToken cancellationToken = default);
 }
 
-public class OrderService(DbContext_TuiXach db, IProductPricingService pricingService, INotificationService notificationService, IEmailService emailService) : IOrderService
+public class OrderService(DbContext_TuiXach db, IProductPricingService pricingService, INotificationService notificationService, IOrderEmailQueue emailQueue, ILogger<OrderService> logger) : IOrderService
 {
     public async Task<OrderViewModel> CheckoutAsync(int maKh, CheckoutViewModel request, CancellationToken ct = default)
     {
@@ -145,13 +145,13 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
 
         try
         {
-            var khachHang = await db.KhachHangs.FindAsync([maKh], ct);
+            var khachHang = await db.KhachHangs.AsNoTracking().SingleOrDefaultAsync(x => x.maKH == maKh, ct);
             if (khachHang != null && !string.IsNullOrWhiteSpace(khachHang.email))
             {
-                await emailService.SendOrdersConfirmationAsync(khachHang.email, khachHang.hoTen, Map(order), ct);
+                emailQueue.TryEnqueue(khachHang.email, khachHang.hoTen, Map(order));
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             Console.WriteLine($"[Email Error] Không gửi được mail: {ex.Message}");
         }

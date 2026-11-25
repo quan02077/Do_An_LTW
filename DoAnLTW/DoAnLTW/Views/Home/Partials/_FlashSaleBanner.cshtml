@@ -1,31 +1,233 @@
-<!-- khối banner flash sale mùa thu -->
+@using System.IO
+@using System.Text.Json
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
+@{
+    // Chuỗi ảnh xoay 360°: thả các ảnh chụp quanh chiếc túi vào wwwroot/images/bag360 (24-36 ảnh, cùng kích thước, nền trong suốt,
+    // đặt tên theo thứ tự frame_001.webp, frame_002.webp...). Từ 8 ảnh trở lên: xoay 360°; 2-7 ảnh: chuyển giữa các góc nhìn
+    // (hòa ảnh, nút ghi "NHIỀU GÓC"); chưa có thì chỉ hiện ảnh tĩnh nghiêng nhẹ theo tay kéo (không giả vờ xoay 360°).
+    var bagDir = System.IO.Path.Combine(Env.WebRootPath, "images", "bag360");
+    var allowedExt = new[] { ".webp", ".jpg", ".jpeg", ".png" };
+    var bagFrames = Directory.Exists(bagDir)
+        ? Directory.EnumerateFiles(bagDir)
+            .Where(f => allowedExt.Contains(System.IO.Path.GetExtension(f).ToLowerInvariant()))
+            .Select(f => System.IO.Path.GetFileName(f))
+            .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
+            .Select(n => Url.Content("~/images/bag360/" + Uri.EscapeDataString(n!)))
+            .ToList()
+        : new List<string>();
+    var hasSequence = bagFrames.Count >= 8;
+    var hasViews = bagFrames.Count >= 2;
+    var framesJson = JsonSerializer.Serialize(hasViews ? bagFrames : new List<string> { Url.Content("~/HinhAnh/tui1_1.png") });
+    // Mô hình 3D: thả file .glb vào wwwroot/models (lấy file đầu tiên theo tên). Có file này thì dùng khung xem 3D thật
+    // (model-viewer của Google: xoay mọi hướng) và ưu tiên hơn chuỗi ảnh.
+    var modelDir = System.IO.Path.Combine(Env.WebRootPath, "models");
+    var modelFile = Directory.Exists(modelDir)
+        ? Directory.EnumerateFiles(modelDir, "*.glb")
+            .Select(f => System.IO.Path.GetFileName(f))
+            .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault()
+        : null;
+    var hasModel = modelFile != null;
+    var modelUrl = hasModel ? Url.Content("~/models/" + Uri.EscapeDataString(modelFile!)) : "";
+    // ảnh chờ trong lúc tải mô hình (file .glb thường nặng): thả poster.webp (hoặc .png/.jpg) vào wwwroot/models, chưa có thì dùng ảnh túi mặc định
+    var posterFile = new[] { "poster.webp", "poster.png", "poster.jpg" }.FirstOrDefault(n => System.IO.File.Exists(System.IO.Path.Combine(modelDir, n)));
+    var posterUrl = posterFile != null ? Url.Content("~/models/" + posterFile) : Url.Content("~/HinhAnh/tui1_1.png");
+    var viewerLabel = hasSequence ? "Túi xách xoay 360 độ. Kéo hoặc dùng phím mũi tên trái phải để xoay" : (hasViews ? "Túi xách nhiều góc nhìn. Kéo hoặc dùng phím mũi tên trái phải để đổi góc" : "Ảnh túi xách, kéo để nghiêng");
+}
+<!-- khối banner flash sale mùa thu kèm túi xách xoay 3D 360 độ -->
 <section class="container-fluid my-5 px-4 px-md-5">
-    <div class="flash-sale-banner row m-0 align-items-center rounded-4 overflow-hidden p-4 p-md-5 text-white">
-        <div class="col-md-7 pe-md-5">
+    <div class="flash-sale-banner row m-0 align-items-center rounded-4 overflow-hidden p-4 p-md-5 text-white position-relative">
+        <!-- Cột trái: Thông tin ưu đãi & Countdown -->
+        <div class="col-lg-7 col-md-6 pe-md-4 pe-lg-5 mb-4 mb-md-0 position-relative" style="z-index: 2;">
             <h2 class="display-6 fw-bold text-white mb-2 oswald-font">ƯU ĐÃI ĐẶC QUYỀN MÙA THU</h2>
             <p class="text-white-50 fs-5 mb-4">Săn túi xách và balo chính hãng từ các thương hiệu hàng đầu với ưu đãi giảm giá lên đến 30%.</p>
-            <div class="countdown d-flex gap-3 mb-4">
+            
+            <div class="countdown d-flex gap-2 gap-sm-3 mb-4">
                 <div class="countdown-box">
-                    <div class="count-num" id="days">02</div>
+                    <div class="count-num" id="fs-days">02</div>
                     <span class="count-lbl">Ngày</span>
                 </div>
                 <div class="countdown-box">
-                    <div class="count-num" id="hours">14</div>
+                    <div class="count-num" id="fs-hours">14</div>
                     <span class="count-lbl">Giờ</span>
                 </div>
                 <div class="countdown-box">
-                    <div class="count-num" id="minutes">45</div>
+                    <div class="count-num" id="fs-minutes">45</div>
                     <span class="count-lbl">Phút</span>
                 </div>
                 <div class="countdown-box">
-                    <div class="count-num text-danger" id="seconds">30</div>
+                    <div class="count-num text-danger" id="fs-seconds">30</div>
                     <span class="count-lbl">Giây</span>
                 </div>
             </div>
-            <a asp-controller="FlashSale" asp-action="Index" class="btn btn-light btn-lg px-5 fw-bold rounded-pill text-dark">SĂN SALE NGAY</a>
+            
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                <a asp-controller="FlashSale" asp-action="Index" class="btn btn-light btn-lg px-5 fw-bold rounded-pill text-dark btn-sale-cta">
+                    SĂN SALE NGAY
+                </a>
+                <span class="text-white-50 small d-none d-sm-inline-flex align-items-center gap-1">
+                    <i class="bi bi-shield-check text-warning"></i> Chính hãng 100%
+                </span>
+            </div>
         </div>
-        <div class="col-md-5 p-4 text-center">
-            <img src="~/HinhAnh/tui1_1.png" class="img-fluid" style="max-height: 280px; object-fit: contain;" alt="Túi xách Basau">
+
+        <!-- Cột phải: túi xách xoay 360° (kéo để xoay, kiểu trang sản phẩm của Apple) -->
+        <div class="col-lg-5 col-md-6 text-center position-relative py-2" style="z-index: 2;">
+            <div class="bag-3d-stage" id="bag3dStage">
+                <!-- Vầng sáng phía sau túi -->
+                <div class="bag-halo-light"></div>
+
+                <!-- Nút bật/tắt tự xoay -->
+                <button type="button" class="badge-360-rotate is-active" id="btnToggleSpin" aria-pressed="true" title="Bấm để bật/tắt tự động xoay">
+                    <i class="bi bi-arrow-repeat spin-icon" aria-hidden="true"></i>
+                    <span class="badge-text" id="btnSpinText">XOAY 360°</span>
+                </button>
+
+                @if (hasModel)
+                {
+                    <!-- Mô hình 3D thật (.glb): kéo để xoay mọi hướng; không phóng to để khỏi chặn cuộn trang -->
+                    <div class="bag-glb-wrap">
+                        <model-viewer id="bagModel" class="bag-glb-viewer"
+                                      src="@modelUrl"
+                                      alt="Mô hình 3D túi xách, kéo để xoay 360 độ"
+                                      camera-controls
+                                      auto-rotate
+                                      auto-rotate-delay="2500"
+                                      rotation-per-second="28deg"
+                                      camera-orbit="35deg 76deg 118%"
+                                      min-camera-orbit="auto 55deg auto"
+                                      max-camera-orbit="auto 100deg auto"
+                                      interaction-prompt="none"
+                                      disable-zoom
+                                      touch-action="pan-y"
+                                      environment-image="neutral"
+                                      exposure="1.05"
+                                      shadow-intensity="1"
+                                      shadow-softness="0.9"
+                                      reveal="auto">
+                            <img slot="poster" src="@posterUrl" alt="Túi xách" class="bag-glb-poster" />
+                        </model-viewer>
+                        <div class="bag-load" id="bagLoad" role="progressbar" aria-label="Đang tải mô hình 3D" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+                    </div>
+                    <div class="bag-controls-bar is-no-scrubber mt-2">
+                        <span></span>
+                        <span class="bag-drag-hint" id="bagDragHint">
+                            <i class="bi bi-hand-index-thumb me-1" aria-hidden="true"></i> Kéo để xoay 360°
+                        </span>
+                    </div>
+                }
+                else
+                {
+                    <!-- Khung xem: canvas vẽ ảnh theo góc xoay hiện tại -->
+                    <div class="bag-360-viewport" id="bagViewport" tabindex="0" role="img"
+                         aria-label="@viewerLabel"
+                         data-frames="@framesJson">
+                        <canvas class="bag-360-canvas" id="bag360Canvas" aria-hidden="true"></canvas>
+                        <div class="bag-360-loading" id="bag360Loading">Đang tải…</div>
+                        <div class="bag-ground-shadow" id="bagGroundShadow"></div>
+                    </div>
+
+                    <!-- Thanh trượt góc xoay và gợi ý -->
+                    <div class="bag-controls-bar mt-2">
+                        <input type="range" class="bag-scrubber" id="bagScrubber" min="0" max="0" value="0" step="1" aria-label="Góc xoay của túi" />
+                        <span class="bag-drag-hint" id="bagDragHint">
+                            <i class="bi bi-hand-index-thumb me-1" aria-hidden="true"></i> Kéo để xoay 360°
+                        </span>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 </section>
+
+@if (hasModel)
+{
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@@google/model-viewer@@3.5.0/dist/model-viewer.min.js"></script>
+    <script>
+    (function () {
+        var model = document.getElementById('bagModel');
+        var btn = document.getElementById('btnToggleSpin');
+        var hint = document.getElementById('bagDragHint');
+        if (!model) return;
+
+        // người dùng chọn "giảm chuyển động" thì không tự xoay
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            model.removeAttribute('auto-rotate');
+        }
+        function sync() {
+            var on = model.hasAttribute('auto-rotate');
+            if (btn) { btn.classList.toggle('is-active', on); btn.setAttribute('aria-pressed', String(on)); }
+        }
+        if (btn) {
+            btn.addEventListener('click', function () {
+                if (model.hasAttribute('auto-rotate')) { model.removeAttribute('auto-rotate'); }
+                else { model.setAttribute('auto-rotate', ''); }
+                sync();
+            });
+        }
+        sync();
+
+        // chỉ báo tải: đường kẻ mảnh dưới mô hình (thay cho thanh mặc định đè lên nút)
+        var load = document.getElementById('bagLoad');
+        var bar = load ? load.firstElementChild : null;
+        model.addEventListener('progress', function (e) {
+            var p = e.detail && typeof e.detail.totalProgress === 'number' ? e.detail.totalProgress : 0;
+            if (bar) bar.style.transform = 'scaleX(' + p.toFixed(3) + ')';
+            if (load) load.setAttribute('aria-valuenow', String(Math.round(p * 100)));
+            if (p >= 1 && load) load.classList.add('is-done');
+        });
+        model.addEventListener('load', function () { if (load) load.classList.add('is-done'); });
+
+        // chạm vào mô hình lần đầu thì ẩn gợi ý
+        model.addEventListener('camera-change', function (e) {
+            if (e.detail && e.detail.source === 'user-interaction' && hint) hint.classList.add('is-hidden');
+        });
+        // tải .glb lỗi: giữ ảnh tĩnh, không để khung trống
+        model.addEventListener('error', function () {
+            model.setAttribute('poster', '@posterUrl');
+            if (load) load.classList.add('is-done');
+            if (hint) hint.textContent = 'Không tải được mô hình 3D';
+        });
+    })();
+    </script>
+}
+else
+{
+    <script src="~/js/bag360.js" asp-append-version="true"></script>
+}
+
+<!-- Đồng hồ đếm ngược -->
+<script>
+(function() {
+    // 1. LIVE COUNTDOWN TIMER
+    let days = 2, hours = 14, minutes = 45, seconds = 30;
+    const elDays = document.getElementById('fs-days');
+    const elHours = document.getElementById('fs-hours');
+    const elMinutes = document.getElementById('fs-minutes');
+    const elSeconds = document.getElementById('fs-seconds');
+
+    function updateCountdown() {
+        if (seconds > 0) {
+            seconds--;
+        } else {
+            seconds = 59;
+            if (minutes > 0) {
+                minutes--;
+            } else {
+                minutes = 59;
+                if (hours > 0) {
+                    hours--;
+                } else {
+                    hours = 23;
+                    if (days > 0) days--;
+                }
+            }
+        }
+        if (elDays) elDays.textContent = String(days).padStart(2, '0');
+        if (elHours) elHours.textContent = String(hours).padStart(2, '0');
+        if (elMinutes) elMinutes.textContent = String(minutes).padStart(2, '0');
+        if (elSeconds) elSeconds.textContent = String(seconds).padStart(2, '0');
+    }
+    setInterval(updateCountdown, 1000);
+})();
+</script>
