@@ -25,9 +25,6 @@ namespace DoAnLTW.Services
 
         public async Task SendOrdersConfirmationAsync(string to, string name, OrderViewModel order, CancellationToken ct = default)
         {
-            var smtpServer = config["EmailSettings:SmtpServer"] ?? "smtp.gmail.com";
-            var port = int.Parse(config["EmailSettings:Port"] ?? "587");
-            var senderName = config["EmailSettings:SenderName"] ?? "Shop Túi Xách BASAU";
             var senderEmail = config["EmailSettings:SenderEmail"] ?? "";
             var appPassword = config["EmailSettings:AppPassword"] ?? "";
             if (string.IsNullOrWhiteSpace(senderEmail) || string.IsNullOrWhiteSpace(appPassword))
