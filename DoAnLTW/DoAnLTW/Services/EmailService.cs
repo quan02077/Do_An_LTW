@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using DoAnLTW.Constants;
 using DoAnLTW.ViewModels;
 using MailKit;   // cần cho các hàm mở rộng SendAsync(MimeMessage, CancellationToken)
 using MailKit.Net.Smtp;
@@ -14,15 +15,11 @@ namespace DoAnLTW.Services
     }
 
     /// <summary>
-    /// gửi email xác nhận đơn hàng qua SMTP. Cấu hình ở mục "EmailSettings": SenderEmail và AppPassword KHÔNG đặt trong appsettings.json
-    /// (repo công khai) mà đặt bằng .env (EmailSettings__SenderEmail, EmailSettings__AppPassword), user-secrets hoặc biến môi trường.
-    /// Thiếu SenderEmail/AppPassword thì không gửi gì (bỏ qua êm).
+    /// Gửi email qua giao thức SMTP (hỗ trợ xác nhận đơn hàng và đặt lại mật khẩu).
+    /// Toàn bộ thông tin nhạy cảm (SenderEmail, AppPassword) được cấu hình qua .env hoặc user-secrets.
     /// </summary>
     public class EmailService(IConfiguration config, ILogger<EmailService> logger) : IEmailService
     {
-        // giới hạn thời gian mỗi lần gửi để không treo luồng nền khi mạng chậm
-        private const int SmtpTimeoutMs = 15_000;
-
         public async Task SendOrdersConfirmationAsync(string to, string name, OrderViewModel order, CancellationToken ct = default)
         {
             var senderEmail = config["EmailSettings:SenderEmail"] ?? "";
@@ -34,7 +31,7 @@ namespace DoAnLTW.Services
             }
 
             var smtpServer = config["EmailSettings:SmtpServer"] ?? "smtp.gmail.com";
-            var port = int.TryParse(config["EmailSettings:Port"], out var p) ? p : 587;
+            var port = int.TryParse(config["EmailSettings:Port"], out var p) ? p : AppConstants.Email.DefaultSmtpPort;
             var senderName = config["EmailSettings:SenderName"] ?? "Shop Túi Xách BASAU";
             var secure = Enum.TryParse<SecureSocketOptions>(config["EmailSettings:SecureSocket"], ignoreCase: true, out var s) ? s : SecureSocketOptions.StartTls;
 
@@ -44,7 +41,7 @@ namespace DoAnLTW.Services
             message.Subject = $"[Xác nhận đơn hàng #{order.MaHienThi}] - Cảm ơn bạn đã mua sắm!";
             message.Body = new BodyBuilder { HtmlBody = BuildHtmlBody(name, senderName, order) }.ToMessageBody();
 
-            using var client = new SmtpClient { Timeout = SmtpTimeoutMs };
+            using var client = new SmtpClient { Timeout = AppConstants.Email.SmtpTimeoutMs };
             await client.ConnectAsync(smtpServer, port, secure, ct);
             await client.AuthenticateAsync(senderEmail, appPassword, ct);
             await client.SendAsync(message, ct);

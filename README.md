@@ -1,166 +1,139 @@
-# ĐỒ ÁN LẬP TRÌNH WEB - BASAU BAGS STORE 👜
+# ĐỒ ÁN LẬP TRÌNH WEB - SHOP TÚI XÁCH & BALO THỜI TRANG BASAU 👜
 
 Website thương mại điện tử chuyên kinh doanh các sản phẩm túi xách thời trang cao cấp (**BaSau Bags Store**), được phát triển trên nền tảng **ASP.NET Core 8 MVC** và **Entity Framework Core**.
 
 ---
 
-## 📁 Cấu Trúc Thư Mục Dự Án
+## 👥 Phân Công Nhiệm Vụ Thành Viên
 
-```text
-Do_An_LTW/
-├── .gitignore
-├── README.md                        # Hướng dẫn chạy project, tài khoản Admin/User mẫu
-├── Docs/                            # Gom toàn bộ tài liệu báo cáo vào đây
-│   ├── Dac_Ta_Co_So_Du_Lieu_QL_TuiXach.docx
-│   └── quan_ly_tui_xach.sql
-└── DoAnLTW/                         # Solution chính
-    ├── DoAnLTW.sln
-    ├── run.bat
-    └── DoAnLTW/
-        ├── Areas/                   # Phân hệ quản trị (tích hợp từ admin4)
-        │   └── Admin/
-        │       ├── Controllers/     # Controller quản trị (Product, Category, Order, Promotion, Home)
-        │       ├── Services/        # Logic nghiệp vụ quản trị
-        │       ├── ViewModels/      # ViewModel cho trang Admin
-        │       └── Views/           # Giao diện quản trị (layout, dashboard, crud...)
-        ├── Controllers/             # Khu vực khách hàng
-        │   ├── AccountController.cs
-        │   ├── CartApiController.cs
-        │   ├── CartController.cs
-        │   ├── CatalogController.cs
-        │   ├── FlashSaleController.cs
-        │   ├── HomeController.cs
-        │   └── OrdersController.cs
-        ├── Data/                    # AppDbContext, DbInitializer (Tự động migrate & seed data)
-        ├── Migrations/              # InitialCreate, ModelSnapshot (EF Core Migrations)
-        ├── Models/                  # Entities (TuiXach, KhachHang, DonHang, TaiKhoan, KhuyenMai...)
-        ├── Services/                # Business Logic (Cart, Catalog, Order, Pricing, Customer...)
-        ├── ViewModels/              # Dữ liệu truyền giữa Controller và View
-        ├── Views/                   # Giao diện khách hàng
-        │   ├── Account/
-        │   ├── Cart/
-        │   ├── Catalog/
-        │   ├── FlashSale/
-        │   ├── Home/
-        │   ├── Orders/
-        │   └── Shared/
-        ├── wwwroot/                 # Tài nguyên tĩnh (bao gồm cả asset của admin4: css, js, images, font...)
-        ├── appsettings.json         # Chuỗi kết nối Database và cấu hình hệ thống
-        ├── Program.cs               # Cấu hình DI, Cookie Authentication, Routing
-        └── DoAnLTW.csproj           # Cấu hình project .NET 8
-```
+| Thành viên | Phụ trách chính | Các tính năng & Kỹ thuật tiêu biểu |
+| :--- | :--- | :--- |
+| **Thành viên 1** | **Xử lý Đơn hàng, Hàng đợi Email & Bản đồ** | • Hàng đợi gửi Email nền bất đồng bộ (`System.Threading.Channels` + `BackgroundService` + MailKit).<br>• Tiến trình đơn hàng Shopee Stepper (`OrderStatus` dynamic calc CSS).<br>• Bản đồ định vị toạ độ giao hàng Leaflet OpenStreetMap & `localStorage`.<br>• Xác thực quên mật khẩu qua Token Cache 15 phút & gửi mail reset password.<br>• Chuẩn hóa kiến trúc Constants (`AppConstants`). |
+| **Thành viên 2** | **Chat Thời Gian Thực & Banner 3D / 360°** | • Khung chat hỗ trợ trực tuyến khách hàng - nhân viên (SignalR WebSocket).<br>• Bộ theo dõi nhân viên trực tuyến có độ trễ êm (`StaffPresenceTracker` Grace Period).<br>• Giới hạn tốc độ gửi tin chống spam (`SupportChatRateGate`).<br>• Banner tương tác túi xoay 3D (`model-viewer` Google, MIME type `.glb`, Fallback 4 tầng).<br>• Băng chuyền sản phẩm nổi bật chạy ngang liên tục (`hot-marquee.js`). |
 
 ---
 
-## 🛠️ Công Nghệ Sử Dụng
+## 🎯 Sơ Đồ & Đặc Tả 14 Use Case Nghiệp Vụ (`QL_TuiXach`)
 
-- **Backend:** C# / .NET 8 (ASP.NET Core MVC)
-- **ORM:** Entity Framework Core 8 (Code-First với Migrations & Auto-Seeder)
-- **Database:** Microsoft SQL Server
-- **Frontend:** Razor Pages (View Engine), Bootstrap 5, HTML5, CSS3, JavaScript, ApexCharts, SweetAlert
-- **Xác thực:** Cookie Authentication (`[Authorize]`, phân quyền Role: `Người bán`, `Khách hàng`)
+Hệ thống được thiết kế theo chuẩn UML Use Case Diagram gồm **3 Tác nhân (Actors)** và **14 Use Case**:
+
+```mermaid
+flowchart LR
+    Guest(["Khách vãng lai"]):::guest
+    Customer(["Khách hàng"]):::customer
+    Admin(["Người bán (Admin)"]):::admin
+
+    Customer -- kế thừa --> Guest
+
+    subgraph System ["Hệ thống Website Bán Túi Xách & Balo Thời Trang (QL_TuiXach)"]
+        UC01(["UC01: Xem & Tìm kiếm sản phẩm"])
+        UC02(["UC02: Xem chi tiết túi xách & Ảnh"])
+        UC03(["UC03: Đăng ký tài khoản"])
+        UC04(["UC04: Đăng nhập hệ thống"])
+        
+        UC05(["UC05: Quản lý thông tin cá nhân"])
+        UC06(["UC06: Quản lý giỏ hàng"])
+        UC07(["UC07: Đặt hàng & Thanh toán"])
+        UC07_INC(["Kiểm tra tồn kho & Áp dụng khuyến mãi"]):::inc
+        UC08(["UC08: Theo dõi & Hủy đơn hàng"])
+
+        UC09(["UC09: Quản lý thương hiệu"])
+        UC10(["UC10: Quản lý loại túi"])
+        UC11(["UC11: Quản lý sản phẩm túi xách"])
+        UC11_INC(["Quản lý thư viện hình ảnh túi"]):::inc
+        UC12(["UC12: Quản lý khuyến mãi"])
+        UC13(["UC13: Quản lý & Duyệt đơn hàng"])
+        UC14(["UC14: Thống kê doanh thu & Tồn kho"])
+    end
+
+    Guest --- UC01
+    Guest --- UC02
+    Guest --- UC03
+    Guest --- UC04
+
+    Customer --- UC04
+    Customer --- UC05
+    Customer --- UC06
+    Customer --- UC07
+    UC07 -.->|<<include>>| UC07_INC
+    Customer --- UC08
+
+    Admin --- UC04
+    Admin --- UC09
+    Admin --- UC10
+    Admin --- UC11
+    UC11 -.->|<<include>>| UC11_INC
+    Admin --- UC12
+    Admin --- UC13
+    Admin --- UC14
+
+    classDef guest fill:#e0e7ff,stroke:#4f46e5,stroke-width:2px;
+    classDef customer fill:#c7d2fe,stroke:#3730a3,stroke-width:2px;
+    classDef admin fill:#fee2e2,stroke:#dc2626,stroke-width:2px;
+    classDef inc fill:#f1f5f9,stroke:#64748b,stroke-dasharray: 5 5;
+```
+
+### Bảng Mô Tả Chi Tiết 14 Use Case:
+| Mã UC | Tên Use Case | Tác nhân chính | Quan hệ phụ thuộc | Mô tả nghiệp vụ |
+| :---: | :--- | :--- | :---: | :--- |
+| **UC01** | Xem & Tìm kiếm sản phẩm | Khách vãng lai, Khách hàng | - | Lọc theo thương hiệu, loại túi, mức giá và tìm kiếm theo từ khóa. |
+| **UC02** | Xem chi tiết túi xách & Ảnh | Khách vãng lai, Khách hàng | - | Xem thông tin chi tiết, giá ưu đãi, tồn kho và thư viện ảnh nhiều góc độ. |
+| **UC03** | Đăng ký tài khoản | Khách vãng lai | - | Tạo tài khoản thành viên mới để mua hàng và tích lũy lịch sử. |
+| **UC04** | Đăng nhập hệ thống | Khách vãng lai, Khách hàng, Admin | - | Xác thực danh tính bằng Cookie Authentication, phân quyền vai trò (`Người bán`, `Khách hàng`). |
+| **UC05** | Quản lý thông tin cá nhân | Khách hàng | - | Cập nhật họ tên, số điện thoại, địa chỉ nhận hàng và đổi mật khẩu. |
+| **UC06** | Quản lý giỏ hàng | Khách hàng | - | Thêm túi vào giỏ, cập nhật số lượng (kiểm tra tồn kho), xóa từng món hoặc làm trống giỏ. |
+| **UC07** | Đặt hàng & Thanh toán | Khách hàng | `<<include>>` Kiểm tra tồn kho & Áp dụng khuyến mãi | Chọn địa chỉ (kèm toạ độ bản đồ Leaflet), chọn phương thức (COD/Chuyển khoản), tính tiền tự động. |
+| **UC08** | Theo dõi & Hủy đơn hàng | Khách hàng | - | Xem tiến trình giao hàng qua thanh Shopee Stepper; được phép hủy đơn khi trạng thái là `Chờ duyệt`. |
+| **UC09** | Quản lý thương hiệu | Người bán (Admin) | - | Thêm, sửa, xóa các thương hiệu đối tác (CHARLES & KEITH, Pedro, ELLY...). |
+| **UC10** | Quản lý loại túi | Người bán (Admin) | - | Quản lý danh mục phân loại túi xách (Balo, Túi đeo chéo, Túi tote...). |
+| **UC11** | Quản lý sản phẩm túi xách | Người bán (Admin) | `<<include>>` Quản lý thư viện hình ảnh túi | Thêm mới, cập nhật giá, tồn kho sản phẩm kèm bộ sưu tập ảnh chi tiết. |
+| **UC12** | Quản lý khuyến mãi | Người bán (Admin) | - | Thiết lập các đợt giảm giá, phần trăm chiết khấu và thời gian áp dụng Flash Sale. |
+| **UC13** | Quản lý & Duyệt đơn hàng | Người bán (Admin) | - | Xem danh sách đơn, duyệt đơn từ `Chờ duyệt` sang `Đang giao` hoặc `Hoàn tất` (đồng bộ Stepper). |
+| **UC14** | Thống kê doanh thu & Tồn kho | Người bán (Admin) | - | Báo cáo doanh số bán lẻ, số lượng đơn hoàn tất và cảnh báo sản phẩm sắp hết hàng. |
 
 ---
 
-## ⚙️ Cấu Hình Kết Nối Cơ Sở Dữ Liệu (Database Connection)
+## 🛠️ Công Nghệ & Kỹ Thuật Nổi Bật
 
-File cấu hình chuỗi kết nối nằm tại:  
-`DoAnLTW/DoAnLTW/appsettings.json`
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Data Source=localhost;Initial Catalog=QL_TuiXach;Integrated Security=True;Trust Server Certificate=True"
-  }
-}
-```
-
-> [!NOTE]
-> Tuỳ thuộc vào phiên bản và cấu hình SQL Server trên máy của bạn, hãy cập nhật giá trị `Data Source`:
-> - **SQL Server mặc định (Localhost):**  
->   `Data Source=localhost;Initial Catalog=QL_TuiXach;Integrated Security=True;Trust Server Certificate=True`
-> - **SQL Server Express:**  
->   `Data Source=.\\SQLEXPRESS;Initial Catalog=QL_TuiXach;Integrated Security=True;Trust Server Certificate=True`
-> - **SQL Server với tài khoản sa:**  
->   `Server=localhost;Database=QL_TuiXach;User Id=sa;Password=MậtKhẩuCủaBạn;TrustServerCertificate=True`
-> - **LocalDB:**  
->   `Server=(localdb)\\mssqllocaldb;Database=QL_TuiXach;Trusted_Connection=True;MultipleActiveResultSets=true`
-
-### ⚡ Cơ Chế Tự Động Tạo Bảng & Nạp Dữ Liệu (Auto Migration & Seed Data)
-Khi ứng dụng khởi chạy ở môi trường **Development**, `DbInitializer.InitializeAsync()` sẽ:
-1. Tự động áp dụng EF Core Migrations để tạo CSDL `QL_TuiXach` và toàn bộ các bảng nếu chưa có.
-2. Tự động nạp sẵn dữ liệu mẫu (Seeder):
-   - 1 tài khoản Quản trị viên (`admin`)
-   - 5 tài khoản Khách hàng mẫu
-   - 5 Thương hiệu túi xách (`CHARLES & KEITH`, `Pedro`, `ELLY`, `Natoli`, `Jamlos`)
-   - 6 Loại túi (`Balo`, `Túi đeo chéo`, `Túi tote`, `Túi dự tiệc`, `Túi đeo vai`, `Clutch`)
-   - 5 Chương trình khuyến mãi
-   - 15 Sản phẩm túi xách hoàn chỉnh kèm 45 góc ảnh sản phẩm
-
-*(Bạn cũng có thể tham khảo file tài liệu báo cáo tại `Docs/Dac_Ta_Co_So_Du_Lieu_QL_TuiXach.docx` và file script SQL tại `Docs/quan_ly_tui_xach.sql`).*
+- **Nền tảng:** C# / .NET 8 (ASP.NET Core MVC).
+- **ORM & CSDL:** Entity Framework Core 8 (Code-First với Auto-Migrations & Seeder), SQL Server.
+- **Background Worker & Channels:** `System.Threading.Channels` kết hợp `IHostedService` (`OrderEmailQueue`) giúp gửi thư SMTP không làm chậm luồng thanh toán của khách.
+- **Email Service:** MailKit & MimeKit, bảo mật thông tin bằng `.env` và mã hóa chống XSS/Phishing bằng `WebUtility.HtmlEncode`.
+- **Giao tiếp Real-time:** SignalR WebSocket cho hỗ trợ chat khách - nhân viên (`SupportChatHub`) và cập nhật đơn hàng.
+- **Bản đồ số:** Leaflet OpenStreetMap ghim vị trí giao hàng chính xác, lưu tọa độ vào `localStorage`.
+- **Đồ họa 3D:** Google `<model-viewer>` hiển thị mô hình túi xoay 360° tương tác định dạng `.glb`.
+- **Kiến trúc Code Clean:** Chuẩn hóa hằng số `AppConstants`, tách biệt mã JavaScript (`hot-marquee.js`, `flashsale-banner.js`) và CSS (`site.css`).
 
 ---
 
 ## 🚀 Hướng Dẫn Chạy Dự Án
 
-### Cách 1: Sử dụng file `run.bat` (Nhanh nhất)
-1. Mở thư mục `DoAnLTW/` (hoặc thư mục gốc).
-2. Nhấn đúp chuột vào file **`run.bat`**.
-3. Hệ thống sẽ tự động build, khởi chạy Web Server và tự động mở trình duyệt tại:  
+### Cách 1: Chạy mạng LAN để test trên điện thoại thật (Khuyên dùng)
+1. Kết nối máy tính và điện thoại vào **cùng một mạng Wi-Fi**.
+2. Nhấp đúp chuột vào file **`chay-lan.bat`** ở thư mục gốc.
+3. Script sẽ tự động tìm IP LAN thật (bỏ qua mạng ảo) và cổng trống.
+4. Màn hình console sẽ in ra đường dẫn, ví dụ:  
+   👉 **`http://192.168.1.15:5226`**
+5. Lấy điện thoại mở trình duyệt gõ địa chỉ trên là bạn có thể test đầy đủ giao diện, đặt hàng và chat trực tiếp!
+
+### Cách 2: Chạy thông thường trên máy tính
+1. Nhấp đúp chuột vào file **`run.bat`** (hoặc mở solution trong Visual Studio 2022 và nhấn **F5**).
+2. Trình duyệt sẽ tự động mở trang web tại địa chỉ:  
    👉 **`http://localhost:5226`**
 
-### Cách 2: Sử dụng .NET CLI
-Mở terminal/PowerShell tại thư mục dự án và chạy:
-```bash
-cd DoAnLTW/DoAnLTW
-dotnet run
-```
-Sau đó truy cập: `http://localhost:5226`
-
-### Cách 3: Sử dụng Visual Studio 2022
-1. Mở file solution: `DoAnLTW/DoAnLTW.sln`.
-2. Kiểm tra chuỗi kết nối trong `appsettings.json`.
-3. Nhấn **F5** (hoặc **Ctrl + F5**) để khởi chạy.
-
 ---
 
-## 👥 Danh Sách Tài Khoản Mẫu (Tài Khoản Test)
+## 👥 Danh Sách Tài Khoản Mẫu (Test Account)
 
-Hệ thống đã nạp sẵn các tài khoản demo sau để thuận tiện cho việc chấm bài và kiểm thử:
+### 1. Quản trị viên (Admin)
+- **URL:** `/Account/Login` (sau khi đăng nhập bấm "Vào trang quản trị" hoặc truy cập `/Admin`)
+- **Tài khoản:** `admin` | **Mật khẩu:** `123456`
 
-### 1. Phân Hệ Quản Trị (Admin)
-- **Đường dẫn đăng nhập:** `/Account/Login` (sau khi đăng nhập có thể vào `/Admin`)
-- **Tên đăng nhập:** `admin`
-- **Mật khẩu:** `123456`
-- **Vai trò:** `Người bán` (Admin)
-- **Quyền hạn:** Truy cập trang Dashboard quản trị, quản lý sản phẩm, thương hiệu, danh mục, khuyến mãi và xử lý đơn hàng.
-
-### 2. Phân Hệ Khách Hàng (Customer)
-| STT | Tên đăng nhập | Mật khẩu | Họ và tên | Email | Địa chỉ |
-|:---:|:---|:---:|:---|:---|:---|
-| 1 | `minhquan` | `123456` | Nguyễn Nhật Minh Quân | minhquan@gmail.com | TP. Hồ Chí Minh |
-| 2 | `ngocanh` | `123456` | Trần Ngọc Anh | ngocanh@gmail.com | Bình Dương |
-| 3 | `thanhhoa` | `123456` | Lê Thanh Hòa | thanhhoa@gmail.com | Đồng Nai |
-| 4 | `quanghuy` | `123456` | Phạm Quang Huy | quanghuy@gmail.com | Long An |
-| 5 | `thimai` | `123456` | Võ Thị Mai | thimai@gmail.com | TP. Hồ Chí Minh |
-
----
-
-## 🌟 Các Phân Hệ & Chức Năng Chính
-
-### 1. Khu Vực Khách Hàng (Client)
-- **Trang chủ (`/`):** Hero banner slider, Flash Sale đếm ngược, sản phẩm bán chạy, thương hiệu nổi bật.
-- **Danh mục & Tìm kiếm (`/Catalog`):** Lọc theo thương hiệu, loại túi, mức giá; sắp xếp theo giá tăng/giảm, tên; phân trang; xem chi tiết sản phẩm và ảnh phóng to.
-- **Flash Sale (`/FlashSale`):** Các sản phẩm đang được áp dụng khuyến mãi lớn.
-- **Giỏ hàng (`/Cart`):** Thêm vào giỏ, cập nhật số lượng (kiểm tra tồn kho và validate số lượng > 0), xóa sản phẩm, tính tổng tiền tự động.
-- **Đặt hàng (`/Orders/Checkout`):** Điền thông tin giao hàng, chọn phương thức thanh toán, hoàn tất đơn hàng.
-- **Lịch sử đơn hàng (`/Orders/History`):** Xem danh sách đơn đã đặt và chi tiết trạng thái từng đơn hàng.
-- **Tài khoản cá nhân (`/Account`):** Đăng nhập, đăng ký tài khoản mới, cập nhật hồ sơ cá nhân, đổi mật khẩu, quên mật khẩu.
-
-### 2. Phân Hệ Quản Trị (Admin Area - `/Admin`)
-*(Tích hợp giao diện và tài nguyên từ template admin4)*
-- **Dashboard (`/Admin/Home`):** Thống kê tổng doanh thu, số đơn hàng, tổng sản phẩm và biểu đồ hoạt động.
-- **Quản lý sản phẩm (`/Admin/Product`):** Xem danh sách, thêm sản phẩm mới (kèm upload hình ảnh), chỉnh sửa thông tin, cập nhật khuyến mãi cho sản phẩm, xóa sản phẩm.
-- **Quản lý danh mục & thương hiệu (`/Admin/Category`):** Thêm, sửa danh mục loại túi và danh sách thương hiệu đối tác.
-- **Quản lý khuyến mãi (`/Admin/Promotion`):** Tạo và quản lý các chương trình ưu đãi, phần trăm giảm giá và thời gian áp dụng.
-- **Quản lý đơn hàng (`/Admin/AdminOrder`):** Danh sách đơn đặt hàng, chi tiết đơn hàng, cập nhật trạng thái đơn (Chờ xử lý, Đang giao, Đã giao, Đã hủy).
+### 2. Khách hàng mẫu (Customer)
+| Tên đăng nhập | Mật khẩu | Họ và tên | Email | Địa chỉ |
+| :--- | :---: | :--- | :--- | :--- |
+| `minhquan` | `123456` | Nguyễn Nhật Minh Quân | minhquan@gmail.com | TP. Hồ Chí Minh |
+| `ngocanh` | `123456` | Trần Ngọc Anh | ngocanh@gmail.com | Bình Dương |
+| `thanhhoa` | `123456` | Lê Thanh Hòa | thanhhoa@gmail.com | Đồng Nai |
+| `quanghuy` | `123456` | Phạm Quang Huy | quanghuy@gmail.com | Long An |
+| `thimai` | `123456` | Võ Thị Mai | thimai@gmail.com | TP. Hồ Chí Minh |

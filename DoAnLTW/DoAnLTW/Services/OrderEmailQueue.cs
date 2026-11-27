@@ -1,21 +1,35 @@
 using System.Threading.Channels;
+using DoAnLTW.Constants;
 using DoAnLTW.ViewModels;
 
 namespace DoAnLTW.Services;
 
-/// <summary>hàng đợi gửi email xác nhận đơn: OrderService chỉ xếp thư vào hàng đợi (không chờ), việc gửi SMTP chạy nền.</summary>
+/// <summary>
+/// Hàng đợi gửi email xác nhận đơn hàng:
+/// Tách rời bước đặt hàng (Checkout) khỏi quá trình gửi SMTP tốn thời gian.
+/// OrderService chỉ việc đưa thư vào hàng đợi (TryEnqueue), tiến trình nền sẽ xử lý gửi thư.
+/// </summary>
 public interface IOrderEmailQueue
 {
-    // false khi hàng đợi đầy (bỏ thư, đơn hàng không bị ảnh hưởng)
+    /// <summary>
+    /// Đẩy thông tin đơn hàng vào hàng đợi gửi thư ngầm.
+    /// </summary>
+    /// <param name="to">Email người nhận</param>
+    /// <param name="name">Tên khách hàng</param>
+    /// <param name="order">Dữ liệu chi tiết đơn hàng</param>
+    /// <returns>True nếu xếp hàng thành công; False nếu hàng đợi quá tải (bỏ qua êm)</returns>
     bool TryEnqueue(string to, string name, OrderViewModel order);
 }
 
+/// <summary>
+/// Dịch vụ nền (BackgroundService) quản lý hàng đợi Producer-Consumer dùng System.Threading.Channels.
+/// </summary>
 public sealed class OrderEmailQueue(IEmailService emailService, ILogger<OrderEmailQueue> logger) : BackgroundService, IOrderEmailQueue
 {
     private sealed record Job(string To, string Name, OrderViewModel Order);
 
-    // tối đa 100 thư chờ; đầy thì bỏ thư mới thay vì làm treo luồng đặt hàng
-    private readonly Channel<Job> _channel = Channel.CreateBounded<Job>(new BoundedChannelOptions(100)
+    // Sử dụng hằng số đã chuẩn hóa thay vì magic number 100
+    private readonly Channel<Job> _channel = Channel.CreateBounded<Job>(new BoundedChannelOptions(AppConstants.Email.QueueCapacity)
     {
         FullMode = BoundedChannelFullMode.DropWrite,
         SingleReader = true
@@ -30,7 +44,7 @@ public sealed class OrderEmailQueue(IEmailService emailService, ILogger<OrderEma
             try
             {
                 using var timeout = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
-                timeout.CancelAfter(TimeSpan.FromSeconds(30));
+                timeout.CancelAfter(TimeSpan.FromSeconds(AppConstants.Email.JobTimeoutSeconds));
                 await emailService.SendOrdersConfirmationAsync(job.To, job.Name, job.Order, timeout.Token);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -39,7 +53,7 @@ public sealed class OrderEmailQueue(IEmailService emailService, ILogger<OrderEma
             }
             catch (Exception ex)
             {
-                // không ghi địa chỉ email của khách vào log; đơn hàng đã lưu thành công, chỉ thư là không gửi được
+                // Không ghi địa chỉ email của khách vào log; đơn hàng đã lưu thành công, chỉ thư là không gửi được
                 logger.LogWarning(ex, "Không gửi được mail xác nhận đơn {MaDonHang}.", job.Order.MaHienThi);
             }
         }

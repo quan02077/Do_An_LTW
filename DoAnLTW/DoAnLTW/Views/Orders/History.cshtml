@@ -1,85 +1,9 @@
 ﻿@model IReadOnlyCollection<DoAnLTW.ViewModels.OrderViewModel>
+@using DoAnLTW.Constants
 @using DoAnLTW.Services
 @{
     ViewData["Title"] = "Lịch sử đơn hàng";
 }
-
-<style>
-    .stepper-container {
-        position: relative;
-        display: flex;
-        justify-content: space-between;
-        margin: 1.2rem 0;
-        padding: 0;
-    }
-        .stepper-container::before {
-            content: '';
-            position: absolute;
-            top: 20px;
-            left: 16.6667%;
-            right: 16.6667%;
-            height: 3px;
-            background-color: #e5e7eb;
-            z-index: 0;
-        }
-    .stepper-progress-bar {
-        position: absolute;
-        top: 20px;
-        left: 16.6667%;
-        height: 3px;
-        background-color: #10b981;
-        z-index: 1;
-        transition: width 0.4s ease;
-    }
-    .stepper-step {
-        position: relative;
-        z-index: 2;
-        flex: 1 1 0;
-        min-width: 0;
-        text-align: center;
-        padding: 0 0.25rem;
-    }
-
-    .stepper-circle {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: #f3f4f6;
-        color: #9ca3af;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 6px;
-        font-size: 1.1rem;
-        border: 2px solid #e5e7eb;
-    }
-
-    .stepper-label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #6b7280;
-    }
-    .stepper-step.active .stepper-circle {
-        background-color: #111827;
-        color: #ffffff;
-        border-color: #111827;
-        box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.15);
-    }
-
-    .stepper-step.active .stepper-label {
-        color: #111827;
-        font-weight: 700;
-    }
-    .stepper-step.completed .stepper-circle {
-        background-color: #10b981;
-        color: #ffffff;
-        border-color: #10b981;
-    }
-
-    .stepper-step.completed .stepper-label {
-        color: #10b981;
-    }
-</style>
 
 <section class="shop-page">
     <div class="page-heading">
@@ -90,11 +14,11 @@
         <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-dark">Xem giỏ hàng</a>
     </div>
 
-    @if (TempData["OrderSuccess"] is string success)
+    @if (TempData[AppConstants.TempDataKeys.OrderSuccess] is string success)
     {
         <div class="alert alert-success" role="alert">@success</div>
     }
-    @if (TempData["OrderError"] is string error)
+    @if (TempData[AppConstants.TempDataKeys.OrderError] is string error)
     {
         <div class="alert alert-danger" role="alert">@error</div>
     }

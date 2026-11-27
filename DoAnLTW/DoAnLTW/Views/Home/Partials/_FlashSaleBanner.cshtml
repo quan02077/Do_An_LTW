@@ -143,91 +143,10 @@
 @if (hasModel)
 {
     <script type="module" src="https://cdn.jsdelivr.net/npm/@@google/model-viewer@@3.5.0/dist/model-viewer.min.js"></script>
-    <script>
-    (function () {
-        var model = document.getElementById('bagModel');
-        var btn = document.getElementById('btnToggleSpin');
-        var hint = document.getElementById('bagDragHint');
-        if (!model) return;
-
-        // người dùng chọn "giảm chuyển động" thì không tự xoay
-        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            model.removeAttribute('auto-rotate');
-        }
-        function sync() {
-            var on = model.hasAttribute('auto-rotate');
-            if (btn) { btn.classList.toggle('is-active', on); btn.setAttribute('aria-pressed', String(on)); }
-        }
-        if (btn) {
-            btn.addEventListener('click', function () {
-                if (model.hasAttribute('auto-rotate')) { model.removeAttribute('auto-rotate'); }
-                else { model.setAttribute('auto-rotate', ''); }
-                sync();
-            });
-        }
-        sync();
-
-        // chỉ báo tải: đường kẻ mảnh dưới mô hình (thay cho thanh mặc định đè lên nút)
-        var load = document.getElementById('bagLoad');
-        var bar = load ? load.firstElementChild : null;
-        model.addEventListener('progress', function (e) {
-            var p = e.detail && typeof e.detail.totalProgress === 'number' ? e.detail.totalProgress : 0;
-            if (bar) bar.style.transform = 'scaleX(' + p.toFixed(3) + ')';
-            if (load) load.setAttribute('aria-valuenow', String(Math.round(p * 100)));
-            if (p >= 1 && load) load.classList.add('is-done');
-        });
-        model.addEventListener('load', function () { if (load) load.classList.add('is-done'); });
-
-        // chạm vào mô hình lần đầu thì ẩn gợi ý
-        model.addEventListener('camera-change', function (e) {
-            if (e.detail && e.detail.source === 'user-interaction' && hint) hint.classList.add('is-hidden');
-        });
-        // tải .glb lỗi: giữ ảnh tĩnh, không để khung trống
-        model.addEventListener('error', function () {
-            model.setAttribute('poster', '@posterUrl');
-            if (load) load.classList.add('is-done');
-            if (hint) hint.textContent = 'Không tải được mô hình 3D';
-        });
-    })();
-    </script>
 }
 else
 {
-    <script src="~/js/bag360.js" asp-append-version="true"></script>
+    <script src="~/js/bag360.js" asp-append-version="true" defer></script>
 }
 
-<!-- Đồng hồ đếm ngược -->
-<script>
-(function() {
-    // 1. LIVE COUNTDOWN TIMER
-    let days = 2, hours = 14, minutes = 45, seconds = 30;
-    const elDays = document.getElementById('fs-days');
-    const elHours = document.getElementById('fs-hours');
-    const elMinutes = document.getElementById('fs-minutes');
-    const elSeconds = document.getElementById('fs-seconds');
-
-    function updateCountdown() {
-        if (seconds > 0) {
-            seconds--;
-        } else {
-            seconds = 59;
-            if (minutes > 0) {
-                minutes--;
-            } else {
-                minutes = 59;
-                if (hours > 0) {
-                    hours--;
-                } else {
-                    hours = 23;
-                    if (days > 0) days--;
-                }
-            }
-        }
-        if (elDays) elDays.textContent = String(days).padStart(2, '0');
-        if (elHours) elHours.textContent = String(hours).padStart(2, '0');
-        if (elMinutes) elMinutes.textContent = String(minutes).padStart(2, '0');
-        if (elSeconds) elSeconds.textContent = String(seconds).padStart(2, '0');
-    }
-    setInterval(updateCountdown, 1000);
-})();
-</script>
+<script src="~/js/flashsale-banner.js" asp-append-version="true" defer></script>

@@ -151,7 +151,7 @@ public class AccountService(DbContext_TuiXach db, IPasswordService passwordServi
 
         // Tạo token ngẫu nhiên (32 ký tự hex) & lưu vào cache trong 15 phút
         var token = Guid.NewGuid().ToString("N");
-        cache.Set($"pwd_reset_{token}", customer.maTK, TimeSpan.FromMinutes(15));
+        cache.Set($"{DoAnLTW.Constants.AppConstants.CacheKeys.PasswordResetPrefix}{token}", customer.maTK, TimeSpan.FromMinutes(15));
 
         // Ghép link và gửi email
         var resetLink = string.Format(linkTemplate, token);
@@ -169,7 +169,7 @@ public class AccountService(DbContext_TuiXach db, IPasswordService passwordServi
 
     public async Task<ServiceResult> ResetPasswordWithTokenAsync(string token, string matKhauMoi, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(token) || !cache.TryGetValue($"pwd_reset_{token}", out int maTk))
+        if (string.IsNullOrWhiteSpace(token) || !cache.TryGetValue($"{DoAnLTW.Constants.AppConstants.CacheKeys.PasswordResetPrefix}{token}", out int maTk))
         {
             return ServiceResult.Fail("Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn (chỉ có hiệu lực trong 15 phút). Vui lòng yêu cầu lại.");
         }
