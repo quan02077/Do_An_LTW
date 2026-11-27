@@ -22,13 +22,15 @@
         <a asp-controller="Catalog" asp-action="Index" class="btn btn-outline-dark rounded-pill px-4 btn-sm fw-bold">Tất cả sản phẩm</a>
     </div>
 
-    <div class="row g-4" id="hotProductsContainer">
-        @if (Model.HotProducts != null && Model.HotProducts.Any())
-        {
+    @if (Model.HotProducts != null && Model.HotProducts.Any())
+    {
+    <!-- dãy sản phẩm tự chạy ngang liên tục (hot-marquee.js nhân đôi dãy để lặp mượt, rê chuột vào thì dừng) -->
+    <div class="hp-marquee" id="hotProductsContainer" aria-label="Danh sách sản phẩm bán chạy và nổi bật">
+        <div class="hp-track">
             @foreach (var product in Model.HotProducts)
             {
                 var imgUrl = ResolveImage(product.HinhAnh);
-                <div class="col-6 col-md-4 col-lg-3">
+                <div class="hp-item">
                     <div class="product-card border p-3 rounded shadow-sm text-center position-relative h-100 d-flex flex-column bg-white">
                         <!-- nhãn badge từ csdl (3 loại: đang giảm giá, bán chạy, hàng mới về) -->
                         @if (product.SoLuongTonKho <= 0)
@@ -115,13 +117,16 @@
                     </div>
                 </div>
             }
-        }
-        else
-        {
-            <div class="col-12 text-center py-5">
-                <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
-                <p class="text-muted mt-3">Hiện chưa có sản phẩm nào trong cơ sở dữ liệu.</p>
-            </div>
-        }
+        </div>
     </div>
+    }
+    else
+    {
+        <div class="text-center py-5" id="hotProductsContainer">
+            <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-3">Hiện chưa có sản phẩm nào trong cơ sở dữ liệu.</p>
+        </div>
+    }
 </section>
+
+<script src="~/js/hot-marquee.js" asp-append-version="true" defer></script>
