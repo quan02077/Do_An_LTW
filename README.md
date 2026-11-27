@@ -2,17 +2,6 @@
 
 Website thương mại điện tử chuyên kinh doanh các sản phẩm túi xách thời trang cao cấp (**BaSau Bags Store**), được phát triển trên nền tảng **ASP.NET Core 8 MVC** và **Entity Framework Core**.
 
----
-
-## 👥 Phân Công Nhiệm Vụ Thành Viên
-
-| Thành viên | Phụ trách chính | Các tính năng & Kỹ thuật tiêu biểu |
-| :--- | :--- | :--- |
-| **Thành viên 1** | **Xử lý Đơn hàng, Hàng đợi Email & Bản đồ** | • Hàng đợi gửi Email nền bất đồng bộ (`System.Threading.Channels` + `BackgroundService` + MailKit).<br>• Tiến trình đơn hàng Shopee Stepper (`OrderStatus` dynamic calc CSS).<br>• Bản đồ định vị toạ độ giao hàng Leaflet OpenStreetMap & `localStorage`.<br>• Xác thực quên mật khẩu qua Token Cache 15 phút & gửi mail reset password.<br>• Chuẩn hóa kiến trúc Constants (`AppConstants`). |
-| **Thành viên 2** | **Chat Thời Gian Thực & Banner 3D / 360°** | • Khung chat hỗ trợ trực tuyến khách hàng - nhân viên (SignalR WebSocket).<br>• Bộ theo dõi nhân viên trực tuyến có độ trễ êm (`StaffPresenceTracker` Grace Period).<br>• Giới hạn tốc độ gửi tin chống spam (`SupportChatRateGate`).<br>• Banner tương tác túi xoay 3D (`model-viewer` Google, MIME type `.glb`, Fallback 4 tầng).<br>• Băng chuyền sản phẩm nổi bật chạy ngang liên tục (`hot-marquee.js`). |
-
----
-
 ## 🎯 Sơ Đồ & Đặc Tả 14 Use Case Nghiệp Vụ (`QL_TuiXach`)
 
 Hệ thống được thiết kế theo chuẩn UML Use Case Diagram gồm **3 Tác nhân (Actors)** và **14 Use Case**:
@@ -121,19 +110,3 @@ flowchart LR
 2. Trình duyệt sẽ tự động mở trang web tại địa chỉ:  
    👉 **`http://localhost:5226`**
 
----
-
-## 👥 Danh Sách Tài Khoản Mẫu (Test Account)
-
-### 1. Quản trị viên (Admin)
-- **URL:** `/Account/Login` (sau khi đăng nhập bấm "Vào trang quản trị" hoặc truy cập `/Admin`)
-- **Tài khoản:** `admin` | **Mật khẩu:** `123456`
-
-### 2. Khách hàng mẫu (Customer)
-| Tên đăng nhập | Mật khẩu | Họ và tên | Email | Địa chỉ |
-| :--- | :---: | :--- | :--- | :--- |
-| `minhquan` | `123456` | Nguyễn Nhật Minh Quân | minhquan@gmail.com | TP. Hồ Chí Minh |
-| `ngocanh` | `123456` | Trần Ngọc Anh | ngocanh@gmail.com | Bình Dương |
-| `thanhhoa` | `123456` | Lê Thanh Hòa | thanhhoa@gmail.com | Đồng Nai |
-| `quanghuy` | `123456` | Phạm Quang Huy | quanghuy@gmail.com | Long An |
-| `thimai` | `123456` | Võ Thị Mai | thimai@gmail.com | TP. Hồ Chí Minh |
