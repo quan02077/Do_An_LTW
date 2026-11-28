@@ -52,6 +52,7 @@ public interface IOrderService
     Task<CheckoutViewModel> GetCheckoutDefaultsAsync(int maKh, IEnumerable<int> selectedMaTui, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<OrderViewModel>> GetHistoryAsync(int maKh, CancellationToken cancellationToken = default);
     Task CancelAsync(int maKh, int maDh, CancellationToken cancellationToken = default);
+    Task<bool> IsVipAsync(int maKh, CancellationToken ct = default);
 }
 
 public class OrderService(DbContext_TuiXach db, IProductPricingService pricingService, INotificationService notificationService, IOrderEmailQueue emailQueue, ILogger<OrderService> logger) : IOrderService
@@ -127,11 +128,41 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
                 product.soLuong -= cartItem.soLuong;
             }
 
-            order.tongTien = order.ChiTietDonHangs.Sum(x => x.thanhTien);
+            var subTotal = order.ChiTietDonHangs.Sum(x => x.thanhTien);
+            var isVip = await IsVipAsync(maKh, ct);
+            if (isVip)
+            {
+                // Ưu đãi thành viên VIP: giảm giá 5%
+                order.tongTien = Math.Round(subTotal * 0.95m);
+            }
+            else
+            {
+                order.tongTien = subTotal;
+            }
+
             db.DonHangs.Add(order);
             // chỉ xóa khỏi giỏ những sản phẩm đã đặt; sản phẩm không chọn vẫn nằm lại trong giỏ
             db.ChiTietGioHangs.RemoveRange(selectedItems);
             await db.SaveChangesAsync(ct);
+
+            // Tự động thăng hạng VIP nếu đơn này đưa tổng chi tiêu >= 5.000.000đ
+            if (!isVip)
+            {
+                var tongChiTieu = await db.DonHangs
+                    .Where(d => d.maKH == maKh && d.trangThai != OrderStatus.DaHuy)
+                    .SumAsync(d => d.tongTien, ct);
+
+                if (tongChiTieu >= 5_000_000)
+                {
+                    var khach = await db.KhachHangs.FirstOrDefaultAsync(k => k.maKH == maKh, ct);
+                    if (khach != null)
+                    {
+                        khach.isVip = true;
+                        await db.SaveChangesAsync(ct);
+                    }
+                }
+            }
+
             await transaction.CommitAsync(ct);
         }
         catch
@@ -247,4 +278,12 @@ public class OrderService(DbContext_TuiXach db, IProductPricingService pricingSe
         order.sdtNguoiNhan,
         order.phuongThucThanhToan,
         order.ghiChu);
+
+    public async Task<bool> IsVipAsync(int maKh, CancellationToken ct = default)
+    {
+        return await db.KhachHangs.AsNoTracking()
+        .Where(x => x.maKH == maKh)
+        .Select(x => x.isVip)
+        .SingleOrDefaultAsync(ct);
+    }
 }

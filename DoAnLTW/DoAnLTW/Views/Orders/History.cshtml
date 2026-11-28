@@ -181,6 +181,73 @@
                         }
                     </div>
                     <footer class="order-card-footer">
+                        @if (order.TrangThai == OrderStatus.HoanTat)
+                        {
+                            var ngayHetHan = order.NgayDat.AddMonths(12);
+                            var conHan = DateTime.Now <= ngayHetHan;
+                            var soNgayConLai = (ngayHetHan - DateTime.Now).Days;
+
+                            <!-- Nút bấm đơn giản -->
+                            <button type="button" class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#warrantyModal-@order.MaDonHang">
+                                <i class="bi bi-shield-check"></i> Thẻ bảo hành
+                            </button>
+
+                            <!-- Modal Bootstrap cơ bản (đã sửa id không có dấu #) -->
+                            <div class="modal fade" id="warrantyModal-@order.MaDonHang" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Thẻ bảo hành điện tử</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <span class="text-muted small d-block">Mã bảo hành:</span>
+                                                <strong class="fs-5 text-primary">BH-@order.MaHienThi</strong>
+                                                <span class="badge @(conHan ? "bg-success" : "bg-secondary") ms-2">
+                                                    @(conHan ? $"Còn hạn ({soNgayConLai} ngày)" : "Hết hạn")
+                                                </span>
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <span class="text-muted small">Khách hàng:</span>
+                                                <strong>@order.TenNguoiNhan</strong>
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <span class="text-muted small">Ngày mua:</span>
+                                                <span>@order.NgayDat.ToString("dd/MM/yyyy")</span>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <span class="text-muted small">Thời hạn:</span>
+                                                <span>12 tháng (đến ngày @ngayHetHan.ToString("dd/MM/yyyy"))</span>
+                                            </div>
+
+                                            <hr />
+
+                                            <h6 class="fw-bold small mb-2">Sản phẩm bảo hành:</h6>
+                                            <ul class="list-group list-group-flush">
+                                                @foreach (var item in order.Items)
+                                                {
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                                        <span>@item.TenTui <span class="text-muted">x @item.SoLuong</span></span>
+                                                        <span class="badge bg-light text-dark border">Chính hãng</span>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Đóng</button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        }
                         <span>Giao đến: @order.DiaChiNhan</span>
                         <strong>Tổng: @order.TongTien.ToString("N0") đ</strong>
                         @if (order.TrangThai == OrderStatus.ChoDuyet)

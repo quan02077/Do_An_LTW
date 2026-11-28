@@ -17,6 +17,25 @@ public static class DbInitializer
         {
             await db.Database.MigrateAsync();
 
+            // Đảm bảo cột isVip tồn tại trong bảng KhachHangs nếu chưa chạy migration thủ công
+            try
+            {
+                await db.Database.ExecuteSqlRawAsync(@"
+                    IF NOT EXISTS (
+                        SELECT 1 FROM sys.columns 
+                        WHERE object_id = OBJECT_ID(N'[dbo].[KhachHangs]') 
+                        AND name = 'isVip'
+                    )
+                    BEGIN
+                        ALTER TABLE [dbo].[KhachHangs] ADD [isVip] bit NOT NULL DEFAULT 0;
+                    END
+                ");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[DbInitializer] Kiểm tra cột isVip: {ex.Message}");
+            }
+
             // chạy cả khi CSDL đã có dữ liệu: chuyển mật khẩu plaintext cũ sang dạng hash.
             await HashLegacyPasswordsAsync(db, passwordService);
 

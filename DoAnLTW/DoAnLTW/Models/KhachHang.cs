@@ -31,6 +31,7 @@ namespace DoAnLTW.Models
 
         public GioHang? GioHang { get; set; }
 
+        public bool isVip { get; set; } = false;
         public ICollection<DonHang> DonHangs { get; set; } = new List<DonHang>();
     }
 }
