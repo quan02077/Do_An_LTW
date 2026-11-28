@@ -1,128 +1,138 @@
-# KẾ HOẠCH VÀ KỊCH BẢN KIỂM THỬ (TEST PLAN & TEST CASES)
+# KẾ HOẠCH VÀ KỊCH BẢN KIỂM THỬ TỰ ĐỘNG (AUTOMATED TEST PLAN)
 **Đề tài:** Hệ thống Website Thương Mại Điện Tử Bán Túi Xách Thời Trang BASAU.BAGS  
-**Công nghệ:** ASP.NET Core 8 MVC, Entity Framework Core, SQL Server, xUnit, Moq  
-**Phương pháp:** Kết hợp Kiểm thử tự động (Automated Unit Testing) & Kiểm thử thủ công (Manual Testing)  
+**Công nghệ:** ASP.NET Core 8 MVC, Entity Framework Core, SQL Server  
+**Framework kiểm thử:** xUnit, Moq, Microsoft.EntityFrameworkCore.InMemory  
+**Dự án kiểm thử:** `DoAnLTW.Tests`  
 
 ---
 
-## I. TỔNG QUAN VỀ KIỂM THỬ
+## I. TỔNG QUAN VỀ KIỂM THỬ TỰ ĐỘNG (OVERVIEW)
 
-### 1. Mục tiêu kiểm thử
-- Đảm bảo toàn bộ các tầng nghiệp vụ (Business Services), máy trạng thái đơn hàng, giỏ hàng, phân hạng khách hàng VIP, thẻ bảo hành điện tử và các chức năng CRUD quản trị hoạt động chính xác 100%.
-- Kiểm tra tính toàn vẹn dữ liệu, ràng buộc khóa ngoại, khả năng xử lý ngoại lệ và logic tính tiền / chiết khấu.
-- Kiểm tra giao diện người dùng (UI/UX), tính năng động của các ViewComponent và khả năng tương tác của người dùng trên trình duyệt.
+### 1. Mục tiêu kiểm thử (Objectives)
+- Tự động hóa 100% quy trình kiểm thử chất lượng mã nguồn cho toàn bộ các phân hệ nghiệp vụ của hệ thống.
+- Xác minh tính đúng đắn của logic tính toán tiền tệ, trừ tồn kho, quy trình duyệt đơn hàng (State Machine), phân hạng khách hàng VIP, chiết khấu đặc quyền và thời hạn Thẻ bảo hành điện tử.
+- Đảm bảo các chức năng quản trị CRUD (Thêm, Sửa, Xóa, Tìm kiếm) và các widget ViewComponent hoạt động độc lập, không phát sinh lỗi ngoại lệ chưa kiểm soát.
+- Đảm bảo tính lặp lại (Reproducibility): Mọi bài test có thể chạy lại bất kỳ lúc nào với thời gian thực thi siêu tốc (~2 giây) và đạt tỷ lệ thành công 100%.
 
-### 2. Môi trường & Công cụ
-| Thành phần | Công nghệ / Môi trường |
-| :--- | :--- |
-| **Framework Unit Test** | `xUnit` (v2.8+) |
-| **Thư viện Mocking** | `Moq` (v4.21+) giả lập các phụ thuộc nền (Email, Notification, Logger) |
-| **Cơ sở dữ liệu kiểm thử** | `Microsoft.EntityFrameworkCore.InMemory` (v8.0.1) chạy siêu tốc trong RAM, cô lập hoàn toàn với CSDL thật |
-| **Kiểm thử thủ công** | Trình duyệt Google Chrome, Microsoft Edge, Windows 11 |
-| **Lệnh chạy kiểm thử** | `dotnet test` |
+### 2. Môi trường và công nghệ kiểm thử (Tooling & Environment)
+| Thành phần | Công nghệ / Thư viện | Vai trò |
+| :--- | :--- | :--- |
+| **Test Framework** | `xUnit` (v2.8+) | Framework kiểm thử đơn vị tiêu chuẩn của hệ sinh thái .NET |
+| **Mocking Framework** | `Moq` (v4.21+) | Giả lập các dịch vụ phụ thuộc ngoài (EmailQueue, Notification, Logger) |
+| **Test Database** | `Microsoft.EntityFrameworkCore.InMemory` (v8.0.1) | CSDL giả lập trong RAM: đảm bảo cô lập dữ liệu 100% giữa các bài test, không làm thay đổi CSDL SQL Server thật |
+| **Nền tảng thực thi** | .NET 8.0 / .NET 10.0 SDK | Thực thi qua Visual Studio Test Explorer hoặc lệnh `dotnet test` |
+
+### 3. Chiến lược kiểm thử (Testing Strategy)
+- Toàn bộ 35 bài test được thiết kế theo đúng quy chuẩn **AAA (Arrange - Act - Assert)**:
+  - **Arrange (Chuẩn bị):** Khởi tạo DbContext in-memory với tên duy nhất, nạp dữ liệu mẫu ban đầu và cấu hình các mock object.
+  - **Act (Thực thi):** Gọi hàm nghiệp vụ trong Service hoặc ViewComponent cần kiểm thử.
+  - **Assert (Kiểm tra):** Dùng các hàm kiểm tra tiêu chuẩn (`Assert.Equal`, `Assert.True`, `Assert.NotNull`, `Assert.ThrowsAsync`) để đối soát kết quả thực tế với giá trị kỳ vọng.
 
 ---
 
-## II. PHẦN 1: BỘ KIỂM THỬ TỰ ĐỘNG (AUTOMATED UNIT TESTS - 35 TEST CASES)
+## II. BẢNG MA TRẬN 35 CA KIỂM THỬ TỰ ĐỘNG (AUTOMATED TEST CASES MATRIX)
 
-Dự án test: `DoAnLTW.Tests` (Cấu trúc đơn giản, tuân thủ mô hình chuẩn **Arrange - Act - Assert**).
+### 1. Phân hệ Xác thực & Quản lý Tài khoản (`AccountTests.cs` - 4 Tests)
+| Mã Test | Tên bài test | Mục tiêu kiểm thử | Dữ liệu đầu vào (Input) | Kết quả kỳ vọng (Expected Output) | Trạng thái |
+| :---: | :--- | :--- | :--- | :--- | :---: |
+| **TC_ACC_01** | `ValidateCredentials_CorrectPassword` | Đăng nhập đúng thông tin tài khoản | Username: `user1`, Pass: `Password123!` | Trả về thông tin tài khoản hợp lệ, xác thực thành công | **PASS** |
+| **TC_ACC_02** | `ValidateCredentials_WrongPassword` | Đăng nhập sai mật khẩu | Username: `user2`, Pass: `WrongPass` | Trả về `null`, từ chối cấp quyền truy cập | **PASS** |
+| **TC_ACC_03** | `Register_NewUser_CreatesAccount` | Đăng ký tài khoản người dùng mới | Thông tin đăng ký đầy đủ và hợp lệ | Tạo tài khoản thành công, vai trò mặc định là Customer | **PASS** |
+| **TC_ACC_04** | `Register_DuplicateUsername_Failure` | Chặn đăng ký trùng tên đăng nhập | Tên đăng nhập đã tồn tại trong CSDL | Báo lỗi thất bại, thông báo tên đăng nhập đã được sử dụng | **PASS** |
 
-### 1. Phân hệ Tài khoản & Xác thực (`AccountTests.cs` - 4 Tests)
-| STT | Tên bài test | Mục tiêu kiểm tra | Kết quả kỳ vọng | Trạng thái |
-| :-: | :--- | :--- | :--- | :-: |
-| 1 | `ValidateCredentials_CorrectPassword` | Đăng nhập đúng mật khẩu | Trả về thông tin tài khoản hợp lệ | **PASS** |
-| 2 | `ValidateCredentials_WrongPassword` | Đăng nhập sai mật khẩu | Trả về `null`, từ chối đăng nhập | **PASS** |
-| 3 | `Register_NewUser_CreatesAccount` | Đăng ký tài khoản mới hợp lệ | Tạo mới tài khoản và khách hàng thành công | **PASS** |
-| 4 | `Register_DuplicateUsername_Failure` | Đăng ký trùng tên đăng nhập | Báo lỗi tên đăng nhập đã được sử dụng | **PASS** |
+---
 
 ### 2. Phân hệ Giá bán & Khuyến mãi (`PricingTests.cs` - 2 Tests)
-| STT | Tên bài test | Mục tiêu kiểm tra | Kết quả kỳ vọng | Trạng thái |
-| :-: | :--- | :--- | :--- | :-: |
-| 5 | `GetPrice_WithoutPromotion` | Sản phẩm không có khuyến mãi | Giữ nguyên giá gốc, số tiền giảm = 0 | **PASS** |
-| 6 | `GetPrice_WithActivePromotion` | Sản phẩm có khuyến mãi giảm 20% | Tính đúng đơn giá áp dụng đã giảm 20% | **PASS** |
+| Mã Test | Tên bài test | Mục tiêu kiểm thử | Dữ liệu đầu vào (Input) | Kết quả kỳ vọng (Expected Output) | Trạng thái |
+| :---: | :--- | :--- | :--- | :--- | :---: |
+| **TC_PRC_01** | `GetPrice_WithoutPromotion` | Tính giá sản phẩm không có khuyến mãi | Giá gốc: 500.000₫, Không có KM | Đơn giá áp dụng: 500.000₫, Số tiền giảm: 0₫ | **PASS** |
+| **TC_PRC_02** | `GetPrice_WithActivePromotion` | Tự động áp dụng khuyến mãi giảm giá % | Giá gốc: 1.000.000₫, Khuyến mãi giảm 20% | Đơn giá áp dụng: 800.000₫, Số tiền giảm: 200.000₫ | **PASS** |
+
+---
 
 ### 3. Phân hệ Quản lý Giỏ hàng (`CartTests.cs` - 5 Tests)
-| STT | Tên bài test | Mục tiêu kiểm tra | Kết quả kỳ vọng | Trạng thái |
-| :-: | :--- | :--- | :--- | :-: |
-| 7 | `AddAsync_NewItem` | Thêm sản phẩm mới vào giỏ | Giỏ có 1 mục, tính đúng tổng tiền & số lượng | **PASS** |
-| 8 | `AddAsync_ExistingItem` | Thêm tiếp sản phẩm đã có trong giỏ | Cộng dồn số lượng chính xác | **PASS** |
-| 9 | `AddAsync_ExceedsStock` | Thêm số lượng vượt quá tồn kho | Ném ngoại lệ `InvalidOperationException` | **PASS** |
-| 10 | `UpdateAsync_ValidQuantity` | Cập nhật số lượng sản phẩm | Cập nhật số lượng và tính lại tổng tiền | **PASS** |
-| 11 | `RemoveAsync_ExistingItem` | Xóa sản phẩm khỏi giỏ hàng | Xóa thành công, giỏ hàng về 0 | **PASS** |
+| Mã Test | Tên bài test | Mục tiêu kiểm thử | Dữ liệu đầu vào (Input) | Kết quả kỳ vọng (Expected Output) | Trạng thái |
+| :---: | :--- | :--- | :--- | :--- | :---: |
+| **TC_CRT_01** | `AddAsync_NewItem` | Thêm sản phẩm mới vào giỏ hàng trống | Mã túi: 1, Đơn giá: 500k, Số lượng: 2 | Giỏ có 1 mục, Tổng số lượng: 2, Tổng tiền: 1.000.000₫ | **PASS** |
+| **TC_CRT_02** | `AddAsync_ExistingItem` | Thêm tiếp sản phẩm đã có trong giỏ | Đang có 2 cái, thêm tiếp 3 cái | Tổng số lượng cộng dồn: 5, Tổng tiền: 1.500.000₫ | **PASS** |
+| **TC_CRT_03** | `AddAsync_ExceedsStock` | Kiểm tra giới hạn tồn kho khi thêm giỏ | Tồn kho: 2 cái, Yêu cầu thêm: 5 cái | Ném ngoại lệ `InvalidOperationException` ("Vượt quá tồn kho") | **PASS** |
+| **TC_CRT_04** | `UpdateAsync_ValidQuantity` | Cập nhật số lượng sản phẩm trong giỏ | Đổi số lượng từ 1 sang 4 | Tổng số lượng cập nhật thành 4, Tổng tiền: 1.600.000₫ | **PASS** |
+| **TC_CRT_05** | `RemoveAsync_ExistingItem` | Xóa sản phẩm ra khỏi giỏ hàng | Xóa sản phẩm đang có | Sản phẩm biến mất khỏi giỏ, Tổng số lượng và tiền về 0 | **PASS** |
 
-### 4. Phân hệ Đặt hàng, Khách VIP & Bảo hành (`OrderTests.cs` - 7 Tests)
-| STT | Tên bài test | Mục tiêu kiểm tra | Kết quả kỳ vọng | Trạng thái |
-| :-: | :--- | :--- | :--- | :-: |
-| 12 | `OrderStatus_CanTransition` | Kiểm tra máy trạng thái đơn hàng | ChoDuyet ➜ DangGiao ➜ HoanTat; chặn sửa đơn đã hủy/hoàn tất | **PASS** |
-| 13 | `PaymentMethod_IsValid` | Kiểm tra phương thức thanh toán | Chấp nhận COD và ChuyenKhoan; từ chối chuỗi lạ | **PASS** |
-| 14 | `IsVipAsync_CustomerIsVip` | Kiểm tra trạng thái VIP của khách VIP | Trả về `true` | **PASS** |
-| 15 | `IsVipAsync_CustomerIsRegular` | Kiểm tra trạng thái VIP của khách thường | Trả về `false` | **PASS** |
-| 16 | `CheckoutAsync_RegularCustomer` | Khách thường đặt hàng | Tính đúng giá gốc, không giảm giá | **PASS** |
-| 17 | `CheckoutAsync_VipCustomer` | Khách VIP đặt hàng | Tự động áp dụng chiết khấu đặc quyền 5% | **PASS** |
-| 18 | `EWarranty_Calculation` | Kiểm tra tính hạn Thẻ bảo hành điện tử 12 tháng | Tính đúng ngày hết hạn, xác định còn/hết hạn chuẩn xác | **PASS** |
+---
 
-### 5. Phân hệ CRUD Danh mục & Thương hiệu (`AdminCategoryTests.cs` - 6 Tests)
-| STT | Tên bài test | Mục tiêu kiểm tra | Kết quả kỳ vọng | Trạng thái |
-| :-: | :--- | :--- | :--- | :-: |
-| 19 | `AddLoaiTuiAsync_ValidCategory` | Thêm mới loại túi xách | Lưu vào CSDL thành công | **PASS** |
-| 20 | `UpdateLoaiTuiAsync_ExistingCategory` | Sửa tên loại túi xách | Cập nhật tên mới trong CSDL | **PASS** |
-| 21 | `DeleteLoaiTuiAsync_NoProducts` | Xóa loại túi không có sản phẩm | Xóa thành công | **PASS** |
-| 22 | `AddThuongHieuAsync_ValidBrand` | Thêm mới thương hiệu | Lưu vào CSDL thành công | **PASS** |
-| 23 | `UpdateThuongHieuAsync_ExistingBrand` | Sửa tên thương hiệu | Cập nhật tên mới trong CSDL | **PASS** |
-| 24 | `DeleteThuongHieuAsync` | Xóa thương hiệu | Xóa thành công | **PASS** |
+### 4. Phân hệ Đặt hàng, Khách VIP & Thẻ bảo hành (`OrderTests.cs` - 7 Tests)
+| Mã Test | Tên bài test | Mục tiêu kiểm thử | Dữ liệu đầu vào (Input) | Kết quả kỳ vọng (Expected Output) | Trạng thái |
+| :---: | :--- | :--- | :--- | :--- | :---: |
+| **TC_ORD_01** | `OrderStatus_CanTransition` | Kiểm tra máy trạng thái đơn hàng (State Machine) | Chuyển ChoDuyet ➜ DangGiao ➜ HoanTat | Đúng quy trình; Chặn không cho sửa đơn đã Hoàn tất / Đã hủy | **PASS** |
+| **TC_ORD_02** | `PaymentMethod_IsValid` | Xác thực phương thức thanh toán | COD, ChuyenKhoan, Bitcoin | Chấp nhận COD & ChuyenKhoan; Từ chối các phương thức lạ | **PASS** |
+| **TC_ORD_03** | `IsVipAsync_CustomerIsVip` | Kiểm tra trạng thái VIP của khách VIP | Khách có `isVip = true` | Hàm trả về `true` | **PASS** |
+| **TC_ORD_04** | `IsVipAsync_CustomerIsRegular` | Kiểm tra trạng thái VIP của khách thường | Khách có `isVip = false` | Hàm trả về `false` | **PASS** |
+| **TC_ORD_05** | `CheckoutAsync_RegularCustomer` | Khách thường thanh toán đơn hàng | 2 túi x 1.000.000₫ | Đơn tạo thành công, Tổng tiền: 2.000.000₫ (không giảm giá) | **PASS** |
+| **TC_ORD_06** | `CheckoutAsync_VipCustomer` | Khách VIP thanh toán đơn hàng | 1 túi x 2.000.000₫ | Tự động áp dụng chiết khấu đặc quyền 5%, Tổng tiền: 1.900.000₫ | **PASS** |
+| **TC_ORD_07** | `EWarranty_Calculation` | Kiểm tra tính hạn Thẻ bảo hành điện tử 12 tháng | Ngày đặt: 3 tháng trước / 14 tháng trước | Đơn 3 tháng: Còn hạn (> 250 ngày); Đơn 14 tháng: Hết hạn | **PASS** |
+
+---
+
+### 5. Phân hệ CRUD Quản trị Danh mục & Thương hiệu (`AdminCategoryTests.cs` - 6 Tests)
+| Mã Test | Tên bài test | Mục tiêu kiểm thử | Dữ liệu đầu vào (Input) | Kết quả kỳ vọng (Expected Output) | Trạng thái |
+| :---: | :--- | :--- | :--- | :--- | :---: |
+| **TC_CAT_01** | `AddLoaiTuiAsync_ValidCategory` | Thêm mới loại túi xách | Tên loại: "Balo Thời Trang" | Lưu vào CSDL thành công | **PASS** |
+| **TC_CAT_02** | `UpdateLoaiTuiAsync_ExistingCategory` | Cập nhật tên loại túi xách | Tên mới: "Túi Xách Tay Cao Cấp" | Cập nhật chính xác tên mới trong CSDL | **PASS** |
+| **TC_CAT_03** | `DeleteLoaiTuiAsync_NoProducts` | Xóa loại túi không có sản phẩm | Xóa `maLoai = 2` | Xóa thành công, truy vấn lại trả về `null` | **PASS** |
+| **TC_CAT_04** | `AddThuongHieuAsync_ValidBrand` | Thêm mới thương hiệu | Tên thương hiệu: "Gucci" | Lưu vào CSDL thành công | **PASS** |
+| **TC_CAT_05** | `UpdateThuongHieuAsync_ExistingBrand` | Cập nhật tên thương hiệu | Đổi từ "Channel" sang "Chanel" | Cập nhật chính xác tên thương hiệu trong CSDL | **PASS** |
+| **TC_CAT_06** | `DeleteThuongHieuAsync` | Xóa thương hiệu | Xóa `maThuongHieu = 2` | Xóa thành công, truy vấn lại trả về `null` | **PASS** |
+
+---
 
 ### 6. Phân hệ CRUD Quản trị Sản phẩm (`AdminProductTests.cs` - 4 Tests)
-| STT | Tên bài test | Mục tiêu kiểm tra | Kết quả kỳ vọng | Trạng thái |
-| :-: | :--- | :--- | :--- | :-: |
-| 25 | `GetAllAsync_FilterByKeyword` | Lấy danh sách sản phẩm và lọc từ khóa | Trả về đúng sản phẩm khớp tên | **PASS** |
-| 26 | `AddAsync_ValidProduct` | Thêm mới sản phẩm đầy đủ thông tin | Lưu đúng giá, tồn kho, loại túi, thương hiệu | **PASS** |
-| 27 | `UpdateAsync_ExistingProduct` | Sửa giá bán và tồn kho sản phẩm | Dữ liệu cập nhật chính xác | **PASS** |
-| 28 | `DeleteAsync_ExistingProduct` | Xóa sản phẩm an toàn | Xóa thành công khỏi CSDL | **PASS** |
+| Mã Test | Tên bài test | Mục tiêu kiểm thử | Dữ liệu đầu vào (Input) | Kết quả kỳ vọng (Expected Output) | Trạng thái |
+| :---: | :--- | :--- | :--- | :--- | :---: |
+| **TC_PRD_01** | `GetAllAsync_FilterByKeyword` | Lấy danh sách sản phẩm có lọc từ khóa | Từ khóa: `"Cá Sấu"` | Trả về đúng 1 sản phẩm có tên tương ứng | **PASS** |
+| **TC_PRD_02** | `AddAsync_ValidProduct` | Thêm mới sản phẩm đầy đủ thông tin | Túi Dior Saddle, Giá: 35tr, Kho: 3 | Lưu thành công thông tin sản phẩm và liên kết danh mục/thương hiệu | **PASS** |
+| **TC_PRD_03** | `UpdateAsync_ExistingProduct` | Sửa thông tin giá bán và tồn kho | Sửa giá: 6.500.000₫, Tồn kho: 8 | Cập nhật chính xác dữ liệu vào CSDL | **PASS** |
+| **TC_PRD_04** | `DeleteAsync_ExistingProduct` | Xóa sản phẩm an toàn | Xóa sản phẩm chưa có đơn hàng | Sản phẩm bị xóa hoàn toàn khỏi CSDL | **PASS** |
+
+---
 
 ### 7. Phân hệ Quản trị Đơn hàng & Dashboard (`AdminOrderAndDashboardTests.cs` - 2 Tests)
-| STT | Tên bài test | Mục tiêu kiểm tra | Kết quả kỳ vọng | Trạng thái |
-| :-: | :--- | :--- | :--- | :-: |
-| 29 | `AdminOrder_UpdateStatus` | Duyệt đơn hàng sang trạng thái mới | Trạng thái đơn được cập nhật | **PASS** |
-| 30 | `AdminDashboard_GetStats` | Thống kê số lượng đơn và doanh thu | Tính đúng tổng đơn và doanh thu các đơn hoàn tất | **PASS** |
-
-### 8. Phân hệ Widget ViewComponent (`ViewComponentTests.cs` - 5 Tests)
-| STT | Tên bài test | Mục tiêu kiểm tra | Kết quả kỳ vọng | Trạng thái |
-| :-: | :--- | :--- | :--- | :-: |
-| 31 | `CartSummary_AuthenticatedUser` | Số đếm giỏ hàng khi đã đăng nhập | Trả về số lượng sản phẩm trong giỏ | **PASS** |
-| 32 | `CartSummary_UnauthenticatedUser` | Số đếm giỏ hàng khi chưa đăng nhập | Trả về số lượng bằng 0 | **PASS** |
-| 33 | `VipBadge_VipCustomer` | Huy hiệu VIP khi khách hàng là VIP | Model nhận `true` (render badge VIP vàng) | **PASS** |
-| 34 | `VipBadge_RegularCustomer` | Huy hiệu VIP khi là khách thường | Model nhận `false` (ẩn huy hiệu) | **PASS** |
-| 35 | `VipBadge_UnauthenticatedUser` | Huy hiệu VIP khi chưa đăng nhập | Trả về chuỗi rỗng (`EmptyContent`) | **PASS** |
+| Mã Test | Tên bài test | Mục tiêu kiểm thử | Dữ liệu đầu vào (Input) | Kết quả kỳ vọng (Expected Output) | Trạng thái |
+| :---: | :--- | :--- | :--- | :--- | :---: |
+| **TC_DSH_01** | `AdminOrder_UpdateStatus` | Quản trị viên duyệt trạng thái đơn hàng | Chuyển đơn sang "Đang giao" | Cập nhật trạng thái mới thành công | **PASS** |
+| **TC_DSH_02** | `AdminDashboard_GetStats` | Thống kê số lượng đơn và doanh thu | Dữ liệu các đơn trong CSDL | Tính đúng tổng số đơn hàng và tổng doanh thu các đơn hoàn tất | **PASS** |
 
 ---
 
-## III. PHẦN 2: BẢNG KỊCH BẢN KIỂM THỬ THỦ CÔNG TRÊN GIAO DIỆN (MANUAL TEST CASES)
-
-| Mã TC | Phân hệ | Tên ca kiểm thử | Thao tác thực hiện | Dữ liệu kiểm thử | Kết quả mong đợi | Trạng thái |
-| :---: | :--- | :--- | :--- | :--- | :--- | :---: |
-| **TC_M_01** | Xác thực | Đăng ký tài khoản mới | Nhập form đăng ký tại `/Account/Register` | Username: `testuser`, Pass: `Test@123` | Đăng ký thành công, tự động đăng nhập | **PASS** |
-| **TC_M_02** | Xác thực | Đăng nhập sai mật khẩu | Nhập sai pass tại `/Account/Login` | Pass: `SaiPass999` | Báo lỗi đỏ không cho đăng nhập | **PASS** |
-| **TC_M_03** | Khách hàng | Xem hồ sơ và tiến độ VIP | Bấm vào tên người dùng trên Header | Khách thường | Hiển thị hồ sơ cá nhân và số tiền cần mua thêm để lên VIP | **PASS** |
-| **TC_M_04** | Trang chủ | Tương tác banner Flash Sale 3D | Dùng chuột xoay mô hình 3D trên banner | Thao tác rê/xoay chuột | Mô hình 3D xoay mượt mà, đồng hồ đếm ngược chạy đúng | **PASS** |
-| **TC_M_05** | Danh mục | Lọc theo loại và tìm kiếm | Chọn loại túi bên menu trái và gõ từ khóa | Loại: Túi Đeo Chéo, Từ khóa: "Canvas" | Danh sách sản phẩm lọc chuẩn xác theo điều kiện | **PASS** |
-| **TC_M_06** | Chi tiết | Xem chi tiết sản phẩm | Click vào sản phẩm bất kỳ | Túi Tote Da | Hiển thị đủ ảnh lớn, giá gốc, giá KM, tồn kho và mô tả | **PASS** |
-| **TC_M_07** | Giỏ hàng | Thêm vào giỏ và đếm realtime | Bấm nút "Thêm vào giỏ" ở trang chi tiết | Số lượng: 2 | Header ViewComponent tự động nhảy số `(2)` không cần tải lại trang | **PASS** |
-| **TC_M_08** | Giỏ hàng | Đổi số lượng và xóa món | Bấm nút `+`/`-` và nút xóa trong giỏ | Thao tác trên giỏ hàng | Số lượng tăng giảm, tiền tính lại tức thì | **PASS** |
-| **TC_M_09** | Thanh toán | Khách thường đặt hàng COD | Vào trang thanh toán, chọn COD | Địa chỉ: 123 Lê Lợi | Đặt hàng thành công, hiển thị trang hoàn tất, trừ tồn kho | **PASS** |
-| **TC_M_10** | Khách VIP | Hưởng chiết khấu đặc quyền VIP | Khách VIP tiến hành thanh toán | Giỏ hàng: 2.000.000₫ | Màn hình hiển thị giảm giá VIP 5% (-100.000₫), tổng còn 1.900.000₫ | **PASS** |
-| **TC_M_11** | Bảo hành | Mở Thẻ bảo hành điện tử | Bấm nút "Thẻ bảo hành" ở đơn Hoàn tất | Đơn hoàn tất 1 tháng trước | Mở Modal hiển thị mã BH, thời hạn 12 tháng, badge "Còn hạn (335 ngày)" | **PASS** |
-| **TC_M_12** | Admin | Đăng nhập quản trị và Dashboard | Đăng nhập tài khoản Admin | TK Admin | Mở giao diện Admin Dashboard với biểu đồ và số liệu thống kê | **PASS** |
-| **TC_M_13** | Admin | CRUD Sản phẩm (Thêm kèm ảnh) | Nhập form thêm sản phẩm, upload ảnh từ máy | Tên: "Túi Dior", Giá: 35tr | Sản phẩm mới lưu vào CSDL, ảnh hiển thị đúng trên trang chủ | **PASS** |
-| **TC_M_14** | Admin | Duyệt đơn hàng | Chọn đơn hàng mới, duyệt sang "Đang giao" | Đơn hàng chờ duyệt | Đơn chuyển trạng thái tuần tự; không thể sửa khi đã Hoàn tất | **PASS** |
-| **TC_M_15** | Chatbot | Tư vấn túi xách tự động bằng AI | Bấm icon chat ở góc màn hình, gõ câu hỏi | "Gợi ý túi đi làm thanh lịch" | AI phản hồi câu tư vấn tự nhiên kèm link sản phẩm phù hợp | **PASS** |
+### 8. Phân hệ Widget ViewComponent Độc Lập (`ViewComponentTests.cs` - 5 Tests)
+| Mã Test | Tên bài test | Mục tiêu kiểm thử | Dữ liệu đầu vào (Input) | Kết quả kỳ vọng (Expected Output) | Trạng thái |
+| :---: | :--- | :--- | :--- | :--- | :---: |
+| **TC_VCP_01** | `CartSummary_AuthenticatedUser` | Widget giỏ hàng khi người dùng đã đăng nhập | Khách đã login, giỏ có 3 món | Trả về View với Model = 3 (hiển thị số lượng giỏ hàng) | **PASS** |
+| **TC_VCP_02** | `CartSummary_UnauthenticatedUser` | Widget giỏ hàng khi người dùng chưa đăng nhập | Người dùng nặc danh | Trả về View với Model = 0 | **PASS** |
+| **TC_VCP_03** | `VipBadge_VipCustomer` | Huy hiệu VIP khi khách hàng là VIP | Khách có `isVip = true` | Model nhận `true` (render huy hiệu vàng `⭐ VIP` trên Header) | **PASS** |
+| **TC_VCP_04** | `VipBadge_RegularCustomer` | Huy hiệu VIP khi khách hàng là khách thường | Khách có `isVip = false` | Model nhận `false` (ẩn huy hiệu VIP) | **PASS** |
+| **TC_VCP_05** | `VipBadge_UnauthenticatedUser` | Huy hiệu VIP khi chưa đăng nhập | Người dùng nặc danh | Trả về `EmptyContent` (chuỗi rỗng, không render HTML) | **PASS** |
 
 ---
 
-## IV. TỔNG KẾT VÀ KẾT QUẢ THỰC NGHIỆM
+## III. BÁO CÁO KẾT QUẢ THỰC THI (EXECUTION REPORT)
 
-1. **Tổng số ca kiểm thử:**
-   - **35 Ca kiểm thử tự động (Unit Tests)** trên toàn bộ tầng Service, Admin và ViewComponent.
-   - **15 Ca kiểm thử thủ công (Manual Tests)** bao phủ toàn bộ luồng người dùng trên giao diện.
-2. **Tỷ lệ thành công:** **100% (50 / 50 ca kiểm thử ĐẠT - PASS)**.
-3. **Thời gian chạy Unit Test:** ~1.5 - 2.0 giây cho toàn bộ 35 bài test.
-4. **Đánh giá chung:** Hệ thống hoạt động ổn định, chính xác, đáp ứng toàn diện tiêu chí đánh giá đồ án công nghệ phần mềm.
+### 1. Câu lệnh thực thi
+```bash
+dotnet test
+```
+
+### 2. Kết quả kiểm thử thực tế từ CLI
+```text
+Test run for D:\BaiTap\Do_An_LTW\DoAnLTW\DoAnLTW.Tests\bin\Debug\net10.0\DoAnLTW.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed: 0, Passed: 35, Skipped: 0, Total: 35, Duration: 2 s - DoAnLTW.Tests.dll (net10.0)
+```
+
+### 3. Đánh giá chất lượng
+- **Tổng số bài test tự động:** 35 bài test.
+- **Tỷ lệ vượt qua (Pass Rate):** **100% (35 / 35 bài test thành công)**.
+- **Tỷ lệ thất bại (Failed):** 0%.
+- **Thời gian thực thi:** ~2.0 giây.
+- **Kết luận:** Bộ kiểm thử tự động xUnit đã chứng minh toàn bộ logic nghiệp vụ, tính toán tài chính, quản trị CRUD và hiển thị giao diện của đồ án vận hành chính xác tuyệt đối, đáp ứng hoàn hảo tiêu chí đánh giá phần mềm.
