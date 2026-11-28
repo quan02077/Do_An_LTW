@@ -63,6 +63,23 @@
                         <span class="badge @(Model.VaiTro == DoAnLTW.Models.Roles.Admin ? "bg-danger" : "bg-dark") px-3 py-2 rounded-pill fw-medium">
                             <i class="bi @(Model.VaiTro == DoAnLTW.Models.Roles.Admin ? "bi-shield-lock" : "bi-person-check") me-1"></i>@Model.VaiTro
                         </span>
+                        <div class="mt-2 mb-3">
+                            @if (Model.IsVip)
+                            {
+                                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold">
+                                    <i class="bi bi-star-fill text-danger me-1"></i> KHÁCH HÀNG VIP
+                                </span>
+                                <small class="d-block text-success mt-1 small">
+                                    Đã đạt mốc chi tiêu từ 5.000.000 ₫ trở lên
+                                </small>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary px-3 py-2 rounded-pill">
+                                    <i class="bi bi-person me-1"></i> KHÁCH HÀNG THƯỜNG
+                                </span>
+                            }
+                        </div>
                     </div>
 
                     <hr class="my-4 text-muted" />

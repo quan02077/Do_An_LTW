@@ -1,0 +1,5 @@
+@model int
+
+<a asp-controller="Cart" asp-action="Index" class="text-secondary text-decoration-none">
+    <i class="bi bi-bag me-1"></i><span id="cartCountText">Giỏ hàng @(Model > 0 ? $"({Model})" : "")</span>
+</a>

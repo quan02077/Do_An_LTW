@@ -32,7 +32,8 @@ public class OrdersController(
         }
 
         var form = await orderService.GetCheckoutDefaultsAsync(maKh, selectedCart.Items.Select(x => x.MaTui), ct);
-        return View(new CheckoutPageViewModel(selectedCart, form));
+        var isVip = await orderService.IsVipAsync(maKh, ct);
+        return View(new CheckoutPageViewModel(selectedCart, form, isVip));
     }
 
     [HttpPost]
@@ -62,7 +63,8 @@ public class OrdersController(
     private async Task<IActionResult> CheckoutViewAsync(int maKh, CheckoutViewModel request, CancellationToken ct)
     {
         var cart = await cartService.GetAsync(maKh, ct);
-        return View(nameof(Checkout), new CheckoutPageViewModel(cart.Only(request.SelectedMaTui), request));
+        var isVip = await orderService.IsVipAsync(maKh, ct);
+        return View(nameof(Checkout), new CheckoutPageViewModel(cart.Only(request.SelectedMaTui), request, isVip));
     }
 
     [HttpGet]

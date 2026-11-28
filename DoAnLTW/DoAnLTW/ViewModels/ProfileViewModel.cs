@@ -34,6 +34,7 @@ public class ProfileViewModel
 
     public int SoDonHang { get; set; }
     public decimal TongChiTieu { get; set; }
+    public bool IsVip { get; set; }
 }
 
 public class ChangePasswordViewModel

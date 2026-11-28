@@ -1,24 +1,8 @@
-@inject DoAnLTW.Services.ICartService cartService
-@inject DoAnLTW.Services.ICurrentCustomerService currentCustomer
-@{
-    int headerCartCount = 0;
-    if (User.Identity?.IsAuthenticated == true)
-    {
-        var custId = await currentCustomer.GetCustomerIdAsync();
-        if (custId.HasValue)
-        {
-            var cart = await cartService.GetAsync(custId.Value);
-            headerCartCount = cart.TongSoLuong;
-        }
-    }
-}
 <header id="main-header" class="site-header">
     <div class="rowHeader bg-light py-1 px-3 border-bottom">
         <div class="container-fluid px-4 d-flex justify-content-end align-items-center gap-4">
             <div class="tienich">
-                <a asp-controller="Cart" asp-action="Index" class="text-secondary text-decoration-none">
-                    <i class="bi bi-bag me-1"></i><span id="cartCountText">Giỏ hàng @(headerCartCount > 0 ? $"({headerCartCount})" : "")</span>
-                </a>
+                <vc:cart-summary></vc:cart-summary>
             </div>
             <div class="tienich">
                 <a asp-controller="Orders" asp-action="History" class="text-secondary text-decoration-none">
@@ -54,8 +38,8 @@
             <div class="tienich">
                 @if (User.Identity?.IsAuthenticated == true)
                 {
-                    <a asp-controller="Account" asp-action="Profile" class="text-dark fw-semibold text-decoration-none me-2" title="Xem hồ sơ cá nhân">
-                        <i class="bi bi-person-circle text-secondary me-1"></i><span>@(User.Identity?.Name)</span>
+                    <a asp-controller="Account" asp-action="Profile" class="text-dark fw-semibold text-decoration-none me-2 d-inline-flex align-items-center" title="Xem hồ sơ cá nhân">
+                        <i class="bi bi-person-circle text-secondary me-1"></i><span>@(User.Identity?.Name)</span><vc:vip-badge></vc:vip-badge>
                     </a>
                     <span class="text-muted me-2">|</span>
                     <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline" onsubmit="try { localStorage.removeItem('currentUser'); } catch(e) {}">

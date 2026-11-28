@@ -228,6 +228,9 @@ namespace DoAnLTW.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<bool>("isVip")
+                        .HasColumnType("bit");
+
                     b.Property<int>("maTK")
                         .HasColumnType("int");
 

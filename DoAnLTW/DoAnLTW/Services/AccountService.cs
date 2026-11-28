@@ -79,8 +79,15 @@ public class AccountService(DbContext_TuiXach db, IPasswordService passwordServi
 
         if (account is null) return null;
 
-        // chưa có hồ sơ khách hàng: trả form trống để người dùng tự nhập, KHÔNG tự sinh dữ liệu giả.
         var customer = account.KhachHang;
+        var tongChiTieu = customer?.DonHangs.Where(d => d.trangThai != OrderStatus.DaHuy).Sum(d => d.tongTien) ?? 0;
+
+        if(customer != null && !customer.isVip && tongChiTieu >= 5000000)
+        {
+            customer.isVip = true;
+            await db.SaveChangesAsync(ct);    
+        }
+
         return new ProfileViewModel
         {
             MaKH = customer?.maKH ?? 0,
@@ -91,7 +98,8 @@ public class AccountService(DbContext_TuiXach db, IPasswordService passwordServi
             SoDienThoai = customer?.sdt ?? string.Empty,
             DiaChi = customer?.diaChi,
             SoDonHang = customer?.DonHangs.Count ?? 0,
-            TongChiTieu = customer?.DonHangs.Where(d => d.trangThai != OrderStatus.DaHuy).Sum(d => d.tongTien) ?? 0
+            TongChiTieu = customer?.DonHangs.Where(d => d.trangThai != OrderStatus.DaHuy).Sum(d => d.tongTien) ?? 0,
+            IsVip = customer?.isVip ?? (tongChiTieu >= 5_000_000)   
         };
     }
 

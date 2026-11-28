@@ -85,7 +85,26 @@
                 <div class="summary-line"><span>@item.TenTui × @item.SoLuong</span><strong>@item.ThanhTien.ToString("N0") đ</strong></div>
             }
             <hr />
-            <div class="summary-total"><span>Tổng thanh toán</span><strong>@Model.Cart.TongTien.ToString("N0") đ</strong></div>
+            @if (Model.IsVip)
+            {
+                var giamGiaVip = Math.Round(Model.Cart.TongTien * 0.05m);
+                var tongSauGiam = Model.Cart.TongTien - giamGiaVip;
+                <div class="summary-line text-success mb-2">
+                    <span><i class="bi bi-star-fill text-warning me-1"></i>Ưu đãi VIP (-5%)</span>
+                    <strong>-@giamGiaVip.ToString("N0") đ</strong>
+                </div>
+                <div class="summary-total">
+                    <span>Tổng thanh toán</span>
+                    <strong class="text-danger">@tongSauGiam.ToString("N0") đ</strong>
+                </div>
+            }
+            else
+            {
+                <div class="summary-total">
+                    <span>Tổng thanh toán</span>
+                    <strong>@Model.Cart.TongTien.ToString("N0") đ</strong>
+                </div>
+            }
         </aside>
     </form>
 </section>

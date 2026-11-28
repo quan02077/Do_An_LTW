@@ -59,4 +59,4 @@ public record OrderViewModel(
     public string MaHienThi => $"DH{MaDonHang:D2}";
 }
 
-public record CheckoutPageViewModel(CartViewModel Cart, CheckoutViewModel Checkout);
+public record CheckoutPageViewModel(CartViewModel Cart, CheckoutViewModel Checkout, bool IsVip = false);
