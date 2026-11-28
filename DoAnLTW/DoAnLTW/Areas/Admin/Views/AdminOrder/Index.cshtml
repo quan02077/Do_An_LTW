@@ -4,11 +4,11 @@
 
     string GetStatusBadgeClass(string status) => status switch
     {
-        OrderStatus.ChoDuyet => "bg-warning-subtle text-warning-emphasis border border-warning",
-        OrderStatus.DangGiao => "bg-primary-subtle text-primary-emphasis border border-primary",
-        OrderStatus.HoanTat => "bg-success-subtle text-success-emphasis border border-success",
-        OrderStatus.DaHuy => "bg-danger-subtle text-danger-emphasis border border-danger",
-        _ => "bg-secondary-subtle text-secondary-emphasis border border-secondary"
+        OrderStatus.ChoDuyet => "bg-light text-secondary border border-warning",
+        OrderStatus.DangGiao => "bg-light text-secondary border border-primary",
+        OrderStatus.HoanTat => "bg-light text-secondary border border-success",
+        OrderStatus.DaHuy => "bg-light text-secondary border border-danger",
+        _ => "bg-light text-secondary border border-secondary"
     };
 }
 

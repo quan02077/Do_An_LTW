@@ -1,0 +1,31 @@
+@{
+    ViewData["Title"] = "Hỗ trợ khách hàng";
+}
+
+<div class="main-content-wrap">
+    <div class="mb-27">
+        <h3>Hỗ trợ khách hàng</h3>
+    </div>
+
+    <!-- Hộp thư chat thời gian thực với khách (SignalR). Nội dung do support-admin.js dựng bằng textContent. -->
+    <div class="wg-box sc-admin" id="supportInbox">
+        <aside class="sc-list" id="scList" aria-label="Danh sách khách hàng đã nhắn tin">
+            <div class="sc-list-empty" id="scListEmpty">Chưa có khách nào nhắn tin.</div>
+        </aside>
+
+        <section class="sc-chat" aria-label="Cuộc trò chuyện">
+            <div class="sc-chat-head">
+                <strong id="scTitle">Chọn một khách hàng để trả lời</strong>
+                <span id="scSub">Tin nhắn mới của khách hiện ngay ở đây, không cần tải lại trang.</span>
+            </div>
+            <div class="sc-log" id="scLog" role="log" aria-live="polite" aria-relevant="additions">
+                <div class="sc-empty" id="scLogEmpty">Chưa chọn cuộc trò chuyện.</div>
+            </div>
+            <div class="sc-error-bar" id="scError" role="alert" hidden></div>
+            <form class="sc-form" id="scForm" novalidate>
+                <textarea id="scInput" rows="1" maxlength="1000" placeholder="Nhập câu trả lời (Enter để gửi, Shift+Enter xuống dòng)" aria-label="Nhập câu trả lời cho khách" disabled></textarea>
+                <button type="submit" id="scSend" disabled>Gửi</button>
+            </form>
+        </section>
+    </div>
+</div>
